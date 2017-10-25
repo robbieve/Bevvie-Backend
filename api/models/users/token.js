@@ -15,7 +15,7 @@ let tokenSchema = new Schema({
     expiration: {
         type: Date,
         required: true,
-        default: moment().add(1,'day')
+        default: moment().add(1,'year')
     },
 }, {timestamps: true});
 tokenSchema.plugin(mongoosePaginate);

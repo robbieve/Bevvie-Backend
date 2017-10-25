@@ -25,6 +25,11 @@ let mongooseValidators = require('lib/validation/mongooseValidators');
  * @apiParam {Boolean} active=1 user is active (not deleted)
  */
 
+
+/*
+* https://stackoverflow.com/questions/4623974/design-for-facebook-authentication-in-an-ios-app-that-also-accesses-a-secured-we?rq=1
+* */
+
 let userSchema = new Schema({
     facebook_id: {type: String, trim: true},
     firebase_id: {type: String, trim: true},
