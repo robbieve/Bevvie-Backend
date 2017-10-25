@@ -67,7 +67,7 @@ exports.before = function (done) {
         });
     }
     else {
-        setTimeout(function () {
+        waitForServer(function () {
             let promise =  mongoose.connection.dropDatabase();
             promise.then(function(error) {
                 let asyncFunctions = [];
@@ -89,7 +89,7 @@ exports.before = function (done) {
                 winston.error('Error dropping database: '+JSON.stringify(err));
                 process.exit(-1);
             });
-        },2000);
+        });
 
     }
 };
