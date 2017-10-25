@@ -156,6 +156,7 @@ router.route('/:id')
      * @apiGroup Users
      *
      * @apiParam {Number} id id of the user
+     * @apiHeader  {String} register-token Authorization token for registering.
      * @apiDescription This method will update data to Royal Canin if user is type of client.
      *
      * @apiUse UserParameters

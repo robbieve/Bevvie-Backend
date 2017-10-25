@@ -11,63 +11,59 @@ let mongooseValidators = require('lib/validation/mongooseValidators');
 /**
  * @apiDefine UserParameters
  * @apiParam {String} _id id of the object.
- * @apiParam {String} email
- * @apiParam {String} password
+ * @apiParam {String} [facebook_id] facebook id
+ * @apiParam {String} [firebase_id] facebook id
  * @apiParam {String} name
- * @apiParam {String} surname
- * @apiParam {String} [secondSurname]
- * @apiParam {String} [image] id of the image or an image object
- * @apiParam {String} [activationCode] code for activation
- * @apiParam {String[]="admin","client","potentialClient","telemarketing","vetcenter"} roles type of user
- * @apiParam {String} [preferedLanguage] language=es prefered by the user.
- * @apiParam {Object} [activationStatus] statuses of activation. May be empty
- * @apiParam {Boolean} active=1 whether the user is active or not.
+ * @apiParam {Number} age
+ * @apiParam {String} country ISO String
+ * @apiParam {String} [about] About bio
+ * @apiParam {String[]} languages array (ISO) of languages spoken
+ * @apiParam {String} [studies] studies of the user
+ * @apiParam {String[]} [images] array with id of the image or an image object
+ * @apiParam {Boolean} [banned=0] whether the user is banned or not.
+ * @apiParam {Boolean} [about_validated=0] whether the about is validated or not.
+ * @apiParam {Boolean} active=1 user is active (not deleted)
  */
 
 let userSchema = new Schema({
-    email: {
-        type: String,
-        trim: true,
-        lowercase: true,
-        unique: true,
-        required: 'Email address is required',
-        validate: [mongooseValidators.mailValidator, 'Please fill a valid email address for `{PATH}`: (`{VALUE}`) is not valid'],
-    },
-    password: {type: String, required: true},
+    facebook_id: {type: String, trim: true},
+    firebase_id: {type: String, trim: true},
     name: {type: String, required: true, trim: true},
-    surname: {type: String, trim: true},
-    secondSurname: {type: String, trim: true},
-    image: {type: Schema.Types.ObjectId, ref: 'Image'},
-    roles: [{
+    age: {type: Number, required: true},
+    country: {
         type: String,
         enum: {
-            values: constants.roles,
-            message: "value  (`{VALUE}`) not allowed for `{PATH}` , allowed values are " + constants.roles
+            values: constants.allCountries,
+            message: "value  (`{VALUE}`) not allowed for `{PATH}` , allowed values are " + constants.allCountries
         },
         required: true
-    }],
-    preferedLanguage: {
+    },
+    about: {type: String, trim: true},
+    languages: [{
         type: String,
         enum: {
             values: constants.allLanguages,
             message: "value  (`{VALUE}`) not allowed for `{PATH}` , allowed values are " + constants.allLanguages
         },
-        default: "es"
-    },
-
+        required: true
+    }],
+    studies: {type: String, trim: true},
+    images: [{type: Schema.Types.ObjectId, ref: 'Image'}],
+    banned: {type: Boolean, default: false},
+    about_validated: {type: Boolean, default: false},
     active: {type: Boolean, default: true},
     apiVersion: {type: String, required: true, default: config.apiVersion},
 }, {timestamps: true, discriminatorKey: 'userType'});
 userSchema.plugin(mongoosePaginate);
-userSchema.index({'email': 1}, {name: 'emailIndex', unique: true});
-userSchema.index({'userType': 1}, {name: 'userTypeIndex'});
+userSchema.index({'facebook_id': 1,'firebase_id': 1}, {name: 'nameIndex'});
+userSchema.index({'name': 1}, {name: 'nameIndex', unique: true});
+userSchema.index({'age': 1}, {name: 'ageIndex'});
+userSchema.index({'country': 1}, {name: 'countryIndex'});
 userSchema.index({'active': 1}, {name: 'activeIndex'});
-userSchema.index({'$**': 'text'}, {name: 'textIndex', default_language: 'es'});
+userSchema.index({'$**': 'text'}, {name: 'textIndex', default_language: 'en'});
 
 let autoPopulate = function (next) {
-    //this.populate('client');
-    this.populate('origin.user');
-    this.populate('image');
+    this.populate('images');
     this.where({apiVersion: config.apiVersion});
     next();
 };
@@ -92,63 +88,23 @@ userSchema.methods.validPassword = function (password) {
     return bcrypt.compareSync(password, this.password);
 };
 
-// Check roles included
-userSchema.methods.hasRoles = function (roles) {
-    if (!(roles instanceof Array)) {
-        roles = [roles];
-    }
-    let thisUser = this;
-    let found = false;
-    for (const index in roles) {
-        let role = roles[index];
-        if (thisUser.roles.indexOf(role) >= 0) {
-            found = true;
-            break;
-        }
-    }
-    ;
-    return found;
-};
-
 // filter queries
 userSchema.statics.filterQuery = function (user, callback) {
-    if (user.hasRoles([constants.roleNames.admin])) {
+    if (user.admin) {
         return callback(null, {});
     }
-    else if (user.hasRoles([constants.roleNames.vetcenter])) {
+    else  {
         return callback(null, {
             $or: [
-                {"_id": user._id},
-                {
+                {"_id": user._id}
+               /* {
                     $and: [
                         {"origin.user": {$in: [user._id, null]}},
                         {"roles": {$in: [constants.roleNames.client, constants.roleNames.potentialClient]}}
                     ]
-                }
+                }*/
             ]
         });
-    }
-    else if (user.hasRoles([constants.roleNames.telemarketing])) {
-        return callback(null, {
-            $or: [
-                {"_id": user._id},
-                {
-                    $and: [
-                        {"origin.user": {$in: [user._id, null]}},
-                        {"roles": {$in: [constants.roleNames.client, constants.roleNames.potentialClient, constants.roleNames.vetcenter]}}
-                    ]
-                }
-            ]
-        });
-    }
-    else if (user.hasRoles([constants.roleNames.client]) || user.hasRoles([constants.roleNames.potentialClient])) {
-        return callback(null, {_id: user._id});
-    }
-    else {
-        callback({
-            localizedError: 'Not found',
-            rawError: 'user ' + user._id + ' could not match role for query'
-        }, null);
     }
 };
 userSchema.statics.mapObject = function (newDBObject, newObject) {
@@ -166,28 +122,6 @@ userSchema.statics.mapObject = function (newDBObject, newObject) {
     }
     return newDBObject
 };
-userSchema.methods.mapToRoyalCanin = function () {
-    let unixtime = "" + Math.floor(moment().utc() / 1000);
-    let royalCanin = {
-        email: this.email,
-        password: this.royalCaninPassword,
-        companyId: this.country === "ES" ? 1 : 2,
-        appId: config.royalCanin.app_id,
-        clientId: config.royalCanin.client_id,
-        unixTime: unixtime,
-        languageCode: this.country,
-        name: this.name,
-        lastName: this.lastName,
-        mobilePhone: this.phones[0],
-        phoneCountryCode: this.country,
-        postalCode: this.address.postalCode,
-        countryCode: this.country,
-        pets: [
-            // Should be filled by controller
-        ]
-    };
-    return royalCanin
-};
 
 // Other functions
 userSchema.statics.validateObject = function (user, callback) {
@@ -195,7 +129,7 @@ userSchema.statics.validateObject = function (user, callback) {
 };
 
 // Recursively delete user and related info
-// TODO: CREATE RECURSIVE DELETION
+
 userSchema.statics.deleteByIds = function (ids, callback) {
     token.remove({user: {$in: ids}}, function (err, element) {
         if (err) return callback(err);
