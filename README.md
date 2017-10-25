@@ -1,1 +1,1 @@
-This is the planvet project
+This is the Bevvie project backend.

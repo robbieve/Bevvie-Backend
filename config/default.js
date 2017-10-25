@@ -45,8 +45,8 @@ config = {
         port: process.env.PM2_NODEMAILER_PORT,
         secure: process.env.PM2_NODEMAILER_SECURE === "1",
         host: process.env.PM2_NODEMAILER_HOST ? process.env.PM2_NODEMAILER_HOST : "smtp.gmail.com",
-        subject_prefix: process.env.PM2_NODEMAILER_PREFIX ? process.env.PM2_NODEMAILER_PREFIX : "[PREVETPLAN-PRUEBAS]",
-        mailfrom: "PREVETPLAN <notifications@prevetplan.com>",
+        subject_prefix: process.env.PM2_NODEMAILER_PREFIX ? process.env.PM2_NODEMAILER_PREFIX : "[BEVVIE-PRUEBAS]",
+        mailfrom: "BEVVIE <notifications@bevvie.com>",
         mailto: process.env.PM2_NODEMAILER_MAILTO,
     },
     log: {

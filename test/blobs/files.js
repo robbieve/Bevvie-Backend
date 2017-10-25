@@ -31,7 +31,7 @@ let aFile = fs.readFileSync("test/blobs/files/develapps.pdf");
 let adminAFile = fs.readFileSync("test/blobs/files/develapps2.pdf");
 
 
-describe('Files Group', () => {
+describe.skip('Files Group', () => {
     // create users and clients
     before(function (done) {
         commonTestInit.before(function () {

@@ -35,7 +35,7 @@ router.route('/')
     /**
      * @api {post} /image Post new image
      * @apiName PostNewImage
-     * @apiVersion 0.4.0
+     * @apiVersion 0.1.0
      * @apiGroup Images
      *
      * @apiParam {Data} file file to upload
@@ -126,7 +126,7 @@ router.route('/')
     /**
      * @api {get} /images Get images
      * @apiName GetImages
-     * @apiVersion 0.4.0
+     * @apiVersion 0.1.0
      * @apiGroup Images
      *
      * @apiParam {Number} [limit] number of slices to get
@@ -178,7 +178,7 @@ router.route('/:id')
     /**
      * @api {get} /image/id Get image by id
      * @apiName GetImage
-     * @apiVersion 0.4.0
+     * @apiVersion 0.1.0
      * @apiGroup Images
      *
      * @apiParam {Number} id id of the image
@@ -193,7 +193,7 @@ router.route('/:id')
     /**
      * @api {delete} /image/id Delete an image
      * @apiName DeleteImage
-     * @apiVersion 0.4.0
+     * @apiVersion 0.1.0
      * @apiGroup Images
      *
      * @apiParam {String} id file to delete

@@ -26,54 +26,54 @@ module.exports.sendMailToken = function (temporaryToken, callback = function (er
                 else if (newTemporaryToken.user.hasRoles([constants.roleNames.vetcenter])) { userString = "clinic"}
                 else {userString = "client"}
 
-                link = "http://prevetplan.com/activate-"+userString+"/" + newTemporaryToken.code;
+                link = "http://bevvie.com/activate-"+userString+"/" + newTemporaryToken.code;
                 activationText = {
-                    "es": "Hola, estás a punto de activar tu cuenta en PrevetPLAN. Sólo tienes que activar el siguiente link: " + link,
-                    "pt": "Hola, estás a punto de activar tu cuenta en PrevetPLAN. Sólo tienes que activar el siguiente link_PT: " + link,
+                    "es": "Hola, estás a punto de activar tu cuenta en Bevvie. Sólo tienes que activar el siguiente link: " + link,
+                    "pt": "Hola, estás a punto de activar tu cuenta en Bevvie. Sólo tienes que activar el siguiente link_PT: " + link,
                 };
 
                 activationTextHTML = {
-                    "es": "Hola, estás a punto de activar tu cuenta en PrevetPLAN. Sólo tienes que activar el siguiente link: <a href=" + link+">"+link+"</a>",
-                    "pt": "PT_Hola, estás a punto de activar tu cuenta en PrevetPLAN. Sólo tienes que activar el siguiente link: <a href=" + link+">"+link+"</a>"
+                    "es": "Hola, estás a punto de activar tu cuenta en Bevvie. Sólo tienes que activar el siguiente link: <a href=" + link+">"+link+"</a>",
+                    "pt": "PT_Hola, estás a punto de activar tu cuenta en Bevvie. Sólo tienes que activar el siguiente link: <a href=" + link+">"+link+"</a>"
                 };
 
                 subject = {
-                    "es": config.nodemailer.subject_prefix + " Activa tu cuenta en PrevetPLAN",
-                    "pt": config.nodemailer.subject_prefix + " Activa tu cuenta en PrevetPLAN_PT",
+                    "es": config.nodemailer.subject_prefix + " Activa tu cuenta en Bevvie",
+                    "pt": config.nodemailer.subject_prefix + " Activa tu cuenta en Bevvie_PT",
                 };
                 break;
             case constants.verificationTypeNames.resetPassword:
-                link = "http://prevetplan.com/forgot-password/" + newTemporaryToken.code;
+                link = "http://bevvie.com/forgot-password/" + newTemporaryToken.code;
                 activationText = {
-                    "es": "Hola, estás a punto de cambiar la contraseña de tu cuenta en PrevetPLAN. Sólo tienes que activar el siguiente link: " + link,
-                    "pt": "Hola, estás a punto de cambiar la contraseña de tu cuenta en PrevetPLAN. Sólo tienes que activar el siguiente link_PT: " + link,
+                    "es": "Hola, estás a punto de cambiar la contraseña de tu cuenta en Bevvie. Sólo tienes que activar el siguiente link: " + link,
+                    "pt": "Hola, estás a punto de cambiar la contraseña de tu cuenta en Bevvie. Sólo tienes que activar el siguiente link_PT: " + link,
                 };
 
                 activationTextHTML = {
-                    "es": "Hola, estás a punto de cambiar la contraseña de tu cuenta en PrevetPLAN. Sólo tienes que activar el siguiente link: <a href=" + link+">"+link+"</a>",
-                    "pt": "PT_Hola, estás a punto de cambiar la contraseña de tu cuenta en PrevetPLAN. Sólo tienes que activar el siguiente link: <a href=" + link+">"+link+"</a>"
+                    "es": "Hola, estás a punto de cambiar la contraseña de tu cuenta en Bevvie. Sólo tienes que activar el siguiente link: <a href=" + link+">"+link+"</a>",
+                    "pt": "PT_Hola, estás a punto de cambiar la contraseña de tu cuenta en Bevvie. Sólo tienes que activar el siguiente link: <a href=" + link+">"+link+"</a>"
                 };
 
                 subject = {
-                    "es": config.nodemailer.subject_prefix + " Cambia la contraseña de tu cuenta en PrevetPLAN",
-                    "pt": config.nodemailer.subject_prefix + " Cambia la contraseña de tu cuenta en PrevetPLAN_PT",
+                    "es": config.nodemailer.subject_prefix + " Cambia la contraseña de tu cuenta en Bevvie",
+                    "pt": config.nodemailer.subject_prefix + " Cambia la contraseña de tu cuenta en Bevvie_PT",
                 };
                 break;
             case constants.verificationTypeNames.simulatePlan:
-                link = "http://prevetplan.com/simulate/" + newTemporaryToken.code;
+                link = "http://bevvie.com/simulate/" + newTemporaryToken.code;
                 activationText = {
-                    "es": "Hola, estás a punto de ver tu plan de PrevetPLAN. Sólo tienes que ir al siguiente link: " + link,
-                    "pt": "PT_Hola, estás a punto de ver tu plan de PrevetPLAN. Sólo tienes que ir al siguiente link: " + link,
+                    "es": "Hola, estás a punto de ver tu plan de Bevvie. Sólo tienes que ir al siguiente link: " + link,
+                    "pt": "PT_Hola, estás a punto de ver tu plan de Bevvie. Sólo tienes que ir al siguiente link: " + link,
                 };
 
                 activationTextHTML = {
-                    "es": "Hola, estás a punto de ver tu plan de PrevetPLAN. Sólo tienes que ir al siguiente link:  <a href=" + link+">"+link+"</a>",
-                    "pt": "PT_Hola, estás a punto de ver tu plan de PrevetPLAN. Sólo tienes que ir al siguiente link:  <a href=" + link+">"+link+"</a>"
+                    "es": "Hola, estás a punto de ver tu plan de Bevvie. Sólo tienes que ir al siguiente link:  <a href=" + link+">"+link+"</a>",
+                    "pt": "PT_Hola, estás a punto de ver tu plan de Bevvie. Sólo tienes que ir al siguiente link:  <a href=" + link+">"+link+"</a>"
                 };
 
                 subject = {
-                    "es": config.nodemailer.subject_prefix + " Descubre tu plan en PrevetPLAN",
-                    "pt": config.nodemailer.subject_prefix + " Descubre tu plan en PrevetPLAN_PT",
+                    "es": config.nodemailer.subject_prefix + " Descubre tu plan en Bevvie",
+                    "pt": config.nodemailer.subject_prefix + " Descubre tu plan en Bevvie_PT",
                 };
                 break;
             default:
@@ -209,7 +209,6 @@ module.exports.sendCancellationRequest = function (plan, user, callback = functi
         winston.error("MAIL: Cancellation failed mail to "+ user.email + " values " +  JSON.stringify(plan, 0, 2));
     }).attempts(3).backoff({type: 'exponential'}).save(callback);
 };
-
 module.exports.sendDeactivationRequest = function (user, admin, callback = function () {}) {
     let job = kue.createJob("email", {
         title: "EMAIL: Solicitud de cancelación de cuenta para: " + user.email,

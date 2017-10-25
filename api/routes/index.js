@@ -5,12 +5,9 @@ module.exports = function (app) {
     // Routes in all subdirs
     const colors = require('chalk');
     let includes = {
-        "controllers/users": ["login", "register","users","sendlink","rcVetCenters"],
+        "controllers/users": ["login", "register","users"],
         "controllers/blobs": ["images","files"],
-        "controllers/pets": ["pets","breeds"],
-        "controllers/plans": ["plans","treatments","regionPonderations"],
-        "controllers/common": ["regions"],
-
+        "controllers/pets": ["breeds"],
     };
     Object.keys(includes).forEach(function (key) {
         includes[key].forEach(function (aRoute) {

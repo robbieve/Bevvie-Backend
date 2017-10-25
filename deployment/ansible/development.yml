@@ -5,7 +5,7 @@
   vars:
     ansible_user: ubuntu
     ansible_become_method: su
-    app_user: planvet
+    app_user: bevvie
     python_version: python3
   roles:
     - base

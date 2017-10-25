@@ -28,7 +28,7 @@ const mongoose = require('lib/db/mongoose')(function () {
                 }
                 else {
                     winston.info("Images loaded " + Object.keys(imagesLoaded.images).length);
-                    fs.writeFileSync("./bootstrap/planvet/planvet.seedimages.json", JSON.stringify(imagesLoaded, 0, 2));
+                    fs.writeFileSync("./bootstrap/bevvie/bevvie.seedimages.json", JSON.stringify(imagesLoaded, 0, 2));
                 }
                 done()
             });

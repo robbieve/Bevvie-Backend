@@ -4,7 +4,7 @@
   become: yes
   vars:
     ansible_user: ubuntu
-    app_user: planvet
+    app_user: bevvie
     python_version: python3
   roles:
     - base

@@ -1,7 +1,7 @@
 {
-  "name": "PlanVET-Backend",
-  "version": "0.0.1",
-  "description": "PlanVET Backend",
+  "name": "Bevvie-Backend",
+  "version": "0.1.0",
+  "description": "Bevvie Backend",
   "main": "server.js",
   "dependencies": {
     "apidoc": "^0.17.6",
@@ -59,7 +59,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://gitlab.com/develapps/planvet-backend.git"
+    "url": "https://gitlab.com/develapps/bevvie-backend.git"
   },
   "scripts": {
     "freshtall": "npm cache clean --force && rm -rf node_modules && rm -f package-lock.json && npm install",

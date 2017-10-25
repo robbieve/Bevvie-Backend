@@ -38,7 +38,7 @@ router.route('/')
     /**
      * @api {post} /breeds Post new breed
      * @apiName PostNewBreed
-     * @apiVersion 0.3.0
+     * @apiVersion 0.1.0
      * @apiGroup Breeds
      * @apiUse BreedParameters
      * @apiSuccess (201) {String} _id the breed's id
@@ -56,7 +56,7 @@ router.route('/')
     /**
      * @api {get} /breeds Get breeds
      * @apiName GetBreeds
-     * @apiVersion 0.7.0
+     * @apiVersion 0.1.0
      * @apiGroup Breeds
      * @apiHeader  {String} Accept-Language=es Accepted language.
      *

@@ -4,7 +4,7 @@ let async = require("async");
 const md5 = require('md5');
 const config = require('config').aws;
 let path = require('path');
-let basedir = "bootstrap/planvet/images/upload";
+let basedir = "bootstrap/bevvie/images/upload";
 let winston = require('lib/loggers/logger').winston;
 let s3Files = {};
 let glob = require( 'glob' );
@@ -85,13 +85,13 @@ function _loadImage(file, cb) {
             function (fileData, callback) {
                 let image = {};
                 image.imageName = baseName;
-                image.placeholderName = "placeholderplanvet";
+                image.placeholderName = "placeholderbevvie";
                 image.md5 = fileData.identifier;
                 image.contentType = 'image/png';
                 image.s3 = {};
                 image.s3.identifier = fileData.identifier;
                 image.s3.url = fileData.location;
-                image.client = "->clients.planvet";
+                image.client = "->clients.bevvie";
                 let noPointsBase = baseName.replace(/\./g, "_").replace(/[\u0303]/g, 'N');
                 s3Files[noPointsBase] = image;
                 callback(null, image)
@@ -137,7 +137,7 @@ module.exports.loadImages = function (cb) {
                     "imageName": "develapps",
                         "contentType":"image/png",
                         "md5":"fakeMD5",
-                        "client":"->clients.planvet"
+                        "client":"->clients.bevvie"
                 }
             }
             }

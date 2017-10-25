@@ -7,7 +7,7 @@ config = {
         'third-party': false
     },
     'db': {
-        database: process.env.PM2_MONGODB_DATABASE ? process.env.PM2_MONGODB_DATABASE : 'planvet_test',
+        database: process.env.PM2_MONGODB_DATABASE ? process.env.PM2_MONGODB_DATABASE : 'bevvie_test',
         // mssqlConnection :{
         //   user: 'juanjo',
         //   password: 'Develapps15',

@@ -14,7 +14,6 @@ let Token = require('api/models/users/token');
 let dbError = require('lib/loggers/db_error');
 let winston = require("lib/loggers/logger").winston;
 let constants = require("api/common/constants");
-let royal = require("api/controllers/common/royalcaninProvider");
 let config = require("config");
 let moment = require("moment");
 

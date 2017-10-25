@@ -2,7 +2,7 @@ let path = require('path');
 logfile = path.join(__dirname, '../logs/api');
 config = {
     'db': {
-        database: process.env.PM2_MONGODB_DATABASE ? process.env.PM2_MONGODB_DATABASE : 'planvet'
+        database: process.env.PM2_MONGODB_DATABASE ? process.env.PM2_MONGODB_DATABASE : 'bevvie'
     },
     'aws': {
         's3': {

@@ -1,6 +1,6 @@
 config = {
     'db': {
-        database: process.env.PM2_MONGODB_DATABASE ? process.env.PM2_MONGODB_DATABASE : 'planvet_dev',
+        database: process.env.PM2_MONGODB_DATABASE ? process.env.PM2_MONGODB_DATABASE : 'bevvie_dev',
         debug: true
 
     },

@@ -186,7 +186,7 @@ let testDictionary = {
 };
 
 
-describe('Register Group', () => {
+describe.skip('Register Group', () => {
     // Needed to not recreate schemas
     before(function (done) {
         commonTestInit.before(done);

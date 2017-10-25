@@ -14,8 +14,8 @@ const constants = require('api/common/constants');
 // Constants
 
 const files = [
-    {"file": "bootstrap/planvet/data/breedsCats.csv", "species": "Cats"},
-    {"file": "bootstrap/planvet/data/breedsDogs.csv", "species": "Dogs"},
+    {"file": "bootstrap/bevvie/data/breedsCats.csv", "species": "Cats"},
+    {"file": "bootstrap/bevvie/data/breedsDogs.csv", "species": "Dogs"},
 ];
 
 let breedsToLoad = {
@@ -28,11 +28,11 @@ let shouldLoad = ["breeds","admin","telemarketing","vetCenters","potentialClient
 
 let jsonToLoad = {
     breeds: {},
-    pets: require("bootstrap/planvet/data/pets.json"),
-    admin: require("bootstrap/planvet/data/adminUsers.json"),
-    potentialClients: require("bootstrap/planvet/data/potentialClients.json"),
-    telemarketing: require("bootstrap/planvet/data/telemarketing.json"),
-    vetCenters: require("bootstrap/planvet/data/vetCenters.json")
+    pets: require("bootstrap/bevvie/data/pets.json"),
+    admin: require("bootstrap/bevvie/data/adminUsers.json"),
+    potentialClients: require("bootstrap/bevvie/data/potentialClients.json"),
+    telemarketing: require("bootstrap/bevvie/data/telemarketing.json"),
+    vetCenters: require("bootstrap/bevvie/data/vetCenters.json")
 };
 
 

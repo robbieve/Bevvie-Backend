@@ -23,7 +23,7 @@ const breeds = require("api/models/pets/breeds");
 
 let plusMail = "develapps+test@develapps.es";
 
-describe('Login Group', () => {
+describe.skip('Login Group', () => {
     // Needed to not recreate schemas
     before(function (done) {
         commonTestInit.before(function () {

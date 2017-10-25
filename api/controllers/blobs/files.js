@@ -35,7 +35,7 @@ router.route('/')
     /**
      * @api {post} /file Post new file
      * @apiName PostNewFile
-     * @apiVersion 0.4.0
+     * @apiVersion 0.1.0
      * @apiGroup Files
      *
      * @apiParam {Data} file file to upload
@@ -126,7 +126,7 @@ router.route('/')
     /**
      * @api {get} /files Get files
      * @apiName GetFiles
-     * @apiVersion 0.4.0
+     * @apiVersion 0.1.0
      * @apiGroup Files
      *
      * @apiParam {Number} [limit] number of slices to get
@@ -176,7 +176,7 @@ router.route('/:id')
     /**
      * @api {get} /file/id Get file by id
      * @apiName GetFile
-     * @apiVersion 0.4.0
+     * @apiVersion 0.1.0
      * @apiGroup Files
      *
      * @apiParam {Number} id id of the file
@@ -191,7 +191,7 @@ router.route('/:id')
     /**
      * @api {delete} /file/id Delete an file
      * @apiName DeleteFile
-     * @apiVersion 0.4.0
+     * @apiVersion 0.1.0
      * @apiGroup Files
      *
      * @apiParam {String} id file to delete

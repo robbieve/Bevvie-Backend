@@ -12,6 +12,6 @@ node_modules/.cache
 /public/coverage/
 /deployment/ansible/development.retry
 /deployment/ansible/local.retry
-/bootstrap/planvet/images/upload/
+/bootstrap/bevvie/images/upload/
 /backup/
 /public/doc/

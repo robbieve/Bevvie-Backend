@@ -9,16 +9,9 @@ let parseUrlencoded = require('lib/parsers/jsonBodyParser');
 let expressValidator = require('lib/validation/validator');
 // DB
 let User = require('api/models/users/user');
-let AdminUser = require('api/models/users/adminUser');
-let ClientUser = require('api/models/users/clientUser');
-let PotentialClientUser = require('api/models/users/potentiaclientUser');
-let TelemarketingUser = require('api/models/users/telemarketingUser');
-let VetcenterUser = require('api/models/users/vetcenterUser');
 
 let Token = require('api/models/users/token');
 let dbError = require('lib/loggers/db_error');
-
-let royalCanin = require('api/controllers/common/royalcaninProvider');
 
 // load the auth variables
 let configAuth = require('config').auth;
@@ -87,30 +80,6 @@ router.route('/')
                         'rawError': 'user ' + newUser.email + ' exists',
                     });
                     return;
-                }
-
-                if (user.hasRoles([constants.roleNames.admin])) {
-                    let newAdmin = new AdminUser();
-                    user = AdminUser.mapObject(newAdmin, newUser);
-                }
-                else if (user.hasRoles([constants.roleNames.potentialClient])) {
-                    let newClient = new PotentialClientUser();
-                    user = PotentialClientUser.mapObject(newClient, newUser);
-                }
-                else if (user.hasRoles([constants.roleNames.telemarketing])) {
-                    let newClient = new TelemarketingUser();
-                    user = TelemarketingUser.mapObject(newClient, newUser);
-                }
-                else if (user.hasRoles([constants.roleNames.vetcenter])) {
-                    let newClient = new VetcenterUser();
-                    user = VetcenterUser.mapObject(newClient, newUser);
-                }
-                else if (user.hasRoles([constants.roleNames.client])) {
-                    response.status(400).json({
-                        'localizedError': 'Cannot register client users. Please create potential user and transform to client',
-                        'rawError': 'Registering client users not allowed. user: ' + newUser.email,
-                    });
-                    return
                 }
 
                 let random = Math.random().toString(36);
