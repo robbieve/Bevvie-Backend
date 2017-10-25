@@ -159,8 +159,6 @@ router.route('/:id')
      * @apiDescription This method will update data to Royal Canin if user is type of client.
      *
      * @apiUse UserParameters
-     * @apiUse VetCenterParameters
-     * @apiUse PotentialClientParameters
      * @apiSuccess {String} name Name of the user
      * @apiUse ErrorGroup
      */

@@ -102,11 +102,11 @@ backup_mail_options: " development@develapps.es"
 
 # Mailer
 
-nodemailer_user: "development@develapps.es"
-nodemailer_password: "Develapps16"
-nodemailer_subject_prefix: "[BEVVIE-PRUEBAS]"
-nodemailer_host: "smtp.gmail.com"
-nodemailer_port: 465
+nodemailer_user: "notifications@bevvie.com"
+nodemailer_password: "NotifiRoyRC-2017"
+nodemailer_subject_prefix: "[bevvie-PRUEBAS]"
+nodemailer_host: "correo.genetsis.com"
+nodemailer_port: 25
 nodemailer_secure: 1
 nodemailer_mailto: "DEVELAPPS <development@develapps.es>"
 
@@ -119,8 +119,8 @@ royal_app_id: "OTc3NDFBMzUtOUM1RC00QjhCLTg1MjctRjJEOEY5NUM5ODAz"
 
 # Stripe
 
-stripe_public: "invalidPublic"
-stripe_secret: "invalidSecret"
+stripe_public: "pk_test_c65ic4qD7KDOakik3bym4aAo"
+stripe_secret: "sk_test_pZRItgCv2JrS82jSj6VWpAj4"
 
 # Deployment ssh_key
 

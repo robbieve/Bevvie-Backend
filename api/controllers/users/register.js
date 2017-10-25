@@ -44,8 +44,6 @@ router.route('/')
      * create a potential client user and transform it using the suitable endpoint
      *
      * @apiUse UserParameters
-     * @apiUse VetCenterParameters
-     * @apiUse PotentialClientParameters
      *
      * @apiSuccess {String} token access token.
      * @apiUse ErrorGroup

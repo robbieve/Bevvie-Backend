@@ -4,6 +4,10 @@
   register: repo_exists
   tags: [app,deploy_api,deploy_all]
 
+- debug:
+    msg: "repo {{ git_repo }}"
+  tags: [app,deploy_api,deploy_all]
+
 - name: clone repository
   git:
     key_file={{ home_directory }}/.ssh/id_rsa

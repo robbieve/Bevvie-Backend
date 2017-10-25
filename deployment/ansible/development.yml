@@ -12,7 +12,7 @@
     - users
     - mongodb
     - redis
-    - web
+    #- web
     - nginx
     - application
     - pm2
