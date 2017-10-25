@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+export PATH=$PATH:/usr/local/bin/
+DEST_DIR="{{app_directory}}/backup/backups"
+DATE=$(date +%Y-%m-%d-%H%M)
+VAULT={{aws_glacier_vault}}
+FILE="{{app_name}}"$DATE
+LOG=$DEST_DIR/$FILE.log
+mkdir -p $DEST_DIR
+
+function backup() {
+    echo Backing up to $DEST_DIR>$LOG
+    mongodump -u admin -p Develapps16 -o $DEST_DIR/last
+    tar cvfj $DEST_DIR/$FILE.tar.bz2 $DEST_DIR/last>$LOG
+    if [ $(aws glacier list-vaults --account-id -|wc -l) -lt 1 ]
+    then
+        aws glacier create-vault --account-id - --vault-name $VAULT
+    fi
+    aws glacier upload-archive --vault-name $VAULT --account-id - --body $DEST_DIR/$FILE.tar.bz2 --archive-description $FILE
+    if [ $? -eq 0 ]
+    then
+        echo "BACKUP SUCCEED "
+    else
+        echo "BACKUP FAILED! "
+    fi
+    find . -ctime +1 -type f -exec rm -f {} \;
+}
+backup >$LOG 2>>$LOG
+if [ $? -ne 0 ]
+then
+        echo "Error: No se pudo realizar la copia "
+        echo "#BACKUP FAILED $(date)"
+        echo "Error en copia"|mail -s "Error en copia {{app_name}} $(date)" -A $LOG {{backup_mail_options}}
+        exit -1
+else
+        echo "#COPIA CORRECTA, ENVIANDO MAIL A {{backup_mail_options}}"
+        echo "Copia correcta"|mail -s "Copia correcta {{app_name}} $(date)" -A $LOG {{backup_mail_options}}
+fi

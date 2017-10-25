@@ -1,0 +1,21 @@
+---
+
+- hosts: development
+  become: yes
+  vars:
+    ansible_user: ubuntu
+    ansible_become_method: su
+    app_user: planvet
+    python_version: python3
+  roles:
+    - base
+    - users
+    - mongodb
+    - redis
+    - web
+    - nginx
+    - application
+    - pm2
+
+
+

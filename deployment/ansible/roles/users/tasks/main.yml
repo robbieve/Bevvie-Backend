@@ -1,0 +1,23 @@
+---
+- name: create {{ app_user }}
+  user:
+    name={{ app_user }}
+    shell=/bin/bash
+  tags: [users]
+- name: create .ssh directory
+  file:
+    path={{ home_directory }}/.ssh
+    state=directory
+    mode=0755
+  become_user: "{{ app_user }}"
+  tags: [users]
+- name: create deployment private key
+  template:
+    src=deployment_key_private.j2
+    dest={{ home_directory }}/.ssh/id_rsa
+    force=no
+    group={{ app_user }}
+    owner={{ app_user }}
+    mode=0600
+  become_user: "{{ app_user }}"
+  tags: [users]

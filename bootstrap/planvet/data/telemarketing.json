@@ -1,0 +1,17 @@
+{
+  "TelemarketingUser": {
+    "_model": "TelemarketingUser",
+    "telemarketing1": {
+      "email": "telemarketing@telemarketing.es",
+      "password": "telemarketing",
+      "name": "Usuario Telemárketing",
+      "roles": "telemarketing"
+    },
+    "telemarketing2": {
+      "email": "telemarketing2@telemarketing.es",
+      "password": "telemarketing",
+      "name": "Usuario Telemárketing 2",
+      "roles": "telemarketing"
+    }
+  }
+}

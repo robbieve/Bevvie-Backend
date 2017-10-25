@@ -1,0 +1,19 @@
+---
+
+- hosts: staging
+  become: yes
+  vars:
+    ansible_user: ubuntu
+    app_user: planvet
+    python_version: python3
+  roles:
+    - base
+    - users
+    - fail2ban
+    - mongodb
+    - redis
+    - web
+    - nginx
+    - awscli
+    - application
+    - pm2

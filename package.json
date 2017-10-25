@@ -1,0 +1,105 @@
+{
+  "name": "PlanVET-Backend",
+  "version": "0.0.1",
+  "description": "PlanVET Backend",
+  "main": "server.js",
+  "dependencies": {
+    "apidoc": "^0.17.6",
+    "app-module-path": "^2.2.0",
+    "async": "^2.5.0",
+    "aws-sdk": "^2.137.0",
+    "bcrypt-nodejs": "0.0.3",
+    "body-parser": "^1.18.2",
+    "chalk": "^2.2.0",
+    "config": "^1.27.0",
+    "cors": "^2.8.4",
+    "country-data": "0.0.31",
+    "country-language": "^0.1.7",
+    "express": "^4.16.2",
+    "express-validator": "^4.2.1",
+    "gridfs-stream": "^1.1.1",
+    "helmet": "^3.9.0",
+    "kue": "^0.11.6",
+    "md5": "^2.2.1",
+    "moment": "^2.19.1",
+    "mongoose": "^4.12.3",
+    "mongoose-paginate": "^5.x",
+    "mongoose-seeder": "^1.2.1",
+    "morgan": "^1.9.0",
+    "mssql": "^4.1.0",
+    "multer": "^1.3.0",
+    "node-cron": "^1.2.1",
+    "node-mime": "^1.0.0",
+    "nodemailer": "^4.2.0",
+    "nodemon": "^1.12.1",
+    "passport": "^0.4",
+    "passport-facebook": "^2.1.1",
+    "passport-google-oauth": "^1.0.0",
+    "passport-http-bearer": "^1.0.1",
+    "passport-local": "^1.0.0",
+    "passport-twitter": "^1.0.4",
+    "qs": "^6.5.1",
+    "randomstring": "^1.1.5",
+    "redis": "^2.8.0",
+    "require-directory": "^2.1.1",
+    "streamifier": "^0.1.1",
+    "stripe": "^5.1.1",
+    "underscore": "^1.8.3",
+    "util": "^0.x",
+    "winston": "^2.4.0",
+    "xml2js": "^0.4.19"
+  },
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "chai-http": "^3.0.0",
+    "csvtojson": "^1.1.7",
+    "mocha": "^4.0.0",
+    "mocha-junit-reporter": "^1.15.0",
+    "nyc": "^11.2.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://gitlab.com/develapps/planvet-backend.git"
+  },
+  "scripts": {
+    "freshtall": "npm cache clean --force && rm -rf node_modules && rm -f package-lock.json && npm install",
+    "start": "export NODE_ENV=development && nodemon server.js",
+    "test": "export NODE_ENV=test && nyc --reporter=html mocha --recursive   --timeout 15000",
+    "coverage": "export NODE_ENV=test && nyc mocha --recursive  --timeout 10000",
+    "continuous_test": "export NODE_ENV=test && mocha --recursive -w --bail --timeout 15000",
+    "apidoc": "apidoc -e node_modules -e public -i . -o public/doc/",
+    "seed_development": "export NODE_ENV=development && node seed.js",
+    "test_jenkins": "./node_modules/.bin/mocha --recursive --reporter mocha-junit-reporter test/ --timeout 20000"
+  },
+  "nyc": {
+    "check-coverage": true,
+    "per-file": true,
+    "lines": [
+      80,
+      95
+    ],
+    "statements": [
+      80,
+      95
+    ],
+    "functions": [
+      80,
+      95
+    ],
+    "branches": [
+      80,
+      95
+    ],
+    "include": [
+      "api/**/*.js"
+    ],
+    "reporter": [
+      "html",
+      "text-summary"
+    ],
+    "cache": true,
+    "all": true,
+    "report-dir": "./public/coverage"
+  },
+  "license": "UNLICENSED"
+}

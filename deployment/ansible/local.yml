@@ -1,0 +1,21 @@
+---
+
+- hosts: local
+  become: yes
+  vars:
+    ansible_user: vagrant
+    app_user: vagrant
+    python_version: python3
+  vars_files:
+      - "group_vars/local.yml"
+  roles:
+    - base
+    #- users
+    - mongodb
+    - redis
+    - nginx
+    - application
+    - pm2
+
+
+

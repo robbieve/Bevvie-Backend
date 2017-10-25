@@ -1,0 +1,60 @@
+---
+
+- name: Show env
+  debug: msg="setting up {{requirements}}"
+  tags: [base]
+
+- name: Set repo
+  shell: 'curl https://deb.nodesource.com/setup_8.x | sudo -E bash -'
+  tags: [base]
+
+- name: install aptitude
+  apt:
+    pkg=aptitude
+  tags: [base]
+
+- name: update apt cache
+  apt:
+    update_cache: yes
+  when: should_update == True
+  tags: [base, packages]
+
+- name: upgrade apt to the latest packages
+  apt:
+    upgrade: "yes"
+  when: should_update == True
+  tags: [base, packages]
+
+- name: install packages
+  apt:
+    pkg={{ item }}
+    state=present
+  with_items:
+    - vim
+    - mailutils
+    - git-core
+    - python2.7
+    - python-pip
+    - python3-pip
+    - python3-dev
+    - python-virtualenv
+    - virtualenvwrapper
+    - libpq-dev
+    - python-psycopg2
+    - htop
+    - tig
+    - build-essential
+    - libssl-dev
+    - libffi-dev
+    - python-dev
+    - libjpeg8-dev
+    - zlib1g-dev
+    - libfreetype6-dev
+    - ntp
+    - pkg-config
+    - nodejs
+  tags: [base, packages]
+
+- name: Configure sudo for user
+  template: src=su.j2 dest=/etc/pam.d/su backup=yes owner=root group=root mode=0644
+  register: sudo_done

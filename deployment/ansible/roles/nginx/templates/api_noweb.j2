@@ -1,0 +1,52 @@
+upstream api_server_{{ app_name }} {
+    server 127.0.0.1:{{ node_port }};
+     keepalive 64;
+}
+
+server {
+
+    listen {{ nginx_port }};
+    server_name {{ api_domain }};
+
+    client_max_body_size 2G;
+
+    access_log {{ app_directory }}/logs/nginx-access.log;
+    error_log {{ app_directory }}/logs/nginx-error.log;
+
+    location /static/ {
+        alias {{ app_directory }}/public/;
+    }
+
+    location /doc {
+        alias {{ app_directory }}/public/doc/;
+        auth_basic "Restricted";
+        auth_basic_user_file /etc/nginx/.htpasswd;
+    }
+
+    location /coverage {
+        alias {{ app_directory }}/public/coverage/;
+        auth_basic "Restricted";
+        auth_basic_user_file /etc/nginx/.htpasswd;
+    }
+
+    location / {
+	    root /var/www/html;
+    }
+
+    location /api {
+       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+       proxy_set_header Host $http_host;
+       proxy_redirect off;
+       proxy_set_header X-NginX-Proxy true;
+       proxy_http_version 1.1;
+       proxy_set_header Upgrade $http_upgrade;
+       proxy_set_header Connection "upgrade";
+       proxy_max_temp_file_size 0;
+        if (!-f $request_filename) {
+            proxy_pass http://api_server_{{ app_name }};
+            break;
+        }
+    }
+
+
+}

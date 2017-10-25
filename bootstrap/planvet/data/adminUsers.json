@@ -1,0 +1,17 @@
+{
+    "AdminUser": {
+        "_model": "AdminUser",
+        "admin": {
+            "email": "admin@admin.es",
+            "password": "admin",
+            "name": "Administrador de PlanVET",
+            "roles": "admin"
+        },
+        "jcadmin": {
+            "email": "jcadmin@admin.es",
+            "password": "12345678",
+            "name": "Juan Carlos de PlanVET",
+            "roles": "admin"
+        }
+    }
+}

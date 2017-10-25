@@ -1,0 +1,15 @@
+/home/{{app_user}}/.pm2/pm2.log
+/home/{{app_user}}/.pm2/logs/*.log
+{{app_directory}}/logs/pm2-*.log
+{{app_directory}}/logs/access*.log
+{{app_directory}}/logs/api*.log
+{
+        rotate 12
+        daily
+        missingok
+        notifempty
+        compress
+        delaycompress
+        copytruncate
+        create 0640 planvet planvet
+}

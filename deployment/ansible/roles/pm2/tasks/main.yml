@@ -1,0 +1,77 @@
+---
+
+- name: check if pm2 exists
+  stat: path=/usr/bin/pm2
+  register: pm2_exists
+  tags: [pm2]
+
+- name: Install pm2
+  npm:
+    name=pm2
+    global=yes
+    production=yes
+  tags: [pm2]
+  when: should_update == True or pm2_exists.stat.exists == False
+
+- name: Ensure directory exists
+  file:
+    path: "{{ app_directory }}"
+    state: directory
+    group: "{{ app_user }}"
+    owner: "{{ app_user }}"
+
+- name: create config file
+  template:
+    src=pms.config.j2
+    dest={{ app_directory }}/config/pm2.config.js
+    force=yes
+    group={{ app_user }}
+    owner={{ app_user }}
+    mode=0755
+  tags: [pm2]
+
+- block:
+
+  - name: Removing old startup script
+    become: yes
+    command: "pm2 unstartup systemd -u {{ app_user }}"
+    become_user: "root"
+    args:
+       chdir: "{{app_directory}}"
+    ignore_errors: yes
+    tags: [pm2]
+
+  - name: Installing startup script
+    become: yes
+    become_user: "root"
+    command: "pm2 startup ubuntu -u {{ app_user }} --hp /home/{{app_user}}"
+    args:
+       chdir: "{{app_directory}}"
+    tags: [pm2]
+
+  - name: start pm2 process
+    command: 'pm2 startOrGracefulReload {{app_directory}}/config/pm2.config.js --env {{node_env}}'
+    args:
+     chdir: "{{app_directory}}"
+    become: yes
+    become_user: "{{app_user}}"
+    tags: [pm2,deploy_api,deploy_all]
+
+  - name: Saving current status
+    become: yes
+    become_user: "{{ app_user }}"
+    command: "pm2 save"
+    args:
+       chdir: "{{app_directory}}"
+    tags: [pm2]
+
+  - name: Installing logrotate to pm2
+    template:
+      src=pm2_logrotate.j2
+      dest=/etc/logrotate.d/pm2-{{app_user}}
+      force=yes
+      group=root
+      owner=root
+      mode=0644
+    become: yes
+    tags: [pm2]

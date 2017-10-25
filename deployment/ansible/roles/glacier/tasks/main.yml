@@ -1,0 +1,24 @@
+---
+
+- name: Ensure directory exists
+  file:
+    path: "{{ app_directory }}/backup"
+    state: directory
+    group: "{{ app_user }}"
+    owner: "{{ app_user }}"
+  tags: [glacier]
+
+- name: configure glacier backups
+  template:
+    src=backup.j2
+    dest="{{ app_directory }}/backup/backup_db.sh"
+    mode=755
+  tags: [glacier]
+
+- cron:
+    name: "backup database"
+    user: "{{ app_user }}"
+    minute: "0"
+    hour: "3"
+    job: "{{ app_directory }}/backup/backup_db.sh"
+  tags: [glacier]

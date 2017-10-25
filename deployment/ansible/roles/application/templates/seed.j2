@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+export NODE_ENV={{node_env}}
+export PM2_NODE_BASE_TOKEN={{node_base_token}}
+export PM2_NODE_AWS_ACCESS_KEY={{aws_access_key_id}}
+export PM2_NODE_AWS_SECRET_KEY="{{aws_secret_access_key}}"
+export PM2_NODE_AWS_S3_BUCKET={{aws_storage_bucket_name}}
+export PM2_MONGODB_HOST={{mongodb_host}}
+export PM2_MONGODB_PORT={{mongodb_port}}
+export PM2_MONGODB_DATABASE={{mongodb_database}}
+export PM2_MONGODB_USER="{{ mongodb_app_user }}"
+export PM2_MONGODB_PASS="{{ mongodb_app_password }}"
+export BOOTSTRAP_ADMIN_USER={{boostrap_admin}}
+export BOOTSTRAP_ADMIN_PASS={{boostrap_admin_pass}}
+export BOOTSTRAP_USER_USER={{boostrap_user}}
+export BOOTSTRAP_USER_PASS={{boostrap_user_password}}
+node seed.js

@@ -1,0 +1,80 @@
+---
+- name: install package
+  apt:
+    pkg=nginx
+    state=present
+  tags: [nginx]
+
+- name: remove default site
+  file:
+    path=/etc/nginx/sites-{{ item }}/default
+    state=absent
+  with_items:
+    - enabled
+    - available
+  notify: restart nginx
+  tags: [nginx]
+
+- name: configure available sites
+  template:
+    src=api.j2
+    dest="/etc/nginx/sites-available/{{ app_name }}-api"
+  notify: reload nginx
+  when: (web_app == True) and (web_app_same_server == True)
+  tags: [nginx]
+
+- name: configure available sites with no front
+  template:
+    src=api_noweb.j2
+    dest="/etc/nginx/sites-available/{{ app_name }}-api"
+  notify: reload nginx
+  when: (web_app == False) or (web_app_same_server == False)
+  tags: [nginx]
+
+- name: configure logrotate for api / web
+  template:
+    src=logrotate.j2
+    dest="/etc/logrotate.d/nginx-{{ app_name }}"
+  notify: reload nginx
+  tags: [nginx]
+
+# Enable this only if there is a defined different site to setup
+- name: configure web sites
+  template:
+    src=web.j2
+    dest="/etc/nginx/sites-available/{{ app_name }}-front"
+  notify: reload nginx
+  when: (web_app == True) and (web_app_same_server == False)
+  tags: [nginx]
+
+- name: enable sites
+  file:
+    path: "/etc/nginx/sites-enabled/{{ app_name }}-api"
+    src: "/etc/nginx/sites-available/{{ app_name }}-api"
+    state: link
+  notify: reload nginx
+  tags: [nginx]
+
+- name: enable web sites
+  file:
+    path: "/etc/nginx/sites-enabled/{{ app_name }}-front"
+    src: "/etc/nginx/sites-available/{{ app_name }}-front"
+    state: link
+  notify: reload nginx
+  when: (web_app == True) and (web_app_same_server == False)
+  tags: [nginx]
+
+- name: copy htpasswd
+  template:
+    src=htpasswd.j2
+    dest="/etc/nginx/.htpasswd"
+  tags: [nginx]
+
+- name: start service
+  service:
+    name=nginx
+    state=started
+    enabled=yes
+  tags: [nginx]
+
+

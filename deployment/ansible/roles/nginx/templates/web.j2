@@ -1,0 +1,32 @@
+# Caching
+map $sent_http_content_type $expires {
+    default                    off;
+    text/html                  epoch; #means no cache, as it is not a static page
+    text/css                   max;
+#    application/javascript     max;
+    application/woff2          max;
+    {{ web_app_execute_directory }}/assets  30d; #statics
+}
+
+
+server {
+    listen {{ nginx_port }};
+    server_name {{ web_domain }};
+    client_max_body_size 2G;
+    expires $expires;
+
+    access_log {{ web_app_directory }}/logs/nginx-web-access.log;
+    error_log {{ web_app_directory }}/logs/nginx-web-error.log;
+
+    location / {
+        root {{ web_app_execute_directory }};
+        try_files $uri $uri/ /index.html;
+    }
+
+    location ~ /.well-known {
+            allow all;
+            root /var/www/html/;
+    }
+
+}
+

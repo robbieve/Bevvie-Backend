@@ -1,0 +1,17 @@
+logs/*
+isolate-0*
+*.log
+.nyc*
+.idea*
+node_modules/.cache
+/deployment/.vagrant/
+/config/pm2.config.js
+/config/env_noauth.sh
+/config/env.sh
+/bootstrap/seed.sh
+/public/coverage/
+/deployment/ansible/development.retry
+/deployment/ansible/local.retry
+/bootstrap/planvet/images/upload/
+/backup/
+/public/doc/

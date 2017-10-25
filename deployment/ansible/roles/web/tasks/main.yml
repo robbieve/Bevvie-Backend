@@ -1,0 +1,29 @@
+---
+- name: check whether repo exists
+  stat: path={{ web_app_directory }}
+  register: repo_exists
+  tags: [app,deploy_web,deploy_all]
+
+- name: clone repository
+  git:
+    key_file={{ home_directory }}/.ssh/id_rsa
+    repo={{ git_web_repo }}
+    dest={{ web_app_directory }}
+    accept_hostkey=yes
+    version={{ repo_branch }}
+  become_user: "{{ app_user }}"
+  when:
+    should_clone_repo and repo_exists.stat.exists == False
+  tags: [app,deploy_web,deploy_all]
+
+- name: pull repo for updates
+  shell: "git pull"
+  become_user: "{{ app_user }}"
+  args:
+     chdir: "{{web_app_directory}}"
+  when: should_clone_repo and repo_exists.stat.exists == True
+  tags: [app,deploy_web,deploy_all]
+
+- name: Create logs directory
+  file: path={{ web_app_directory }}/logs state=directory
+  become_user: "{{ app_user }}"

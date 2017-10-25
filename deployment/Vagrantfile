@@ -1,0 +1,33 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure(2) do |config|
+
+  config.vm.box = "bento/ubuntu-16.04"
+
+  config.vm.provider "virtualbox" do |v|
+    v.memory = 2048
+    v.cpus = 2
+  end
+
+  config.vm.define "local" do |local|
+
+    local.vm.hostname = "local"
+
+    local.vm.network "private_network", ip: "10.0.0.2"
+
+    local.vm.synced_folder "..", "/vagrant", disabled: true
+    local.vm.synced_folder "..", "/home/vagrant/planvet"
+
+    local.vm.provision "ansible" do |ansible|
+      ansible.playbook = "ansible/local.yml"
+      ansible.sudo = true
+      ansible.ask_vault_pass=false
+      ansible.host_vars = {
+          "requirements" => "local"
+      }
+    end
+
+  end
+
+end

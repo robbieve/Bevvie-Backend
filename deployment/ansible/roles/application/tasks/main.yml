@@ -1,0 +1,63 @@
+---
+- name: check if repo exists
+  stat: path="{{ app_directory }}/.git"
+  register: repo_exists
+  tags: [app,deploy_api,deploy_all]
+
+- name: clone repository
+  git:
+    key_file={{ home_directory }}/.ssh/id_rsa
+    repo={{ git_repo }}
+    dest={{ app_directory }}
+    accept_hostkey=yes
+    version={{ repo_branch }}
+    force=yes
+    update=yes
+  become_user: "{{ app_user }}"
+  when:
+    should_clone_repo and repo_exists.stat.exists == False
+  register: git_finished
+  tags: [app,deploy_api,deploy_all]
+
+- name: pull repo for updates
+  shell: "git pull"
+  become_user: "{{ app_user }}"
+  args:
+     chdir: "{{app_directory}}"
+  when: should_clone_repo and repo_exists.stat.exists == True
+  tags: [app,deploy_api,deploy_all]
+
+- name: Update npm
+  command: 'npm install npm@latest -g'
+  args:
+   chdir: "{{app_directory}}"
+  when: should_update == True
+  tags: [app]
+
+- name: Running NPM install packages
+  npm: path={{app_directory}}
+  register: npm_finished
+  become_user: "{{ app_user }}"
+  when: should_clone_repo == True and git_finished.changed or should_update == True
+  tags: [app]
+
+- name: Install apidoc
+  npm:
+    name: apidoc
+    path: "{{app_directory}}"
+  when: requirements == 'local' or requirements == 'development'
+  become_user: "{{ app_user }}"
+  tags: [app,deploy_api,deploy_all]
+
+- name: Update documentation
+  command: 'npm run apidoc'
+  args:
+   chdir: "{{app_directory}}"
+  when: requirements == 'staging' or requirements == 'development'
+  become_user: "{{ app_user }}"
+  tags: [app,deploy_api,deploy_all]
+
+- name: Configure bootstrapping
+  template: src=seed.j2 dest={{app_directory}}/bootstrap/seed.sh owner={{app_user}} group={{app_user}} mode=0755
+  register: config_result
+  tags: [app]

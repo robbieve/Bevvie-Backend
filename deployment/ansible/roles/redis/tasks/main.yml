@@ -1,0 +1,126 @@
+---
+
+- name: Check if redis exists
+  stat:
+    path: /usr/local/bin/redis-server
+  register: redis_exists
+
+- name: If redis 
+  file:
+    path: /etc/file.txt
+    state: touch
+  when: redis_exists.stat.exists == False 
+
+
+- name: update apt
+  apt: update_cache=yes
+  tags: [redis]
+  when: should_update == True or redis_exists.stat.exists == False
+
+- name: ensure packages installed
+  apt: pkg={{ item }} state=latest
+  with_items:
+    - make
+    - build-essential
+    - tcl8.5
+  tags: [redis]
+  when: should_update == True or redis_exists.stat.exists == False
+
+- name: download latest stable redis
+  get_url: url=http://download.redis.io/redis-stable.tar.gz dest=/tmp/redis-stable.tar.gz
+  tags: [redis]
+  when: should_update == True or redis_exists.stat.exists == False
+
+- name: untar redis
+  command: tar zxf /tmp/redis-stable.tar.gz -C /tmp
+  tags: [redis]
+  when: should_update == True or redis_exists.stat.exists == False
+
+- name: build redis
+  command: make -C /tmp/redis-stable
+  tags: [redis]
+  when: should_update == True or redis_exists.stat.exists == False
+
+- name: make sure that /etc/redis exists
+  file: path=/etc/redis state=directory mode=0755
+  tags: [redis]
+  when: should_update == True or redis_exists.stat.exists == False
+
+- name: make sure that /var/db/redis exists
+  file: path=/var/db/redis state=directory mode=0755  owner={{ ansible_user }}
+  tags: [redis]
+  
+- name: make sure redis.log file exists
+  file:
+    path: /var/log/redis.log
+    state: touch
+    owner: "{{ ansible_user }}"
+  tags: [redis]
+
+
+# PREPARE SERVICE
+
+- name: create redis systemd service
+  template:
+    src: redis.service.j2
+    dest: /etc/systemd/system/redis.service
+    mode: 0644
+  register: redis_unit_file
+  when: redis_exists.stat.exists == False
+
+- name: reload systemd daemon
+  command: systemctl daemon-reload
+  when:
+    - redis_unit_file|changed
+
+- name: copy redis.conf.js file
+  template:
+    src=redis.conf.j2
+    dest=/etc/redis/redis.conf
+    force=yes
+    group={{ ansible_user }}
+    owner={{ ansible_user }}
+    mode=0644
+  tags: [redis]
+  when: should_update == True or redis_exists.stat.exists == False
+
+
+- name: ensure redis service is stopped before updating
+  service: name=redis state=stopped enabled=yes
+  when: should_update == True or redis_exists.stat.exists == False
+  tags: [redis]
+
+- name: installing redis binaries
+  command: cp /tmp/redis-stable/src/{{ item }} /usr/local/bin
+  with_items:
+    - redis-server
+    - redis-cli
+    - redis-check-aof
+    - redis-sentinel
+    - redis-benchmark
+    - redis-check-rdb
+    - redis-check-aof
+  tags: [redis]
+  when: should_update == True or redis_exists.stat.exists == False
+
+- name: cleaning up build files
+  command: rm -rf /tmp/{{ item }}
+  with_items:
+    - redis-stable
+    - redis-stable.tar.gz
+  tags: [redis]
+  when: should_update == True or redis_exists.stat.exists == False
+
+- name: ensure redis service is restarted
+  service: name=redis state=started enabled=yes
+  tags: [redis]
+
+- name: Install Redis module from PIP
+  pip: name=redis state=latest
+  tags: [redis]
+
+- name: Flush redis cache
+  redis:
+    command: flush
+    flush_mode: all
+  tags: [redis]
