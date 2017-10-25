@@ -5,7 +5,7 @@
 192.168.1.253 ansible_ssh_private_key_file=~/.ssh/develapps.pem
 
 [staging]
-54.76.173.137 ansible_ssh_private_key_file=~/.ssh/bevvie-staging.pem ansible_python_interpreter=/usr/bin/python2.7
+192.168 ansible_ssh_private_key_file=~/.ssh/bevvie-staging.pem ansible_python_interpreter=/usr/bin/python2.7
 
 [production]
 166.92 ansible_ssh_private_key_file=~/.ssh/bevvie-production.pem ansible_python_interpreter=/usr/bin/python2.7
