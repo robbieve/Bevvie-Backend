@@ -20,10 +20,7 @@ let breedSchema = new Schema({
     species: {
         type: String,
         required: true,
-        enum: {
-            values: constants.species,
-            message: "value  (`{VALUE}`) not allowed for `{PATH}` , allowed values are " + constants.species
-        }
+
     },
     common:{
         type: Boolean,
@@ -34,10 +31,6 @@ let breedSchema = new Schema({
             localizedName: {type: String, required: true, trim: true},
             language: {
                 type: String,
-                enum: {
-                    values: constants.allLanguages,
-                    message: "value  (`{VALUE}`) not allowed for `{PATH}` , allowed values are " + constants.allLanguages
-                }
             },
         }],
         required: true

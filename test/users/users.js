@@ -39,9 +39,6 @@ let unixtime = "" + Math.floor(moment().utc() / 10);
 let imageId = "";
 let fakeObjectId = "590c5df8f7145e88b3c498a9";
 let constants = require("api/common/constants");
-
-let registeredMail = commonTestUtils.registeredMail;
-let registeredPass = commonTestUtils.registeredPass;
 let redis = require("lib/redis/redis");
 let config = require("config");
 let winston = require('lib/loggers/logger').winston;
@@ -88,7 +85,7 @@ describe.skip('Users Group', () => {
                     },
                     function (isDone) {
                         // Potential client
-                        let temp = JSON.parse(JSON.stringify(commonTestUtils.userConstants.potentialClient));
+                        let temp = JSON.parse(JSON.stringify(commonTestUtils.userConstants.userOne));
                         commonTestUtils.test_createUser(server, temp, function (aToken, adUserid) {
                             token = aToken;
                             userid = adUserid;
@@ -140,7 +137,7 @@ describe.skip('Users Group', () => {
                     },
                     function (isDone) {
                         // inactive USer
-                        let temp2 = JSON.parse(JSON.stringify(commonTestUtils.userConstants.potentialClient));
+                        let temp2 = JSON.parse(JSON.stringify(commonTestUtils.userConstants.userOne));
                         temp2.email = "inactive@inactive.es";
                         temp2.active = false;
                         commonTestUtils.test_createUser(server, temp2, function (aToken, adUserid) {
@@ -149,7 +146,7 @@ describe.skip('Users Group', () => {
                     },
                     function (isDone) {
                         // related to CV user
-                        let temp3 = JSON.parse(JSON.stringify(commonTestUtils.userConstants.potentialClient));
+                        let temp3 = JSON.parse(JSON.stringify(commonTestUtils.userConstants.userOne));
                         temp3.email = registeredMail;
                         temp3.origin = {
                             user: vetUserId,
@@ -163,7 +160,7 @@ describe.skip('Users Group', () => {
                     },
                     function (isDone) {
                         // Related to telemarketing user
-                        let temp3 = JSON.parse(JSON.stringify(commonTestUtils.userConstants.potentialClient));
+                        let temp3 = JSON.parse(JSON.stringify(commonTestUtils.userConstants.userOne));
                         temp3.email = "development+tm" + unixtime + "@develapps.es";
                         temp3.origin = {
                             user: teleUserId,
@@ -591,7 +588,7 @@ describe.skip('Users Group', () => {
                     chai.request(server)
                         .get(endpoint)
                         .query({
-                            'userType': constants.roleNames.potentialClient, 'sort': {
+                            'userType': constants.roleNames.userOne, 'sort': {
                                 "field": "origin",
                                 "order": constants.sortOrderNames.desc
                             }
@@ -605,7 +602,7 @@ describe.skip('Users Group', () => {
                                 chai.request(server)
                                     .get(endpoint)
                                     .query({
-                                        'userType': constants.roleNames.potentialClient, 'sort': {
+                                        'userType': constants.roleNames.userOne, 'sort': {
                                             "field": "origin",
                                             "order": constants.sortOrderNames.asc
                                         }
@@ -699,7 +696,7 @@ describe.skip('Users Group', () => {
                     },
                     function (isDone) {
                         // Potential client
-                        let temp = JSON.parse(JSON.stringify(commonTestUtils.userConstants.potentialClient));
+                        let temp = JSON.parse(JSON.stringify(commonTestUtils.userConstants.userOne));
                         commonTestUtils.test_createUser(server, temp, function (aToken, adUserid) {
                             token = aToken;
                             userid = adUserid;
@@ -751,7 +748,7 @@ describe.skip('Users Group', () => {
                     },
                     function (isDone) {
                         // inactive USer
-                        let temp2 = JSON.parse(JSON.stringify(commonTestUtils.userConstants.potentialClient));
+                        let temp2 = JSON.parse(JSON.stringify(commonTestUtils.userConstants.userOne));
                         temp2.email = "inactive@inactive.es";
                         temp2.active = false;
                         commonTestUtils.test_createUser(server, temp2, function (aToken, adUserid) {
@@ -760,7 +757,7 @@ describe.skip('Users Group', () => {
                     },
                     function (isDone) {
                         // related to CV user
-                        let temp3 = JSON.parse(JSON.stringify(commonTestUtils.userConstants.potentialClient));
+                        let temp3 = JSON.parse(JSON.stringify(commonTestUtils.userConstants.userOne));
                         temp3.email = registeredMail;
                         temp3.origin = {
                             user: vetUserId,
@@ -774,7 +771,7 @@ describe.skip('Users Group', () => {
                     },
                     function (isDone) {
                         // Related to telemarketing user
-                        let temp3 = JSON.parse(JSON.stringify(commonTestUtils.userConstants.potentialClient));
+                        let temp3 = JSON.parse(JSON.stringify(commonTestUtils.userConstants.userOne));
                         temp3.email = "development+tm" + unixtime + "@develapps.es";
                         temp3.origin = {
                             user: teleUserId,
@@ -901,7 +898,7 @@ describe.skip('Users Group', () => {
                 },
                 function (isDone) {
                     // Potential client
-                    let temp = JSON.parse(JSON.stringify(commonTestUtils.userConstants.potentialClient));
+                    let temp = JSON.parse(JSON.stringify(commonTestUtils.userConstants.userOne));
                     commonTestUtils.test_createUser(server, temp, function (aToken, adUserid) {
                         token = aToken;
                         userid = adUserid;
@@ -930,7 +927,7 @@ describe.skip('Users Group', () => {
                 },
                 function (isDone) {
                     // inactive USer
-                    let temp2 = JSON.parse(JSON.stringify(commonTestUtils.userConstants.potentialClient));
+                    let temp2 = JSON.parse(JSON.stringify(commonTestUtils.userConstants.userOne));
                     temp2.email = "inactive@inactive.es";
                     temp2.active = false;
                     commonTestUtils.test_createUser(server, temp2, function (aToken, adUserid) {
@@ -939,7 +936,7 @@ describe.skip('Users Group', () => {
                 },
                 function (isDone) {
                     // related to CV user
-                    let temp3 = JSON.parse(JSON.stringify(commonTestUtils.userConstants.potentialClient));
+                    let temp3 = JSON.parse(JSON.stringify(commonTestUtils.userConstants.userOne));
                     temp3.email = "relatedUser@related.com";
                     temp3.origin = {
                         user: vetUserId,
@@ -953,7 +950,7 @@ describe.skip('Users Group', () => {
                 },
                 function (isDone) {
                     // Related to telemarketing user
-                    let temp3 = JSON.parse(JSON.stringify(commonTestUtils.userConstants.potentialClient));
+                    let temp3 = JSON.parse(JSON.stringify(commonTestUtils.userConstants.userOne));
                     temp3.email = "relatedTMUser@related.com";
                     temp3.origin = {
                         user: teleUserId,

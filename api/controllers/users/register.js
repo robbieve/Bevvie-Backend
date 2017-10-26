@@ -38,7 +38,7 @@ router.route('/')
      * parameters suitable for a concrete type are detailed as part of that type.
      *
      * The method will look at "roles" object to find if it finds a suitable user role. Therefore depending on that
-     * it will register an admin, potentialClient, telemarketing or vetcenter.
+     * it will register an admin, userOne, telemarketing or vetcenter.
      *
      * This method will *not* register final client user. To register a final client
      * create a potential client user and transform it using the suitable endpoint
@@ -54,13 +54,7 @@ router.route('/')
             response.status(401).json({'localizedError': 'Not Authorized', 'rawError': 'No authorization token'});
             return
         }
-        request.checkBody('email', 'No valid email provided').notEmpty().isEmail();
         request.checkBody('name', 'No valid name provided').notEmpty();
-        request.checkBody('password', 'No valid password provided').notEmpty();
-        request.checkBody('preferedLanguage', 'No valid preferedLanguage provided').optional().isIn(constants.allLanguages);
-        request.checkBody('roles', 'No valid roles provided').notEmpty().isPrototypeOf(Array);
-        request.checkBody('image', 'No valid image provided').optional().isObjectId();
-        request.checkBody('origin.user', 'No valid related user provided').optional().isObjectId();
         request.getValidationResult().then(function (result) {
             if (!result.isEmpty()) {
                 response.status(400).json(result.array()[0]);
@@ -68,8 +62,6 @@ router.route('/')
             }
 
             let newUser = request.body;
-            newUser.email = newUser.email.toLowerCase();
-
             User.findOne({email: newUser.email}, function (err, userFound) {
                 let user = User.mapObject(null, newUser);
                 if (userFound) {

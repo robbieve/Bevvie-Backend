@@ -13,7 +13,9 @@ let adminId = "";
 
 // tests
 
-let testDictionary = {
+let testDictionary = {};
+
+/*let testDictionary = {
     "admin": {
         "good": commonTestUtils.userConstants.admin,
         "goodVariants":
@@ -30,7 +32,7 @@ let testDictionary = {
     },
     // cannot register client users
     "potentialClient": {
-        "good": commonTestUtils.userConstants.potentialClient,
+        "good": commonTestUtils.userConstants.userOne,
         "goodVariants":
             {
                 "phones": [
@@ -185,6 +187,7 @@ let testDictionary = {
     },
 };
 
+*/
 
 describe.skip('Register Group', () => {
     // Needed to not recreate schemas

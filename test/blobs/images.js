@@ -47,7 +47,7 @@ describe.skip('Images Group', () => {
                             });
                         },
                         function (callback) {
-                            commonTestUtils.test_createUser(server, commonTestUtils.userConstants.potentialClient, function (aToken, adUserid) {
+                            commonTestUtils.test_createUser(server, commonTestUtils.userConstants.userOne, function (aToken, adUserid) {
                                 token = aToken;
                                 userid = adUserid;
                                 callback(null, 'result');

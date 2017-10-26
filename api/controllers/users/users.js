@@ -8,7 +8,6 @@ const jsonParser = require('lib/parsers/jsonBodyParser');
 
 // DB
 let User = require('api/models/users/user');
-let TemporaryToken = require('api/models/users/temporaryTokens');
 
 let dbError = require('lib/loggers/db_error');
 let redis = require('lib/redis/redis');
@@ -44,7 +43,7 @@ router.route('/')
      * @apiParam {String} email text to match on user's name
      * @apiParam {String} text text search on user
      * @apiParam {Object[]} [sort] sort struct array
-     * @apiParam {String="admin","telemarketing","client","vetcenter","potentialClient"} userType user type to match
+     * @apiParam {String="admin","telemarketing","client","vetcenter","userOne"} userType user type to match
      * @apiParam {String="createdAt","origin","city","name","email"} sort.field=createdAt field to sort with
      * @apiParam {String="asc","desc"} sort.order=asc whether to sort ascending or descending
      * @apiParam {String="true","false","all"} active=true match active users or not
@@ -308,7 +307,7 @@ router.route('/:id')
      * @apiVersion 0.0.1
      * @apiGroup Users
      * @apiUse AuthorizationTokenHeader
-     * 
+     *
      * @apiParam {Number} id id of the user
      *
      */

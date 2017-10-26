@@ -26,8 +26,8 @@ let teleToken = "";
 let teleId = "";
 
 let breed = {};
-
-
+let testDictionary = {};
+/*
 let testDictionary = {
     Breed: {
         good: commonTestUtils.breedConstants.Breed,
@@ -53,6 +53,7 @@ let testDictionary = {
     }
 };
 
+*/
 describe.skip('Breeds Group', () => {
     // Needed to not recreate schemas
     before(function (done) {
@@ -91,7 +92,7 @@ describe.skip('Breeds Group', () => {
                 });
             },
             function (doneFunc) {
-                let values = JSON.parse(JSON.stringify(commonTestUtils.userConstants.potentialClient));
+                let values = JSON.parse(JSON.stringify(commonTestUtils.userConstants.userOne));
                 values.email = "good@client.com";
                 values.origin.user = adminId;
                 commonTestUtils.test_createUser(server, values, function (token, userId) {

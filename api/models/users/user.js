@@ -11,8 +11,9 @@ let mongooseValidators = require('lib/validation/mongooseValidators');
 /**
  * @apiDefine UserParameters
  * @apiParam {String} _id id of the object.
- * @apiParam {String} [facebook_id] facebook id
- * @apiParam {String} [firebase_id] facebook id
+ * @apiParam {String} [accessID] id of the auth service
+ * @apiParam {String} [accessKey] token of the auth service
+ * @apiParam {String="facebook","firebase","password"} [accessType=password] type of auth
  * @apiParam {String} name
  * @apiParam {Number} age
  * @apiParam {String} country ISO String
@@ -23,6 +24,7 @@ let mongooseValidators = require('lib/validation/mongooseValidators');
  * @apiParam {Boolean} [banned=0] whether the user is banned or not.
  * @apiParam {Boolean} [about_validated=0] whether the about is validated or not.
  * @apiParam {Boolean} active=1 user is active (not deleted)
+ * @apiParam {Boolean} admin=0 user is admin
  */
 
 /**
@@ -40,8 +42,16 @@ let mongooseValidators = require('lib/validation/mongooseValidators');
 * */
 
 let userSchema = new Schema({
-    facebook_id: {type: String, trim: true},
-    firebase_id: {type: String, trim: true},
+    accessID: {type: String, trim: true},
+    accessKey: {type: String, trim: true},
+    accessType: {
+        type: String,
+        enum: {
+            values: constants.users.accessTypes,
+            message: "value  (`{VALUE}`) not allowed for `{PATH}` , allowed values are " + constants.users.accessTypes
+        },
+        required: true,
+    },
     name: {type: String, required: true, trim: true},
     age: {type: Number, required: true},
     country: {
@@ -50,7 +60,7 @@ let userSchema = new Schema({
             values: constants.allCountries,
             message: "value  (`{VALUE}`) not allowed for `{PATH}` , allowed values are " + constants.allCountries
         },
-        required: true
+        required: true,
     },
     about: {type: String, trim: true},
     languages: [{
@@ -66,6 +76,7 @@ let userSchema = new Schema({
     banned: {type: Boolean, default: false},
     about_validated: {type: Boolean, default: false},
     active: {type: Boolean, default: true},
+    admin: {type: Boolean, default: false},
     apiVersion: {type: String, required: true, default: config.apiVersion},
 }, {timestamps: true, discriminatorKey: 'userType'});
 userSchema.plugin(mongoosePaginate);
@@ -114,7 +125,7 @@ userSchema.statics.filterQuery = function (user, callback) {
                /* {
                     $and: [
                         {"origin.user": {$in: [user._id, null]}},
-                        {"roles": {$in: [constants.roleNames.client, constants.roleNames.potentialClient]}}
+                        {"roles": {$in: [constants.roleNames.client, constants.roleNames.userOne]}}
                     ]
                 }*/
             ]

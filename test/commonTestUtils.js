@@ -188,7 +188,7 @@ exports.test_prepareBreeds = function(callback){
     });
 };
 exports.test_prepareRelatedCVUser = function (server,admin ,callback) {
-    let user = JSON.parse(JSON.stringify(exports.userConstants.potentialClient));
+    let user = JSON.parse(JSON.stringify(exports.userConstants.userOne));
     user.email =exports.registeredMail;
     user.password = exports.registeredPass;
     let adminToken, token, vetCenter;
@@ -271,7 +271,7 @@ exports.test_prepareRelatedCVUser = function (server,admin ,callback) {
     });
 };
 exports.test_prepareFinalUserWithDog = function (server,admin, dogBreeds,callback) {
-    let user = JSON.parse(JSON.stringify(exports.userConstants.potentialClient));
+    let user = JSON.parse(JSON.stringify(exports.userConstants.userOne));
     user.email =exports.registeredMail;
     user.password = exports.registeredPass;
     let adminToken, token, vetCenter,aDog;
@@ -326,7 +326,7 @@ exports.test_prepareFinalUserWithDog = function (server,admin, dogBreeds,callbac
     });
 };
 exports.test_prepareFinalUserWithDogAndCreditCard = function (server,admin, dogBreeds,callback) {
-    let user = JSON.parse(JSON.stringify(exports.userConstants.potentialClient));
+    let user = JSON.parse(JSON.stringify(exports.userConstants.userOne));
     user.email =exports.registeredMail;
     user.password = exports.registeredPass;
     let adminToken, token, vetCenter,aDog;
@@ -371,7 +371,7 @@ exports.test_prepareFinalUserWithDogAndCreditCard = function (server,admin, dogB
     });
 };
 exports.test_createFinalUserWithPlan = function (server, admin, dogBreeds,callback) {
-    let user = JSON.parse(JSON.stringify(exports.userConstants.potentialClient));
+    let user = JSON.parse(JSON.stringify(exports.userConstants.userOne));
     user.email =exports.registeredMail;
     user.password = exports.registeredPass;
     let adminToken, token, vetCenter, aDog;
@@ -420,7 +420,7 @@ exports.test_createFinalUserWithPlan = function (server, admin, dogBreeds,callba
     });
 };
 exports.test_createFinalUserWithActivePlan = function (server, admin, dogBreeds,callback) {
-    let user = JSON.parse(JSON.stringify(exports.userConstants.potentialClient));
+    let user = JSON.parse(JSON.stringify(exports.userConstants.userOne));
     user.email =exports.registeredMail;
     user.password = exports.registeredPass;
     let adminToken, token, vetCenter, aDog;
@@ -469,197 +469,19 @@ exports.test_createFinalUserWithActivePlan = function (server, admin, dogBreeds,
 
 exports.userConstants = {
     "admin": {
-        'email': 'admin@admin.es',
-        'password': 'admin',
         'name': 'admin',
-        'roles': constants.roleNames.admin,
+        "age":20,
+        'country': "ES",
+        "languages": ["es","en"],
+        "accessType": constants.users.accessTypeNames.password,
+        "accessKey": "passw0rd",
+        'admin': true,
     },
-    "client": {
-        'email': 'client@client.es',
-        'password': 'passw0rd',
-        'name': 'test',
-        'roles': constants.roleNames.client,
-        'phones': [666777555],
-        'cardId': "20241063M",
-        'royalCaninCode': "aCode",
-        'address': {
-            'address': 'Calle',
-            'city': 'Valencia',
-            'region': 'Valencia',
-            'country': 'Spain',
-            'postalCode': "46021",
-
-        },
-        'statuses': [
-            {
-                status: constants.statusNames.pending
-            }
-        ],
-        'origin': {
-            originType: constants.originNames.originWeb
-        },
-
-    },
-    "potentialClient": {
-        'email': 'potentialclient@potentialclient.es',
-        'password': 'test',
-        'name': 'test',
-        'roles': constants.roleNames.potentialClient,
-        'phones': [666777555],
-        'address': {
-            'address': 'Calle',
-            'city': 'Valencia',
-            'region': 'Valencia',
-            'country': 'Spain',
-            'postalCode': "46021",
-        },
-        'statuses': [
-            {
-                status: constants.statusNames.pending
-            }
-        ],
-        'origin': {
-            originType: constants.originNames.originWeb
-        },
-    },
-    "telemarketing": {
-        'email': 'telemarketing@telemarketing.es',
-        'password': 'telemarketing',
-        'name': 'telemarketing',
-        'roles': constants.roleNames.telemarketing,
-        'origin': {
-            originType: constants.originNames.originTelemarketing
-        },
-    },
-    "vetcenter": {
-        'email': 'vetcenter@vetcenter.es',
-        'password': 'vetcenter',
-        'name': 'vetcenter',
-        'roles': constants.roleNames.vetcenter,
-        'royalCaninCode': "aCode",
-        'size': constants.vetSizesNames.large,
-        'legalName': 'aLegalName',
-        'NIF': 'aNIF',
-        'contact': {
-            name: "name",
-            surname: "surname",
-            phone: 666777555,
-            email: "contact@contact.es",
-        },
-        'address': {
-            'address': 'Calle',
-            'city': 'Val',
-            'region': 'Valencia',
-            'country': 'ES',
-            'postalCode': 12005
-        },
-        'phone': 666777555,
-        'species': [constants.speciesNames.Cats],
-        'origin': {
-            originType: constants.originNames.originTelemarketing
-        },
+    "userOne": {
+        "age":20,
+        'country': "UK",
+        "languages": ["en"],
+        "accessType": constants.users.accessTypeNames.password,
+        "accessKey": "passw0rd",
     },
 };
-exports.petConstants = {
-    Dogs: {
-        name: "perreteMajete",
-        species: constants.speciesNames.Dogs,
-        gender: constants.genderNames.Male,
-        birthday: moment(1318781876406),
-        patologies: constants.healthPatologyNames.heart,
-        feedingType: constants.feedingTypeNames.human,
-        activity: constants.activityNames.high,
-        environment: constants.environmentNames.warm,
-        weight: constants.weightTypeNames.onFit,
-        'statuses': [
-            {
-                status: constants.petStatusNames.unsuscribed
-            }
-        ],
-    },
-    Cats: {
-        name: "gateteGuarrete",
-        species: constants.speciesNames.Cats,
-        gender: constants.genderNames.Male,
-        birthday: moment(1318781876406),
-        patologies: constants.healthPatologyNames.heart,
-        feedingType: constants.feedingTypeNames.human,
-        activity: constants.activityNames.high,
-        environment: constants.environmentNames.warm,
-        weight: constants.weightTypeNames.onFit,
-        'statuses': [
-            {
-                status: constants.petStatusNames.unsuscribed
-            }
-        ],
-    }
-};
-exports.breedConstants = {
-    Breed: {
-        royalCaninIdentifier: 1,
-        species: constants.speciesNames.Dogs,
-        name:[
-            {
-                localizedName: "razaGuena",
-                language: "es",
-            },
-            {
-                localizedName: "razaGuena_PT",
-                language: "pt",
-            },
-        ],
-    },
-};
-exports.treatmentConstants = {
-    treatmentTemplate: {
-        name: "tratamiento 1",
-        isTemplate: true,
-        description: "a description of the treatment",
-        reason: "a reason of the treatment",
-        tests:[],
-    },
-    treatment: {
-        name: "tratamiento 2",
-        description: "a description of the treatment",
-        reason: "la razón del tratamiento",
-        tests:[],
-    },
-};
-exports.regionPonderationContants={
-    regionPonderation:{
-        country: "ES",
-        region: "Valencia",
-        postalCode: "46021",
-        ponderation: 1.2
-    },
-    valenciaRegionPonderation:{
-        country: "ES",
-        region: "Valencia",
-        ponderation: 1.3
-    },
-    spainRegionPonderation:{
-        country: "ES",
-        ponderation: 1.1
-    }
-};
-exports.planConstants = {
-  plan:{
-  }
-};
-exports.creditCardConstants = {
-    "creditCard": {
-        "exp_month": 8, // REQUIRED
-        "exp_year": 2028, // REQUIRED
-        "number": "4242424242424242", // REQUIRED
-        "cvc": "345",
-        "name": "NAME OF THE CUSTOMER AT THE CARD",
-    },
-};
-exports.upgradeConstants = {
-    "contracts": [],
-    "cardId": "20567523R",
-    "creditCard": exports.creditCardConstants.creditCard,
-    "royalCaninPassword":"password",
-};
-exports.registeredMail = "development+registered@develapps.es";
-exports.registeredPass = "newPassword";

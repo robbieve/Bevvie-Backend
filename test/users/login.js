@@ -31,9 +31,9 @@ describe.skip('Login Group', () => {
                 should.not.exist(err);
                 commonTestUtils.test_createUser(server, commonTestUtils.userConstants.admin, function (aToken, aUserid) {
                     adminToken = aToken;
-                    commonTestUtils.test_createUser(server, commonTestUtils.userConstants.potentialClient, function (aToken, aUserid) {
+                    commonTestUtils.test_createUser(server, commonTestUtils.userConstants.userOne, function (aToken, aUserid) {
                         token = aToken;
-                        let plusUser = JSON.parse(JSON.stringify(commonTestUtils.userConstants.potentialClient));
+                        let plusUser = JSON.parse(JSON.stringify(commonTestUtils.userConstants.userOne));
                         plusUser.email = plusMail;
                         commonTestUtils.test_createUser(server, plusUser, function (aToken, aUserid) {
                             done();
@@ -54,7 +54,7 @@ describe.skip('Login Group', () => {
     });
     describe('POST', () => {
         describe('login/ with faulting arguments', () => {
-            const tests = [{}, {email: 'potentialClient@potentialClient.es'}, {password: 'test'}];
+            const tests = [{}, {email: 'userOne@userOne.es'}, {password: 'test'}];
             tests.forEach(function (parameters) {
                 it('should fail with parameters ' + JSON.stringify(parameters), (done) => {
                     chai.request(server)
@@ -74,7 +74,7 @@ describe.skip('Login Group', () => {
             it('should success with token argument', (done) => {
                 chai.request(server)
                     .post(endpoint)
-                    .send({'email': 'potentialClient@potentialClient.es', 'password': 'test'})
+                    .send({'email': 'userOne@userOne.es', 'password': 'test'})
                     .set("Content-Type", "application/json")
                     .set("register-token", configAuth.baseToken)
                     .end(function (err, res) {
@@ -137,7 +137,7 @@ describe.skip('Login Group', () => {
                     },
                     function (isDone) {
                         // related to CV user
-                        let temp3 = JSON.parse(JSON.stringify(commonTestUtils.userConstants.potentialClient));
+                        let temp3 = JSON.parse(JSON.stringify(commonTestUtils.userConstants.userOne));
                         temp3.email = commonTestUtils.registeredMail;
                         temp3.origin = {
                             user: vetUserId,

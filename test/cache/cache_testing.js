@@ -24,7 +24,7 @@ let token = "";
 let userid = "";
 let adminToken = "";
 let adminUserId = "";
-describe('Cache Group', () => {
+describe.skip('Cache Group', () => {
     // create users and clients
     before(function (done) {
         commonTestInit.before(function () {
@@ -50,7 +50,7 @@ describe('Cache Group', () => {
                         },
                         function (isDone) {
                             // Potential client
-                            let temp = JSON.parse(JSON.stringify(commonTestUtils.userConstants.potentialClient));
+                            let temp = JSON.parse(JSON.stringify(commonTestUtils.userConstants.userOne));
                             commonTestUtils.test_createUser(server, temp, function (aToken, adUserid) {
                                 token = aToken;
                                 userid = adUserid;
@@ -95,7 +95,7 @@ describe('Cache Group', () => {
                 }
                 chai.request(server)
                     .get(endpoint)
-                    .query({'email': commonTestUtils.userConstants.potentialClient.email})
+                    .query({'email': commonTestUtils.userConstants.userOne.email})
                     .set("Authorization", "Bearer " + adminToken)
                     .end(function (err, res) {
                         commonTestUtils.test_pagination(err, res, function () {
@@ -103,7 +103,7 @@ describe('Cache Group', () => {
                             res.body.docs.should.have.lengthOf(1);
 
                             let aQuery = prefix + ':User-list:' + JSON.stringify({
-                                'email': commonTestUtils.userConstants.potentialClient.email,
+                                'email': commonTestUtils.userConstants.userOne.email,
                                 active: true,
                                 sort: []
                             });
@@ -121,7 +121,7 @@ describe('Cache Group', () => {
                 }
                 chai.request(server)
                     .get(endpoint)
-                    .query({'email': commonTestUtils.userConstants.potentialClient.email})
+                    .query({'email': commonTestUtils.userConstants.userOne.email})
                     .set("Authorization", "Bearer " + adminToken)
                     .end(function (err, res) {
                         commonTestUtils.test_pagination(err, res, function () {
@@ -129,7 +129,7 @@ describe('Cache Group', () => {
                             res.body.docs.should.have.lengthOf(1);
                             chai.request(server)
                                 .get(endpoint)
-                                .query({'email': commonTestUtils.userConstants.potentialClient.email})
+                                .query({'email': commonTestUtils.userConstants.userOne.email})
                                 .set("Authorization", "Bearer " + adminToken)
                                 .end(function (err, res) {
                                     commonTestUtils.test_pagination(err, res, function () {
@@ -168,7 +168,7 @@ describe('Cache Group', () => {
                         },
                         function (isDone) {
                             // Potential client
-                            let temp = JSON.parse(JSON.stringify(commonTestUtils.userConstants.potentialClient));
+                            let temp = JSON.parse(JSON.stringify(commonTestUtils.userConstants.userOne));
                             commonTestUtils.test_createUser(server, temp, function (aToken, adUserid) {
                                 token = aToken;
                                 userid = adUserid;
@@ -199,7 +199,7 @@ describe('Cache Group', () => {
                     .end(function (err, res) {
                         setTimeout(function () {
                             let aQuery = prefix + ':User-list:' + JSON.stringify({
-                                'email': commonTestUtils.userConstants.potentialClient.email,
+                                'email': commonTestUtils.userConstants.userOne.email,
                                 active: true,
                                 sort: {createdAt: 1}
                             });
@@ -231,7 +231,7 @@ describe('Cache Group', () => {
                     .end(function (err, res) {
                         setTimeout(function () {
                             let aQuery = prefix + ':User-list:' + JSON.stringify({
-                                'email': commonTestUtils.userConstants.potentialClient.email,
+                                'email': commonTestUtils.userConstants.userOne.email,
                                 active: true,
                                 sort: {createdAt: 1}
                             });
