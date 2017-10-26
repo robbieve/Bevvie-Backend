@@ -37,7 +37,7 @@ router.route('/')
      * @apiName PostNewFile
      * @apiVersion 0.1.0
      * @apiGroup Files
-     *
+     * @apiUse AuthorizationTokenHeader
      * @apiParam {Data} file file to upload
      *
      * @apiUse FileParameters

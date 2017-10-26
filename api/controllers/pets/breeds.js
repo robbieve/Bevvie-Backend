@@ -40,6 +40,8 @@ router.route('/')
      * @apiName PostNewBreed
      * @apiVersion 0.1.0
      * @apiGroup Breeds
+     * @apiUse AuthorizationTokenHeader
+     *
      * @apiUse BreedParameters
      * @apiSuccess (201) {String} _id the breed's id
      * @apiUse ErrorGroup
@@ -58,6 +60,8 @@ router.route('/')
      * @apiName GetBreeds
      * @apiVersion 0.1.0
      * @apiGroup Breeds
+     * @apiUse AuthorizationTokenHeader
+     *
      * @apiHeader  {String} Accept-Language=es Accepted language.
      *
      * @apiParam {Number} limit number of slices to get
@@ -132,6 +136,7 @@ router.route('/:id')
      * @apiName GetBreed
      * @apiVersion 0.0.1
      * @apiGroup Breeds
+     * @apiUse AuthorizationTokenHeader
      *
      * @apiParam {Number} id id of the breed
      *
@@ -165,6 +170,7 @@ router.route('/:id')
      * @apiName DeleteBreed
      * @apiVersion 0.0.1
      * @apiGroup Breeds
+     * @apiUse AuthorizationTokenHeader
      *
      * @apiParam {Number} id id of the breed
      *

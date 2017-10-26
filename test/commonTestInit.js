@@ -11,6 +11,7 @@ let redis = require('lib/redis/redis');
 let _ = require('underscore');
 // load the auth variables
 exports.configAuth = require('config').auth;
+let MongoClient = require('mongodb').MongoClient;
 
 
 //Require the dev-dependencies
@@ -48,6 +49,54 @@ function waitForServer(done) {
     }
 }
 
+let adminDb;
+function _connectToAdminDb(callback) {
+    if (adminDb) {
+        return callback(adminDb);
+    }
+    else {
+        let f = require('util').format;
+        let authMechanism = 'DEFAULT';
+        if (!dbConfig.user){
+            url = f('mongodb://%s:%s/admin?authMechanism=%s&authSource=%s',
+                dbConfig.host, dbConfig.port,  authMechanism,dbConfig.authdatabase);
+        }
+        else {
+            url = f('mongodb://%s:%s@%s:%s/admin?authMechanism=%s&authSource=%s',
+                dbConfig.user,dbConfig.pass, dbConfig.host, dbConfig.port,  authMechanism,dbConfig.authdatabase);
+        }
+        winston.info('Test: Connecting to: ' + url);
+        MongoClient.connect(url, function (err, db) {
+            if (err) {
+                winston.error('Error connecting admin database: ' + JSON.stringify(err));
+                process.exit(-1);
+            }
+            adminDb = db;
+            callback(db);
+        });
+    }
+}
+
+function _waitForIdleDb(callback) {
+    _connectToAdminDb(function (adminDb) {
+        adminDb.command({currentOp: {active:true}}, function (err, res) {
+            if (err){
+                winston.error('Error retrieving current ops: ' + JSON.stringify(err));
+                process.exit(-1);
+            }
+            if (res.inprog && res.inprog.length>1 ) {
+                winston.info('Waiting to clean. pending ops --> '+res.inprog.length);
+                setTimeout(function () {
+                    _waitForIdleDb(callback);
+                }, 1000);
+            }
+            else{
+                callback();
+            }
+        });
+    });
+}
+
 exports.before = function (done) {
     if (config.cache.enabled) {
         redis.flushdb(function (err, succeeded) {
@@ -67,7 +116,7 @@ exports.before = function (done) {
         });
     }
     else {
-        waitForServer(function () {
+        _waitForIdleDb(function () {
             let promise =  mongoose.connection.dropDatabase();
             promise.then(function(error) {
                 let asyncFunctions = [];

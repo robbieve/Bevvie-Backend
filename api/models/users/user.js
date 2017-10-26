@@ -25,6 +25,15 @@ let mongooseValidators = require('lib/validation/mongooseValidators');
  * @apiParam {Boolean} active=1 user is active (not deleted)
  */
 
+/**
+ * @apiDefine RegisterTokenHeader
+ * @apiHeader  {String} register-token Authorization token for registering.
+ */
+
+/**
+ * @apiDefine AuthorizationTokenHeader
+ * @apiHeader  {String} Authorization user token. e.g.:"Bearer $2a$08$Vf0n.HJ2SfPcTi3MiWyJXOH5y1TyjwgFaycVAnB6mdnFeQc06ZBQC"
+ */
 
 /*
 * https://stackoverflow.com/questions/4623974/design-for-facebook-authentication-in-an-ios-app-that-also-accesses-a-secured-we?rq=1

@@ -37,6 +37,7 @@ router.route('/')
      * @apiVersion 0.0.1
      * @apiGroup Users
      * @apiHeader  {String} Accept-Language=es Accepted language.
+     * @apiUse AuthorizationTokenHeader
      *
      * @apiParam {Number} limit number of slices to get
      * @apiParam {Number} offset start of slices to get
@@ -140,6 +141,7 @@ router.route('/:id')
      * @apiName GetUser
      * @apiVersion 0.0.1
      * @apiGroup Users
+     * @apiUse AuthorizationTokenHeader
      *
      * @apiParam {Number} id id of the user
      *
@@ -154,9 +156,9 @@ router.route('/:id')
      * @apiName ModifyUser
      * @apiVersion 0.0.1
      * @apiGroup Users
+     * @apiUse AuthorizationTokenHeader
      *
      * @apiParam {Number} id id of the user
-     * @apiHeader  {String} register-token Authorization token for registering.
      * @apiDescription This method will update data to Royal Canin if user is type of client.
      *
      * @apiUse UserParameters
@@ -305,7 +307,8 @@ router.route('/:id')
      * @apiName DeleteUser
      * @apiVersion 0.0.1
      * @apiGroup Users
-     *
+     * @apiUse AuthorizationTokenHeader
+     * 
      * @apiParam {Number} id id of the user
      *
      */

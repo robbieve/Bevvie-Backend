@@ -37,6 +37,7 @@ router.route('/')
      * @apiName PostNewImage
      * @apiVersion 0.1.0
      * @apiGroup Images
+     * @apiUse AuthorizationTokenHeader
      *
      * @apiParam {Data} file file to upload
      *
