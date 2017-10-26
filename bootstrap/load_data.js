@@ -14,8 +14,8 @@ const constants = require('api/common/constants');
 // Constants
 
 const files = [
-    {"file": "bootstrap/bevvie/data/breedsCats.csv", "species": "Cats"},
-    {"file": "bootstrap/bevvie/data/breedsDogs.csv", "species": "Dogs"},
+    {"file": "bootstrap/planvet/data/breedsCats.csv", "species": "Cats"},
+    {"file": "bootstrap/planvet/data/breedsDogs.csv", "species": "Dogs"},
 ];
 
 let breedsToLoad = {
@@ -28,11 +28,11 @@ let shouldLoad = ["breeds","admin","telemarketing","vetCenters","potentialClient
 
 let jsonToLoad = {
     breeds: {},
-    pets: require("bootstrap/bevvie/data/pets.json"),
-    admin: require("bootstrap/bevvie/data/adminUsers.json"),
-    potentialClients: require("bootstrap/bevvie/data/potentialClients.json"),
-    telemarketing: require("bootstrap/bevvie/data/telemarketing.json"),
-    vetCenters: require("bootstrap/bevvie/data/vetCenters.json")
+    pets: require("bootstrap/planvet/data/pets.json"),
+    admin: require("bootstrap/planvet/data/adminUsers.json"),
+    potentialClients: require("bootstrap/planvet/data/potentialClients.json"),
+    telemarketing: require("bootstrap/planvet/data/telemarketing.json"),
+    vetCenters: require("bootstrap/planvet/data/vetCenters.json")
 };
 
 
@@ -145,6 +145,15 @@ function _loadDB(callback) {
         Object.assign(data, dataElement);
     });
 
+    ["AdminUser","PotentialClientUser","TelemarketingUser","VetcenterUser"].forEach(function (dataIn) {
+        let users = data[dataIn];
+        Object.keys(users).forEach(function (user) {
+            let userObject = users[user];
+            if (userObject["password"]){
+                userObject["password"] = bcrypt.hashSync(userObject["password"], bcrypt.genSaltSync(8), null);
+            }
+        })
+    });
     winston.info('loading data: ' + JSON.stringify(Object.keys(data), 0, 2));
     let timer = winston.startTimer();
     seeder.seed(data, {dropDatabase: true}).then(function (dbData) {
