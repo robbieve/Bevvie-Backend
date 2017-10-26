@@ -10,21 +10,21 @@ let mongooseValidators = require('lib/validation/mongooseValidators');
 
 /**
  * @apiDefine UserParameters
- * @apiParam {String} _id id of the object.
- * @apiParam {String} [accessID] id of the auth service
- * @apiParam {String} [accessKey] token of the auth service
- * @apiParam {String="facebook","firebase","password"} [accessType=password] type of auth
- * @apiParam {String} name
- * @apiParam {Number} age
- * @apiParam {String} country ISO String
- * @apiParam {String} [about] About bio
- * @apiParam {String[]} languages array (ISO) of languages spoken
- * @apiParam {String} [studies] studies of the user
- * @apiParam {String[]} [images] array with id of the image or an image object
- * @apiParam {Boolean} [banned=0] whether the user is banned or not.
- * @apiParam {Boolean} [about_validated=0] whether the about is validated or not.
- * @apiParam {Boolean} active=1 user is active (not deleted)
- * @apiParam {Boolean} admin=0 user is admin
+ * @apiParam (User Model) {String} _id id of the object.
+ * @apiParam (User Model) {String} [accessId] id of the auth service
+ * @apiParam (User Model) {String} [accessKey] token of the auth service
+ * @apiParam (User Model) {String="facebook","firebase","password"} [accessType=password] type of auth
+ * @apiParam (User Model) {String} name
+ * @apiParam (User Model) {Number} age
+ * @apiParam (User Model) {String} country ISO String
+ * @apiParam (User Model) {String} [about] About bio
+ * @apiParam (User Model) {String[]} languages array (ISO) of languages spoken
+ * @apiParam (User Model) {String} [studies] studies of the user
+ * @apiParam (User Model) {String[]} [images] array with id of the image or an image object
+ * @apiParam (User Model) {Boolean} [banned=0] whether the user is banned or not.
+ * @apiParam (User Model) {Boolean} [about_validated=0] whether the about is validated or not.
+ * @apiParam (User Model) {Boolean} active=1 user is active (not deleted)
+ * @apiParam (User Model) {Boolean} admin=0 user is admin
  */
 
 /**
@@ -42,8 +42,9 @@ let mongooseValidators = require('lib/validation/mongooseValidators');
 * */
 
 let userSchema = new Schema({
-    accessID: {type: String, trim: true},
+    accessId: {type: String, trim: true},
     accessKey: {type: String, trim: true},
+    password: {type: String},
     accessType: {
         type: String,
         enum: {

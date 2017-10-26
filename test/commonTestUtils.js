@@ -30,7 +30,7 @@ exports.test_createPet = function (server, token, parameters, callback) {
         .post('/api/v1/pets')
         .send(parameters)
         .set("Content-Type", "application/json")
-        .set("Authorization", "Bearer "+token)
+        .set("Authorization", "Bearer " + token)
         .end(function (err, res) {
             res.should.have.status(201);
             res.should.be.json;
@@ -44,7 +44,7 @@ exports.test_createBreed = function (server, token, parameters, callback) {
         .post('/api/v1/breeds')
         .send(parameters)
         .set("Content-Type", "application/json")
-        .set("Authorization", "Bearer "+token)
+        .set("Authorization", "Bearer " + token)
         .end(function (err, res) {
             res.should.have.status(201);
             res.should.be.json;
@@ -130,23 +130,51 @@ exports.test_errorCode = function (expectedCode, expectedErrorCode, err, res, ca
     callback();
 };
 
+// Helpers
+
+exports.testBuild_createAdminUserAndClient = function (server, values ,callback) {
+    let result = {};
+    values = values ? values : {
+        admin: exports.userConstants.admin,
+        userOne: exports.userConstants.userOne,
+    };
+    async.series([
+            function (isDone) {
+                exports.test_createUser(server, values.admin, function (res) {
+                    result.admin = res;
+                    isDone();
+                });
+            },
+            function (isDone) {
+                exports.test_createUser(server, values.userOne, function (res) {
+                    result.userOne = res;
+                    isDone();
+                });
+            },
+        ],
+        function (err) {
+            should.not.exist(err);
+            callback(result);
+        });
+};
+
 
 exports.userConstants = {
     "admin": {
         'name': 'admin',
-        "age":20,
+        "age": 20,
         'country': "ES",
-        "languages": ["es","en"],
+        "languages": ["es", "en"],
         "accessType": constants.users.accessTypeNames.password,
-        "accessKey": "passw0rd",
+        "password": "passw0rd",
         'admin': true,
     },
     "userOne": {
         'name': 'userOne',
-        "age":20,
+        "age": 20,
         'country': "GB",
         "languages": ["en"],
         "accessType": constants.users.accessTypeNames.password,
-        "accessKey": "passw0rd",
+        "password": "passw0rd",
     },
 };
