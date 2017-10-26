@@ -45,6 +45,7 @@ let userSchema = new Schema({
     accessId: {type: String, trim: true},
     accessKey: {type: String, trim: true},
     password: {type: String},
+    email: {type: String},
     accessType: {
         type: String,
         enum: {

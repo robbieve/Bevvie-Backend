@@ -12,7 +12,12 @@ config = {
         'baseToken': process.env.PM2_NODE_BASE_TOKEN,
         'bearer': true,
         'local': true,
-        'third-party': false
+        'third-party': false,
+        'facebookAuth' : {
+            'clientID'      : '142956309784643', // your App ID
+            'clientSecret'  : '66cf509ac5b86ff77788886efa7f9c29', // your App Secret
+            //'callbackURL'   : 'http://localhost:8000/auth/facebook/callback'
+        },
     },
     'aws': {
         'accessKeyId': process.env.PM2_NODE_AWS_ACCESS_KEY,
