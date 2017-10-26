@@ -29,13 +29,13 @@ describe.skip('Login Group', () => {
         commonTestInit.before(function () {
             user.remove({}, (err) => {
                 should.not.exist(err);
-                commonTestUtils.test_createUser(server, commonTestUtils.userConstants.admin, function (aToken, aUserid) {
-                    adminToken = aToken;
-                    commonTestUtils.test_createUser(server, commonTestUtils.userConstants.userOne, function (aToken, aUserid) {
-                        token = aToken;
+                commonTestUtils.test_createUser(server, commonTestUtils.userConstants.admin, function (res) {
+                    adminToken = res.token;
+                    commonTestUtils.test_createUser(server, commonTestUtils.userConstants.userOne, function (res) {
+                        token = res.token;
                         let plusUser = JSON.parse(JSON.stringify(commonTestUtils.userConstants.userOne));
                         plusUser.email = plusMail;
-                        commonTestUtils.test_createUser(server, plusUser, function (aToken, aUserid) {
+                        commonTestUtils.test_createUser(server, plusUser, function (res) {
                             done();
                         });
                     });
@@ -119,9 +119,9 @@ describe.skip('Login Group', () => {
                     },
                     function (isDone) {
                         // admin user
-                        commonTestUtils.test_createUser(server, commonTestUtils.userConstants.admin, function (aToken, aUserid) {
-                            adminToken = aToken;
-                            adminUserId = aUserid;
+                        commonTestUtils.test_createUser(server, commonTestUtils.userConstants.admin, function (res) {
+                            adminToken = res.token;
+                            adminUserId = res.user;
                             isDone()
                         });
                     },
@@ -130,8 +130,8 @@ describe.skip('Login Group', () => {
                         let temp2 = JSON.parse(JSON.stringify(commonTestUtils.userConstants.vetcenter));
                         temp2.origin.user = adminUserId;
                         commonTestUtils.test_createUser(server, temp2, function (aToken, adUserid) {
-                            vetToken = aToken;
-                            vetUserId = adUserid;
+                            vetToken = res.token;
+                            vetUserId = res.user;
                             isDone()
                         });
                     },
@@ -144,8 +144,8 @@ describe.skip('Login Group', () => {
                             originType: constants.originNames.originCV
                         };
                         commonTestUtils.test_createUser(server, temp3, function (aToken, adUserid) {
-                            relatedUserToken = aToken;
-                            relatedUserId = adUserid;
+                            relatedUserToken = res.token;
+                            relatedUserId = res.user;
                             isDone()
                         });
                     },

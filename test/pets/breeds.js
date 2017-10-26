@@ -66,9 +66,9 @@ describe.skip('Breeds Group', () => {
             function (doneFunc) {
                 let values = JSON.parse(JSON.stringify(commonTestUtils.userConstants.admin));
                 values.email = "good@admin.com";
-                commonTestUtils.test_createUser(server, values, function (token, userId) {
-                    adminId = userId;
-                    adminToken = token;
+                commonTestUtils.test_createUser(server, values, function (res) {
+                    adminId = res.token;
+                    adminToken = res.token;
                     doneFunc();
                 });
             },

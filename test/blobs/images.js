@@ -40,16 +40,16 @@ describe.skip('Images Group', () => {
                 async.series(
                     [
                         function (callback) {
-                            commonTestUtils.test_createUser(server, commonTestUtils.userConstants.admin, function (aToken, aUserid) {
-                                adminToken = aToken;
-                                adminUserId = aUserid;
+                            commonTestUtils.test_createUser(server, commonTestUtils.userConstants.admin, function (user) {
+                                adminToken = user.token;
+                                adminUserId = user.user;
                                 callback(null, 'result');
                             });
                         },
                         function (callback) {
-                            commonTestUtils.test_createUser(server, commonTestUtils.userConstants.userOne, function (aToken, adUserid) {
-                                token = aToken;
-                                userid = adUserid;
+                            commonTestUtils.test_createUser(server, commonTestUtils.userConstants.userOne, function (user) {
+                                token = user.token;
+                                userid = user.user;
                                 callback(null, 'result');
                             });
                         }

@@ -77,18 +77,18 @@ describe.skip('Users Group', () => {
                     },
                     function (isDone) {
                         // admin user
-                        commonTestUtils.test_createUser(server, commonTestUtils.userConstants.admin, function (aToken, aUserid) {
-                            adminToken = aToken;
-                            adminUserId = aUserid;
+                        commonTestUtils.test_createUser(server, commonTestUtils.userConstants.admin,  function (res) {
+                            adminToken = res.token;
+                            adminUserId = res.user;
                             isDone()
                         });
                     },
                     function (isDone) {
                         // Potential client
                         let temp = JSON.parse(JSON.stringify(commonTestUtils.userConstants.userOne));
-                        commonTestUtils.test_createUser(server, temp, function (aToken, adUserid) {
-                            token = aToken;
-                            userid = adUserid;
+                        commonTestUtils.test_createUser(server, temp,  function (res) {
+                            token = res.token;
+                            userid = res.user;
                             isDone()
                         });
                     },
@@ -97,9 +97,9 @@ describe.skip('Users Group', () => {
                         // telemarketing
                         let temp2 = JSON.parse(JSON.stringify(commonTestUtils.userConstants.telemarketing));
                         temp2.name = "telemarketing1";
-                        commonTestUtils.test_createUser(server, temp2, function (aToken, adUserid) {
-                            teleUserToken = aToken;
-                            teleUserId = adUserid;
+                        commonTestUtils.test_createUser(server, temp2,  function (res) {
+                            teleUserToken = res.token;
+                            teleUserId = res.user;
                             isDone()
                         });
                     },
@@ -108,9 +108,9 @@ describe.skip('Users Group', () => {
                         let temp2 = JSON.parse(JSON.stringify(commonTestUtils.userConstants.telemarketing));
                         temp2.name = "telemarketing2";
                         temp2.email = "telemarketing2@email.com";
-                        commonTestUtils.test_createUser(server, temp2, function (aToken, adUserid) {
-                            teleUserToken = aToken;
-                            teleUserId = adUserid;
+                        commonTestUtils.test_createUser(server, temp2,  function (res) {
+                            teleUserToken = res.token;
+                            teleUserId = res.user;
                             isDone()
                         });
                     },
@@ -118,9 +118,9 @@ describe.skip('Users Group', () => {
                         // vetCenter
                         let temp2 = JSON.parse(JSON.stringify(commonTestUtils.userConstants.vetcenter));
                         temp2.origin.user = adminUserId;
-                        commonTestUtils.test_createUser(server, temp2, function (aToken, adUserid) {
-                            vetToken = aToken;
-                            vetUserId = adUserid;
+                        commonTestUtils.test_createUser(server, temp2,  function (res) {
+                            vetToken = res.token;
+                            vetUserId = res.user;
                             isDone()
                         });
                     },
@@ -131,7 +131,7 @@ describe.skip('Users Group', () => {
                         temp2.name = "vetcenter2";
                         temp2.email = "ventcenter2@vetcenter.es";
                         temp2.address.city = "Madrid";
-                        commonTestUtils.test_createUser(server, temp2, function (aToken, adUserid) {
+                        commonTestUtils.test_createUser(server, temp2,  function (res) {
                             isDone()
                         });
                     },
@@ -140,7 +140,7 @@ describe.skip('Users Group', () => {
                         let temp2 = JSON.parse(JSON.stringify(commonTestUtils.userConstants.userOne));
                         temp2.email = "inactive@inactive.es";
                         temp2.active = false;
-                        commonTestUtils.test_createUser(server, temp2, function (aToken, adUserid) {
+                        commonTestUtils.test_createUser(server, temp2,  function (res) {
                             isDone()
                         });
                     },
@@ -152,9 +152,9 @@ describe.skip('Users Group', () => {
                             user: vetUserId,
                             originType: constants.originNames.originCV
                         };
-                        commonTestUtils.test_createUser(server, temp3, function (aToken, adUserid) {
-                            relatedUserToken = aToken;
-                            relatedUserId = adUserid;
+                        commonTestUtils.test_createUser(server, temp3,  function (res) {
+                            relatedUserToken = res.token;
+                            relatedUserId = res.user;
                             isDone()
                         });
                     },
@@ -166,9 +166,9 @@ describe.skip('Users Group', () => {
                             user: teleUserId,
                             originType: constants.originNames.originTelemarketing
                         };
-                        commonTestUtils.test_createUser(server, temp3, function (aToken, adUserid) {
-                            teleRelatedUserToken = aToken;
-                            teleRelatedUserId = adUserid;
+                        commonTestUtils.test_createUser(server, temp3,  function (res) {
+                            teleRelatedUserToken = res.token;
+                            teleRelatedUserId = res.user;
                             isDone()
                         });
                     },
@@ -688,18 +688,18 @@ describe.skip('Users Group', () => {
                     },
                     function (isDone) {
                         // admin user
-                        commonTestUtils.test_createUser(server, commonTestUtils.userConstants.admin, function (aToken, aUserid) {
-                            adminToken = aToken;
-                            adminUserId = aUserid;
+                        commonTestUtils.test_createUser(server, commonTestUtils.userConstants.admin,  function (res) {
+                            adminToken = res.token;
+                            adminUserId = res.user;
                             isDone()
                         });
                     },
                     function (isDone) {
                         // Potential client
                         let temp = JSON.parse(JSON.stringify(commonTestUtils.userConstants.userOne));
-                        commonTestUtils.test_createUser(server, temp, function (aToken, adUserid) {
-                            token = aToken;
-                            userid = adUserid;
+                        commonTestUtils.test_createUser(server, temp,  function (res) {
+                            token = res.token;
+                            userid = res.user;
                             isDone()
                         });
                     },
@@ -708,9 +708,9 @@ describe.skip('Users Group', () => {
                         // telemarketing
                         let temp2 = JSON.parse(JSON.stringify(commonTestUtils.userConstants.telemarketing));
                         temp2.name = "telemarketing1";
-                        commonTestUtils.test_createUser(server, temp2, function (aToken, adUserid) {
-                            teleUserToken = aToken;
-                            teleUserId = adUserid;
+                        commonTestUtils.test_createUser(server, temp2,  function (res) {
+                            teleUserToken = res.token;
+                            teleUserId = res.user;
                             isDone()
                         });
                     },
@@ -719,9 +719,9 @@ describe.skip('Users Group', () => {
                         let temp2 = JSON.parse(JSON.stringify(commonTestUtils.userConstants.telemarketing));
                         temp2.name = "telemarketing2";
                         temp2.email = "telemarketing2@email.com";
-                        commonTestUtils.test_createUser(server, temp2, function (aToken, adUserid) {
-                            teleUserToken = aToken;
-                            teleUserId = adUserid;
+                        commonTestUtils.test_createUser(server, temp2,  function (res) {
+                            teleUserToken = res.token;
+                            teleUserId = res.user;
                             isDone()
                         });
                     },
@@ -729,9 +729,9 @@ describe.skip('Users Group', () => {
                         // vetCenter
                         let temp2 = JSON.parse(JSON.stringify(commonTestUtils.userConstants.vetcenter));
                         temp2.origin.user = adminUserId;
-                        commonTestUtils.test_createUser(server, temp2, function (aToken, adUserid) {
-                            vetToken = aToken;
-                            vetUserId = adUserid;
+                        commonTestUtils.test_createUser(server, temp2,  function (res) {
+                            vetToken = res.token;
+                            vetUserId = res.user;
                             isDone()
                         });
                     },
@@ -742,7 +742,7 @@ describe.skip('Users Group', () => {
                         temp2.name = "vetcenter2";
                         temp2.email = "ventcenter2@vetcenter.es";
                         temp2.address.city = "Madrid";
-                        commonTestUtils.test_createUser(server, temp2, function (aToken, adUserid) {
+                        commonTestUtils.test_createUser(server, temp2,  function (res) {
                             isDone()
                         });
                     },
@@ -751,7 +751,7 @@ describe.skip('Users Group', () => {
                         let temp2 = JSON.parse(JSON.stringify(commonTestUtils.userConstants.userOne));
                         temp2.email = "inactive@inactive.es";
                         temp2.active = false;
-                        commonTestUtils.test_createUser(server, temp2, function (aToken, adUserid) {
+                        commonTestUtils.test_createUser(server, temp2,  function (res) {
                             isDone()
                         });
                     },
@@ -763,9 +763,9 @@ describe.skip('Users Group', () => {
                             user: vetUserId,
                             originType: constants.originNames.originCV
                         };
-                        commonTestUtils.test_createUser(server, temp3, function (aToken, adUserid) {
-                            relatedUserToken = aToken;
-                            relatedUserId = adUserid;
+                        commonTestUtils.test_createUser(server, temp3,  function (res) {
+                            relatedUserToken = res.token;
+                            relatedUserId = res.user;
                             isDone()
                         });
                     },
@@ -777,9 +777,9 @@ describe.skip('Users Group', () => {
                             user: teleUserId,
                             originType: constants.originNames.originTelemarketing
                         };
-                        commonTestUtils.test_createUser(server, temp3, function (aToken, adUserid) {
-                            teleRelatedUserToken = aToken;
-                            teleRelatedUserId = adUserid;
+                        commonTestUtils.test_createUser(server, temp3,  function (res) {
+                            teleRelatedUserToken = res.token;
+                            teleRelatedUserId = res.user;
                             isDone()
                         });
                     },
@@ -890,18 +890,18 @@ describe.skip('Users Group', () => {
                 },
                 function (isDone) {
                     // admin user
-                    commonTestUtils.test_createUser(server, commonTestUtils.userConstants.admin, function (aToken, aUserid) {
-                        adminToken = aToken;
-                        adminUserId = aUserid;
+                    commonTestUtils.test_createUser(server, commonTestUtils.userConstants.admin,  function (res) {
+                        adminToken = res.token;
+                        adminUserId = res.user;
                         isDone()
                     });
                 },
                 function (isDone) {
                     // Potential client
                     let temp = JSON.parse(JSON.stringify(commonTestUtils.userConstants.userOne));
-                    commonTestUtils.test_createUser(server, temp, function (aToken, adUserid) {
-                        token = aToken;
-                        userid = adUserid;
+                    commonTestUtils.test_createUser(server, temp,  function (res) {
+                        token = res.token;
+                        userid = res.user;
                         isDone()
                     });
                 },
@@ -909,9 +909,9 @@ describe.skip('Users Group', () => {
                     // vetCenter
                     let temp2 = JSON.parse(JSON.stringify(commonTestUtils.userConstants.vetcenter));
                     temp2.origin.user = adminUserId;
-                    commonTestUtils.test_createUser(server, temp2, function (aToken, adUserid) {
-                        vetToken = aToken;
-                        vetUserId = adUserid;
+                    commonTestUtils.test_createUser(server, temp2,  function (res) {
+                        vetToken = res.token;
+                        vetUserId = res.user;
                         isDone()
                     });
                 },
@@ -919,9 +919,9 @@ describe.skip('Users Group', () => {
                     // telemarketing
                     let temp2 = JSON.parse(JSON.stringify(commonTestUtils.userConstants.telemarketing));
                     temp2.origin.user = adminUserId;
-                    commonTestUtils.test_createUser(server, temp2, function (aToken, adUserid) {
-                        teleUserToken = aToken;
-                        teleUserId = adUserid;
+                    commonTestUtils.test_createUser(server, temp2,  function (res) {
+                        teleUserToken = res.token;
+                        teleUserId = res.user;
                         isDone()
                     });
                 },
@@ -930,7 +930,7 @@ describe.skip('Users Group', () => {
                     let temp2 = JSON.parse(JSON.stringify(commonTestUtils.userConstants.userOne));
                     temp2.email = "inactive@inactive.es";
                     temp2.active = false;
-                    commonTestUtils.test_createUser(server, temp2, function (aToken, adUserid) {
+                    commonTestUtils.test_createUser(server, temp2,  function (res) {
                         isDone()
                     });
                 },
@@ -942,9 +942,9 @@ describe.skip('Users Group', () => {
                         user: vetUserId,
                         originType: constants.originNames.originCV
                     };
-                    commonTestUtils.test_createUser(server, temp3, function (aToken, adUserid) {
-                        relatedUserToken = aToken;
-                        relatedUserId = adUserid;
+                    commonTestUtils.test_createUser(server, temp3,  function (res) {
+                        relatedUserToken = res.token;
+                        relatedUserId = res.user;
                         isDone()
                     });
                 },
@@ -956,9 +956,9 @@ describe.skip('Users Group', () => {
                         user: teleUserId,
                         originType: constants.originNames.originTelemarketing
                     };
-                    commonTestUtils.test_createUser(server, temp3, function (aToken, adUserid) {
-                        teleRelatedUserToken = aToken;
-                        teleRelatedUserId = adUserid;
+                    commonTestUtils.test_createUser(server, temp3,  function (res) {
+                        teleRelatedUserToken = res.token;
+                        teleRelatedUserId = res.user;
                         isDone()
                     });
                 },

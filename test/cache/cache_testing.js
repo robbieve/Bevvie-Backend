@@ -42,18 +42,18 @@ describe.skip('Cache Group', () => {
                     [
                         function (isDone) {
                             // admin user
-                            commonTestUtils.test_createUser(server, commonTestUtils.userConstants.admin, function (aToken, aUserid) {
-                                adminToken = aToken;
-                                adminUserId = aUserid;
+                            commonTestUtils.test_createUser(server, commonTestUtils.userConstants.admin, function (user) {
+                                adminToken = user.token;
+                                adminUserId = user.user;
                                 isDone()
                             });
                         },
                         function (isDone) {
                             // Potential client
                             let temp = JSON.parse(JSON.stringify(commonTestUtils.userConstants.userOne));
-                            commonTestUtils.test_createUser(server, temp, function (aToken, adUserid) {
-                                token = aToken;
-                                userid = adUserid;
+                            commonTestUtils.test_createUser(server, temp, function (res) {
+                                token = res.token;
+                                userid = res.user;
                                 isDone()
                             });
                         },
@@ -160,18 +160,18 @@ describe.skip('Cache Group', () => {
                         },
                         function (isDone) {
                             // admin user
-                            commonTestUtils.test_createUser(server, commonTestUtils.userConstants.admin, function (aToken, aUserid) {
-                                adminToken = aToken;
-                                adminUserId = aUserid;
+                            commonTestUtils.test_createUser(server, commonTestUtils.userConstants.admin, function (res) {
+                                adminToken = res.token;
+                                adminUserId = res.user;
                                 isDone()
                             });
                         },
                         function (isDone) {
                             // Potential client
                             let temp = JSON.parse(JSON.stringify(commonTestUtils.userConstants.userOne));
-                            commonTestUtils.test_createUser(server, temp, function (aToken, adUserid) {
-                                token = aToken;
-                                userid = adUserid;
+                            commonTestUtils.test_createUser(server, temp, function (res) {
+                                token = res.token;
+                                userid = res.user;
                                 isDone()
                             });
                         },
