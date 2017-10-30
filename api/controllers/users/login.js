@@ -14,6 +14,7 @@ let Token = require('api/models/users/token');
 let dbError = require('lib/loggers/db_error');
 let winston = require("lib/loggers/logger").winston;
 let constants = require("api/common/constants");
+let errorConstants = require("api/common/errorConstants");
 let config = require("config");
 let moment = require("moment");
 
@@ -65,8 +66,12 @@ router.route('/')
         },
         function (request, response, next) { // User authentication
             let responseCallback = function (err, user, userError) {
+                if (err && err["name"] === "InternalOAuthError") // Check facebook errors
+                {
+                    userError = errorConstants.responseWithError(err,errorConstants.errorNames.user_facebookLoginAuthFailure);
+                }
                 if (userError) {
-                    return response.status(404).json(userError);
+                    return response.status(403).json(userError);
                 }
                 else if (err) {
                     winston.error("LOGIN: Error at the login system: ", JSON.stringify(err));

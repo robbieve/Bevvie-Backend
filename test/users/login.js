@@ -4,7 +4,7 @@ let server = commonTestInit.server;
 let configAuth = commonTestInit.configAuth;
 let should = commonTestInit.should;
 let chai = commonTestInit.chai;
-
+let errorConstants = require("api/common/errorConstants");
 // User
 let user = require('api/models/users/user');
 let token = "";
@@ -155,6 +155,20 @@ describe('Login Group', () => {
                                 res.body.user.should.have.property('_id').to.be.equal(anId);
                                 done();
                             });
+                    });
+            });
+            it('should fail for bad token', (done) => {
+                chai.request(server)
+                    .post(endpoint)
+                    .send({'id':adminUserId,
+                        'accessKey': "badToken",
+                        'accessType': constants.users.accessTypeNames.facebook})
+                    .set("Content-Type", "application/json")
+                    .set("register-token", configAuth.baseToken)
+                    .end(function (err, res) {
+                        commonTestUtils.test_errorCode(403,errorConstants.errorCodes(errorConstants.errorNames.user_facebookLoginAuthFailure),err,res, function () {
+                            done();
+                        });
                     });
             });
         });
