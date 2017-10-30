@@ -101,5 +101,63 @@ describe('Login Group', () => {
                     });
             });
         });
+        describe('login/ with facebook arguments', () => {
+            it('should succeed with token argument', (done) => {
+                chai.request(server)
+                    .post(endpoint)
+                    .send({'id':adminUserId,
+                        'accessKey': commonTestUtils.facebookConstants.facebookToken,
+                        'accessType': constants.users.accessTypeNames.facebook})
+                    .set("Content-Type", "application/json")
+                    .set("register-token", configAuth.baseToken)
+                    .end(function (err, res) {
+                        res.should.have.status(201);
+                        res.should.be.json;
+                        res.body.should.be.an('object');
+                        res.body.should.have.property('token');
+                        res.body.should.have.property('user');
+                        res.body.user.should.have.property('accessKey');
+                        res.body.user.should.have.property('_id');
+                        done();
+                    });
+            });
+            it('should succeed with second login and no new user', (done) => {
+                chai.request(server)
+                    .post(endpoint)
+                    .send({'id':adminUserId,
+                        'accessKey': commonTestUtils.facebookConstants.facebookToken,
+                        'accessType': constants.users.accessTypeNames.facebook})
+                    .set("Content-Type", "application/json")
+                    .set("register-token", configAuth.baseToken)
+                    .end(function (err, res) {
+                        res.should.have.status(201);
+                        res.should.be.json;
+                        res.body.should.be.an('object');
+                        res.body.should.have.property('token');
+                        res.body.should.have.property('user');
+                        res.body.user.should.have.property('accessKey');
+                        res.body.user.should.have.property('_id');
+                        let anId = res.body.user._id;
+                        chai.request(server)
+                            .post(endpoint)
+                            .send({'id':adminUserId,
+                                'accessKey': commonTestUtils.facebookConstants.facebookToken,
+                                'accessType': constants.users.accessTypeNames.facebook})
+                            .set("Content-Type", "application/json")
+                            .set("register-token", configAuth.baseToken)
+                            .end(function (err, res) {
+                                res.should.have.status(201);
+                                res.should.be.json;
+                                res.body.should.be.an('object');
+                                res.body.should.have.property('token');
+                                res.body.should.have.property('user');
+                                res.body.user.should.have.property('accessKey');
+                                res.body.user.should.have.property('_id').to.be.equal(anId);
+                                done();
+                            });
+                    });
+            });
+        });
+
     });
 });

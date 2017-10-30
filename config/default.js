@@ -13,10 +13,10 @@ config = {
         'bearer': true,
         'local': true,
         'third-party': false,
+        'client_facebook': true, // enable this to use facebook passing in a facebookToken for authentication
         'facebookAuth' : {
-            'clientID'      : '142956309784643', // your App ID
-            'clientSecret'  : '66cf509ac5b86ff77788886efa7f9c29', // your App Secret
-            //'callbackURL'   : 'http://localhost:8000/auth/facebook/callback'
+            'clientID'      : process.env.PM2_FACEBOOK_APPID, // your App ID
+            'clientSecret'  : process.env.PM2_FACEBOOK_SECRET, // your App Secret
         },
     },
     'aws': {

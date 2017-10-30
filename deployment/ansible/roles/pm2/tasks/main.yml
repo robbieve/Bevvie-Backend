@@ -28,7 +28,7 @@
     group={{ app_user }}
     owner={{ app_user }}
     mode=0755
-  tags: [pm2]
+  tags: [pm2,deploy_api,deploy_all]
 
 - block:
 
@@ -50,7 +50,7 @@
     tags: [pm2]
 
   - name: start pm2 process
-    command: 'pm2 startOrGracefulReload {{app_directory}}/config/pm2.config.js --env {{node_env}}'
+    command: 'pm2 startOrGracefulReload {{app_directory}}/config/pm2.config.js --env {{node_env}} --update-env'
     args:
      chdir: "{{app_directory}}"
     become: yes

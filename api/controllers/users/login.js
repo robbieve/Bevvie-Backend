@@ -17,6 +17,7 @@ let constants = require("api/common/constants");
 let config = require("config");
 let moment = require("moment");
 
+
 // =============
 // Default route
 router.route('/')
@@ -78,13 +79,11 @@ router.route('/')
                     request.user = user;
                     next();
                 }
-            }
+            };
             switch (request.body.accessType) {
                 case constants.users.accessTypeNames.facebook:
-                    return response.status(400).json({
-                        localizedError: 'Not implemented',
-                        rawError: 'error: ' + JSON.stringify(request.body),
-                    });
+                    request.body.access_token = request.body.accessKey;
+                    passport.authenticate('facebook-token', {session: false}, responseCallback)(request, response);
                     break;
                 case constants.users.accessTypeNames.firebase:
                     return response.status(400).json({

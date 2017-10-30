@@ -56,8 +56,8 @@ if (config.has('auth.bearer') && config.auth.bearer) {
 if (config.has('auth.local') && config.auth.local) {
     require('./lib/auth/local')(passport); // pass passport for configuration
 }
-if (config.has('auth.third_party') && config.auth.third_party) {
-    require('./lib/auth/facebook_twitter_google')(passport);
+if (config.has('auth.client_facebook') && config.auth.client_facebook) {
+    require('./lib/auth/facebook_token')(passport);
 }
 app.use(passport.initialize());
 

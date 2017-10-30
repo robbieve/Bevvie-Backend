@@ -178,3 +178,8 @@ exports.userConstants = {
         "password": "passw0rd",
     },
 };
+
+exports.facebookConstants = {
+    facebookId: "287602358398692",
+    facebookToken: "EAACCBJwQKEMBABT5jrSHl0c1UzLmHiMoQNzUch6zBEW9GlVlBAdXPAxWwZAqtw6H9ybOtbKuCtWUUf2HQ5m1P9rCZCShZAS4oRoZA4lIb4QJux9BVoLZBAcxDw1zPoMGotJgZBVmmzURL0J3UvyDfai6vMYywXIJtpTIVbwP8drlyvlY3fTy5VTiwBMpSt6kZAlpEZAYZBGGqYILRTEgsK14yra6FxZAf8ogruMpRwTtUwwP4DuBdtefu5MaZAu4p1UPvYZD",
+}
