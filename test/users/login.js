@@ -172,7 +172,7 @@ describe('Login Group', () => {
                     });
             });
         });
-        describe('login/ with firebase arguments', () => {
+        describe.skip('login/ with firebase arguments', () => {
             it('should succeed with token argument', (done) => {
                 chai.request(server)
                     .post(endpoint)
