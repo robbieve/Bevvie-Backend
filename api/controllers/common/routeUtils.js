@@ -58,14 +58,18 @@ utils.postUpdate = function (Schema, query, newObject, request, response, next) 
                         rawError: 'Object for ' + query + ' not found'
                     });
                 }
+
+                // TODO: Need to enable this? Filter does the trick! No?
+                /*
                 // If not admin, restrict to current user, if not error
-                else if (request.user.admin === false && request.user.client._id.toString() !== object.client._id.toString()) {
+                else if (request.user.admin === false && request.user._id.toString() !== object.client._id.toString()) {
                     let name = Schema.modelName;
                     response.status(403).json({
                         localizedError: 'You are not authorized to access this ' + name,
                         rawError: 'user ' + request.user._id + ' is not admin'
                     });
                 }
+                */
                 else {
                     delete newObject.__v; // Ommit version. This is important as you cannot resave if version not equal.
                     let newDBObject = Schema.mapObject(object, newObject);
@@ -268,16 +272,17 @@ utils.getOne = function (Schema, request, response, next) {
 
 utils.filterQuery = function (requestQuery, transform, query = {}) {
     // First direct queries
-    Object.keys(transform.directQuery).forEach(function (element) {
-        let queryValue = transform.directQuery[element];
-        if (requestQuery[element]){
-            query[queryValue] = requestQuery[element];
-            if (requestQuery[element] instanceof  String && requestQuery[element].length === 0){ // if nosize, put a null for the query
-                query[queryValue] = null;
+    if (transform.directQuery) {
+        Object.keys(transform.directQuery).forEach(function (element) {
+            let queryValue = transform.directQuery[element];
+            if (requestQuery[element]) {
+                query[queryValue] = requestQuery[element];
+                if (requestQuery[element] instanceof String && requestQuery[element].length === 0) { // if nosize, put a null for the query
+                    query[queryValue] = null;
+                }
             }
-        }
-
-    });
+        });
+    }
 
     // Then text search
     if (transform.textQuery) {

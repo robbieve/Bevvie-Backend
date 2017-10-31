@@ -33,21 +33,21 @@ router.route('/')
     /**
      * @api {get} /users Get users
      * @apiName GetUsers
-     * @apiVersion 0.0.1
+     * @apiVersion 0.2.0
      * @apiGroup Users
      * @apiHeader  {String} Accept-Language=es Accepted language.
      * @apiUse AuthorizationTokenHeader
      *
      * @apiParam {Number} limit number of slices to get
      * @apiParam {Number} offset start of slices to get
-     * @apiParam {String} email text to match on user's name
      * @apiParam {String} text text search on user
      * @apiParam {Object[]} [sort] sort struct array
-     * @apiParam {String="admin","telemarketing","client","vetcenter","userOne"} userType user type to match
-     * @apiParam {String="createdAt","origin","city","name","email"} sort.field=createdAt field to sort with
+     * @apiParam {String="createdAt","name","country","languages","banned"} sort.field=createdAt field to sort with
      * @apiParam {String="asc","desc"} sort.order=asc whether to sort ascending or descending
      * @apiParam {String="true","false","all"} active=true match active users or not
-
+     * @apiParam {String="true","false","all"} admin=false match admin users or not
+     *
+     *
      * @apiSuccess {Object[]} data       List of users.
      * @apiSuccess {String}   data._id   Id of the users.
      * @apiUse ErrorGroup
@@ -59,10 +59,6 @@ router.route('/')
 
             // FILTER
             let transform = {
-                directQuery: {
-                    "email": "email",
-                    "userType": "roles",
-                },
                 textQuery: {
                     language: request.headers["Accept-Language"]
                 },
@@ -74,17 +70,25 @@ router.route('/')
                             "all": "_delete",
                         }
                     },
+                    admin: {
+                        _default: false,
+                        _values: {
+                            "true": true,
+                            "all": "_delete",
+                        }
+                    },
                 }
             };
             let query = route_utils.filterQuery(request.query, transform);
 
             // SORT
             let sortTransform = {
+                _default: "createdAt",
                 createdAt: "createdAt",
-                email: "email",
-                origin: "sort.name",
-                city: "address.city",
                 name: "name",
+                country: "country",
+                languages: "languages",
+                banned: "banned",
 
             };
 
@@ -138,7 +142,7 @@ router.route('/:id')
     /**
      * @api {get} /users/id Get user by id
      * @apiName GetUser
-     * @apiVersion 0.0.1
+     * @apiVersion 0.2.0
      * @apiGroup Users
      * @apiUse AuthorizationTokenHeader
      *
@@ -153,12 +157,12 @@ router.route('/:id')
     /**
      * @api {post} /users/id Modify user
      * @apiName ModifyUser
-     * @apiVersion 0.0.1
+     * @apiVersion 0.2.0
      * @apiGroup Users
      * @apiUse AuthorizationTokenHeader
      *
      * @apiParam {Number} id id of the user
-     * @apiDescription This method will update data to Royal Canin if user is type of client.
+     * @apiDescription This method will update a user.
      *
      * @apiUse UserParameters
      * @apiSuccess {String} name Name of the user
@@ -168,143 +172,12 @@ router.route('/:id')
         userValidator.postUpdateValidator,
         function (request, response, next) {
             let newObject = request.body;
-            let user = response.object;
-            let userPets = [];
-            if (user.roles.indexOf(constants.roleNames.client) > -1) { // This is a final client, modify on royalCanin
-                async.series([
-                    function (done) {  // Should login first to get token
-                        let royalCaninUser = user.mapToRoyalCanin();
-                        let loginUser = {
-                            email: user.email,
-                            userPassword: user.royalCaninPassword,
-                            appid: royalCaninUser.appId,
-                            clientid: royalCaninUser.clientId,
-                            unixtime: Math.floor(moment().utc() / 1000),
-                        };
-                        royalCanin.login(loginUser, function (err, data) {
-                            if (err || !data) {
-                                let newErr = {
-                                    localizedError: 'Could not change user data. User exists and password is not valid',
-                                    rawError: 'Royal Canin answered ' + err
-                                };
-                                response.status(403).json(newErr);
-                                done(newErr);
-                            }
-                            else {
-                                newObject.royalCaninToken = data.body.accessToken;
-                                royalCanin.accessToken = data.body.accessToken;
-                                done();
-                            }
-
-                        });
-                    },
-                    function (done) { // If new password, change it
-                        // If new password, change it
-                        if (newObject.password && user.royalCaninPassword && user.royalCaninIdentifier) {
-                            royalCanin.changePassword(user.royalCaninIdentifier, user.royalCaninPassword, newObject.password, function (err, res) {
-                                if (err) {
-                                    let newErr = {
-                                        localizedError: 'Could not change user password on royal canin',
-                                        rawError: 'Royal Canin answered ' + err
-                                    };
-                                    response.status(500).json(newErr);
-                                    return done(newErr);
-                                }
-                                // Save new password
-                                newObject.royalCaninPassword = newObject.password;
-                                return done();
-                            });
-                        }
-                        else {
-                            done();
-                        }
-                    },
-                    function (done) {
-                        // Get pets
-                        Pet.find({owner: user._id}, function (err, pets) {
-                            if (err) {
-                                response.status(500).json(err);
-                                done(err);
-                            }
-                            else if (!pets || pets.length === 0) {
-                                let newErr = {
-                                    localizedError: 'Could not update user. No pets found',
-                                    rawError: 'user ' + request.user._id + ' has no pets'
-                                };
-                                response.status(400).json(newErr);
-                                done(newErr)
-                            }
-                            else {
-                                userPets = pets;
-                                done();
-                            }
-
-                        });
-                    }
-                    ,
-                    function (done) { // Change new data
-                        let newUser = user.mapObject(null, newObject);
-                        let royalCaninUser = newUser.mapToRoyalCanin();
-                        royalCaninUser.pets = userPets.map(function (aPet) {
-                            return aPet.mapToRoyalCanin();
-                        });
-                        royalCanin.updateUserData(royalCaninUser, user.royalCaninIdentifier, function (err, res) {
-                            if (err) {
-                                let newErr = {
-                                    localizedError: 'Could not change user data on royal canin',
-                                    rawError: 'Royal Canin answered ' + err
-                                };
-                                response.status(500).json(newErr);
-                                return done(newErr);
-                            }
-                            return done();
-                        });
-                    },
-                ], function (err) {
-                    if (err) {
-                        winston.error("ERROR: Updating user " + newObject.email + " data " + newObject + " response " + err);
-                    }
-                    else {
-                        route_utils.postUpdate(User, {'_id': request.params.id}, newObject, request, response, next);
-                    }
-                });
-            }
-            else if (user.roles.indexOf(constants.roleNames.vetcenter) > -1) { // Vetcenter can be modified by admin
-                if (request.user.roles.indexOf(constants.roleNames.admin) > -1) {
-                    route_utils.postUpdate(User, {'_id': request.params.id}, newObject, request, response, next);
-                }
-                else if (
-                    request.user.roles.indexOf(constants.roleNames.telemarketing) > -1 ||
-                    request.user.roles.indexOf(constants.roleNames.vetcenter) > -1
-                ) { // Send mail to admin
-                    User.find({roles: constants.roleNames.admin}, function (err, admins) {
-                        if (err) {
-                            return response.status(500).json(errorConstants.errorNames(err, constants.errorNames.dbGenericError));
-                        }
-                        async.each(admins,
-                            function (admin, isDone) {
-                                let modifications = JSON.parse(JSON.stringify(request.body));
-                                modifications._id = request.params.id;
-                                mailUtils.sendMailModifications(modifications, admin, isDone)
-                            },
-                            function (err) {
-                                if (err) {
-                                    return response.status(500).json(errorConstants.errorNames(err, constants.errorNames.mailError));
-                                }
-                                return response.status(200).json({});
-
-                            });
-                    });
-                }
-            }
-            else {
-                route_utils.postUpdate(User, {'_id': request.params.id}, newObject, request, response, next);
-            }
+            route_utils.postUpdate(User, {'_id': request.params.id}, newObject, request, response, next);
         })
     /**
      * @api {delete} /users/id Delete user by id
      * @apiName DeleteUser
-     * @apiVersion 0.0.1
+     * @apiVersion 0.2.0
      * @apiGroup Users
      * @apiUse AuthorizationTokenHeader
      *
@@ -313,7 +186,7 @@ router.route('/:id')
      */
     .delete(function (request, response) {
         // If not admin, fail
-        if (!request.user.hasRoles([constants.roleNames.admin])) {
+        if (!request.user.admin) {
             return response.status(403).json({
                 localizedError: 'You are not authorized to delete users',
                 rawError: 'user ' + request.user._id + ' is not admin'

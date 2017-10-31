@@ -59,6 +59,9 @@ if (config.has('auth.local') && config.auth.local) {
 if (config.has('auth.client_facebook') && config.auth.client_facebook) {
     require('./lib/auth/facebook_token')(passport);
 }
+if (config.has('auth.client_firebase') && config.auth.client_firebase) {
+    require('./lib/auth/firebase_token')(passport);
+}
 app.use(passport.initialize());
 
 // Allow all cross origin

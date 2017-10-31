@@ -13,6 +13,8 @@ module.exports.errorNames = {
     mailError: "mailError",
     notFound: "notFound",
     user_facebookLoginAuthFailure: "user_facebookLoginAuthFailure",
+    user_firebaseLoginAuthFailure: "user_firebaseLoginAuthFailure",
+
 };
 
 module.exports.errorCodes = function (code) {
@@ -31,6 +33,9 @@ module.exports.errorCodes = function (code) {
             break;
         case module.exports.errorNames.user_facebookLoginAuthFailure:
             return -101;
+            break;
+        case module.exports.errorNames.user_firebaseLoginAuthFailure:
+            return -102;
             break;
 
         default:
@@ -59,6 +64,11 @@ module.exports.errors = {
         localizedError: "Authentication with facebook failed",
         rawError: "Authentication failure: ",
     },
+    user_firebaseLoginAuthFailure: {
+        localizedError: "Authentication with firebase failed",
+        rawError: "Authentication failure: ",
+    },
+
 };
 
 module.exports.responseWithError = function (err,key) {

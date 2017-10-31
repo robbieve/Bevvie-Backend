@@ -19,3 +19,16 @@ module.exports.users.accessTypeNames  = {
     password: "password",
 };
 module.exports.users.accessTypes = Object.keys(module.exports.users.accessTypeNames);
+
+module.exports.users.sortNames = {
+    name: "name",
+    country: "country",
+    languages: "languages",
+    banned: "banned",
+    createdAt: "createdAt"
+};
+
+module.exports.sortOrderNames = {
+    asc: "asc",
+    desc: "desc",
+}

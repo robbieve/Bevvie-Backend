@@ -172,6 +172,76 @@ describe('Login Group', () => {
                     });
             });
         });
-
+        describe('login/ with firebase arguments', () => {
+            it('should succeed with token argument', (done) => {
+                chai.request(server)
+                    .post(endpoint)
+                    .send({'id':adminUserId,
+                        'accessKey': commonTestUtils.firebaseConstants.firebaseToken,
+                        'accessType': constants.users.accessTypeNames.firebase})
+                    .set("Content-Type", "application/json")
+                    .set("register-token", configAuth.baseToken)
+                    .end(function (err, res) {
+                        res.should.have.status(201);
+                        res.should.be.json;
+                        res.body.should.be.an('object');
+                        res.body.should.have.property('token');
+                        res.body.should.have.property('user');
+                        res.body.user.should.have.property('accessKey');
+                        res.body.user.should.have.property('_id');
+                        done();
+                    });
+            });
+            it('should succeed with second login and no new user', (done) => {
+                chai.request(server)
+                    .post(endpoint)
+                    .send({'id':adminUserId,
+                        'accessKey': commonTestUtils.firebaseConstants.firebaseToken,
+                        'accessType': constants.users.accessTypeNames.firebase})
+                    .set("Content-Type", "application/json")
+                    .set("register-token", configAuth.baseToken)
+                    .end(function (err, res) {
+                        res.should.have.status(201);
+                        res.should.be.json;
+                        res.body.should.be.an('object');
+                        res.body.should.have.property('token');
+                        res.body.should.have.property('user');
+                        res.body.user.should.have.property('accessKey');
+                        res.body.user.should.have.property('_id');
+                        let anId = res.body.user._id;
+                        chai.request(server)
+                            .post(endpoint)
+                            .send({'id':adminUserId,
+                                'accessKey': commonTestUtils.firebaseConstants.firebaseToken,
+                                'accessType': constants.users.accessTypeNames.firebase})
+                            .set("Content-Type", "application/json")
+                            .set("register-token", configAuth.baseToken)
+                            .end(function (err, res) {
+                                res.should.have.status(201);
+                                res.should.be.json;
+                                res.body.should.be.an('object');
+                                res.body.should.have.property('token');
+                                res.body.should.have.property('user');
+                                res.body.user.should.have.property('accessKey');
+                                res.body.user.should.have.property('_id').to.be.equal(anId);
+                                done();
+                            });
+                    });
+            });
+            it('should fail for bad token', (done) => {
+                chai.request(server)
+                    .post(endpoint)
+                    .send({'id':adminUserId,
+                        'accessKey': "badToken",
+                        'accessType': constants.users.accessTypeNames.firebase})
+                    .set("Content-Type", "application/json")
+                    .set("register-token", configAuth.baseToken)
+                    .end(function (err, res) {
+                        commonTestUtils.test_errorCode(403,errorConstants.errorCodes(errorConstants.errorNames.user_facebookLoginAuthFailure),err,res, function () {
+                            done();
+                        });
+                    });
+            });
+        });
     });
 });

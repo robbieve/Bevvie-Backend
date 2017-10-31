@@ -91,10 +91,8 @@ router.route('/')
                     passport.authenticate('facebook-token', {session: false}, responseCallback)(request, response);
                     break;
                 case constants.users.accessTypeNames.firebase:
-                    return response.status(400).json({
-                        localizedError: 'Not implemented',
-                        rawError: 'error: ' + JSON.stringify(request.body),
-                    });
+                    request.body.access_token = request.body.accessKey;
+                    passport.authenticate('firebase-token', {session: false}, responseCallback)(request, response);
                     break;
                 case constants.users.accessTypeNames.password:
                     passport.authenticate('local-login', {session: false}, responseCallback)(request, response);

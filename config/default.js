@@ -18,6 +18,15 @@ config = {
             'clientID'      : process.env.PM2_FACEBOOK_APPID, // your App ID
             'clientSecret'  : process.env.PM2_FACEBOOK_SECRET, // your App Secret
         },
+        'client_firebase': true, // enable this to use facebook passing in a facebookToken for authentication
+        'firebaseAuth': {
+            apiKey: process.env.PM2_FIREBASE_API_KEY,
+            authDomain: process.env.PM2_FIREBASE_AUTH_DOMAIN,
+            databaseURL: process.env.PM2_FIREBASE_DATABASE_URL,
+            projectId: process.env.PM2_FIREBASE_PROJECT_ID,
+            storageBucket: process.env.PM2_FIREBASE_STORAGE_BUCKET,
+            messagingSenderId: process.env.PM2_FIREBASE_MESSAGING_SENDER_ID
+        },
     },
     'aws': {
         'accessKeyId': process.env.PM2_NODE_AWS_ACCESS_KEY,
