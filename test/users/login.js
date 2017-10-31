@@ -237,7 +237,7 @@ describe('Login Group', () => {
                     .set("Content-Type", "application/json")
                     .set("register-token", configAuth.baseToken)
                     .end(function (err, res) {
-                        commonTestUtils.test_errorCode(403,errorConstants.errorCodes(errorConstants.errorNames.user_facebookLoginAuthFailure),err,res, function () {
+                        commonTestUtils.test_errorCode(403,errorConstants.errorCodes(errorConstants.errorNames.user_firebaseLoginAuthFailure),err,res, function () {
                             done();
                         });
                     });

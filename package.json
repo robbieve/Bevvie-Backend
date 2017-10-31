@@ -18,6 +18,7 @@
     "express": "^4.16.2",
     "express-validator": "^4.2.1",
     "firebase": "^4.6.0",
+    "firebase-admin": "^5.4.3",
     "gridfs-stream": "^1.1.1",
     "helmet": "^3.9.0",
     "kue": "^0.11.6",
