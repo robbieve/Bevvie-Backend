@@ -1,0 +1,31 @@
+{
+  "_dependencies": {
+    "moment": "moment"
+  },
+  "venues": {
+    "_model": "Venue",
+    "Venue1": {
+      "name": "The Peasant Pub",
+      "location": {
+          "coordinates": [39.466089,-0.350823]
+      },
+      "schedule":[
+        {
+          "weekday": 5,
+          "openTime": "=moment('19:00')",
+          "closeTime": "=moment('3:00')"
+        },
+        {
+          "weekday": 6,
+          "openTime": "=moment('19:00')",
+          "closeTime": "=moment('5:00')"
+        }
+        {
+          "weekday": 7,
+          "openTime": "=moment('19:00')",
+          "closeTime": "=moment('00:00')"
+        }
+      ]
+    }
+  }
+}

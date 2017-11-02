@@ -1,4 +1,3 @@
-
 /**
  * @apiDefine ErrorGroup
  * @apiError (Any Error) {String} localizedDescription A user-friendly description of the error
@@ -14,11 +13,11 @@ module.exports.errorNames = {
     notFound: "notFound",
     user_facebookLoginAuthFailure: "user_facebookLoginAuthFailure",
     user_firebaseLoginAuthFailure: "user_firebaseLoginAuthFailure",
-
+    venue_getGeoInvalidLatOrLongErr: "venue_getGeoInvalidLatOrLongErr",
 };
 
 module.exports.errorCodes = function (code) {
-    switch (code){
+    switch (code) {
         case module.exports.errorNames.generic:
             return -1;
             break;
@@ -37,14 +36,16 @@ module.exports.errorCodes = function (code) {
         case module.exports.errorNames.user_firebaseLoginAuthFailure:
             return -102;
             break;
-
+        case module.exports.errorNames.venue_getGeoInvalidLatOrLongErr:
+            return -201;
+            break;
         default:
             return -1;
     }
 };
 
 module.exports.errors = {
-    generic:{
+    generic: {
         localizedError: "An error occurred.",
         rawError: "Error: ",
     },
@@ -56,7 +57,7 @@ module.exports.errors = {
         localizedError: "A mailing error occurred.",
         rawError: "Mail Error: ",
     },
-    notFound:{
+    notFound: {
         localizedError: "Object not found.",
         rawError: "Object not found: ",
     },
@@ -68,12 +69,15 @@ module.exports.errors = {
         localizedError: "Authentication with firebase failed",
         rawError: "Authentication failure: ",
     },
-
+    venue_getGeoInvalidLatOrLongErr: {
+        localizedError: "No valid latitude and longitude provided",
+        rawError: "No valid latitude and longitude provided: ",
+    },
 };
 
-module.exports.responseWithError = function (err,key) {
+module.exports.responseWithError = function (err, key) {
     let error = module.exports.errors[key];
-    if (!error){
+    if (!error) {
         error = module.exports.errors.generic;
     }
     error.rawError = error.rawError + JSON.stringify(err);

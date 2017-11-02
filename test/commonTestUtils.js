@@ -182,8 +182,80 @@ exports.userConstants = {
 exports.facebookConstants = {
     facebookId: "287602358398692",
     facebookToken: "EAACCBJwQKEMBABT5jrSHl0c1UzLmHiMoQNzUch6zBEW9GlVlBAdXPAxWwZAqtw6H9ybOtbKuCtWUUf2HQ5m1P9rCZCShZAS4oRoZA4lIb4QJux9BVoLZBAcxDw1zPoMGotJgZBVmmzURL0J3UvyDfai6vMYywXIJtpTIVbwP8drlyvlY3fTy5VTiwBMpSt6kZAlpEZAYZBGGqYILRTEgsK14yra6FxZAf8ogruMpRwTtUwwP4DuBdtefu5MaZAu4p1UPvYZD",
-}
+};
 
 exports.firebaseConstants = {
     firebaseToken: "eyJhbGciOiJSUzI1NiIsImtpZCI6ImY4MjIyYjYzYmIwNTc0NDIzNDIyMWVhNDBkZjY1YjM0N2FlMDA0OTIifQ.eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vYmV2dmllLWIyM2I2IiwiYXVkIjoiYmV2dmllLWIyM2I2IiwiYXV0aF90aW1lIjoxNTA5NDQyMzc2LCJ1c2VyX2lkIjoic0M4WEM0RnpsOVZTRzZQNW9ZaGFPY1c4V0JYMiIsInN1YiI6InNDOFhDNEZ6bDlWU0c2UDVvWWhhT2NXOFdCWDIiLCJpYXQiOjE1MDk0NDIzNzYsImV4cCI6MTUwOTQ0NTk3NiwicGhvbmVfbnVtYmVyIjoiKzM0Njk2NjcxNDgxIiwiZmlyZWJhc2UiOnsiaWRlbnRpdGllcyI6eyJwaG9uZSI6WyIrMzQ2OTY2NzE0ODEiXX0sInNpZ25faW5fcHJvdmlkZXIiOiJwaG9uZSJ9fQ.AJtYcJDugAgVAtwlyHddmrCKwhod9w25oD7XC4E7Pzmoh_9pvSsqQdlE48Mgd0CWD8ClSLt3_QCWhxCwEyfe2cIXAH_dwZ_EBdBlpWLlPnPQni9dGZQr9Qv1akSiAsRq9_6AHyg24YWDEwqQFxD90NIZ3VoQjamntSTB8GNni1FbsH6zsv7TQrrdc4wOPapZ5NTFrYcc0_LKilGvvn2NNnTsJRI8D0arG4lRC2rdxYOwqngzjUhMyY_h2IypLxy2hNtXRxZYtZgnR4e4LEA1xiNzHu2M7nWTE1-kR-QWhKcqPNN3lL5ti6WJi2FHS6Frf2gTgq8eR3JLRcSPVydj3g",
-}
+};
+
+exports.venueConstants={
+    "venueDevelapps":{
+        "name": "The Peasant Pub",
+        "location": {
+            "coordinates": [39.466089,-0.350823]
+        },
+        "schedule":[
+            {
+                "weekday": 5,
+                "openTime": "=moment('19:00')",
+                "closeTime": "=moment('3:00')"
+            },
+            {
+                "weekday": 6,
+                "openTime": "=moment('19:00')",
+                "closeTime": "=moment('5:00')"
+            },
+            {
+                "weekday": 7,
+                "openTime": "=moment('19:00')",
+                "closeTime": "=moment('00:00')"
+            }
+        ]
+    },
+    "venueBolos":{
+        "name": "The Bolos Pub",
+        "location": {
+            "coordinates": [39.4638609,-0.3515847]
+        },
+        "schedule":[
+            {
+                "weekday": 5,
+                "openTime": "=moment('19:00')",
+                "closeTime": "=moment('1:00')"
+            },
+            {
+                "weekday": 6,
+                "openTime": "=moment('15:00')",
+                "closeTime": "=moment('00:00')"
+            },
+            {
+                "weekday": 7,
+                "openTime": "=moment('20:00')",
+                "closeTime": "=moment('22:00')"
+            }
+        ]
+    },
+    "venueFarAway":{
+        "name": "The Faraway Pub",
+        "location": {
+            "coordinates": [0,20.3515847]
+        },
+        "schedule":[
+            {
+                "weekday": 1,
+                "openTime": "=moment('19:00')",
+                "closeTime": "=moment('1:00')"
+            },
+            {
+                "weekday": 6,
+                "openTime": "=moment('15:00')",
+                "closeTime": "=moment('00:00')"
+            },
+            {
+                "weekday": 7,
+                "openTime": "=moment('20:00')",
+                "closeTime": "=moment('22:00')"
+            }
+        ]
+    },
+};

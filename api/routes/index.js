@@ -7,7 +7,7 @@ module.exports = function (app) {
     let includes = {
         "controllers/users": ["login", "register","users"],
         "controllers/blobs": ["images","files"],
-        "controllers/pets": ["breeds"],
+        "controllers/venues": ["venues"],
     };
     Object.keys(includes).forEach(function (key) {
         includes[key].forEach(function (aRoute) {

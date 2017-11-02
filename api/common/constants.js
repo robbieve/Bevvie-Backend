@@ -32,3 +32,18 @@ module.exports.sortOrderNames = {
     asc: "asc",
     desc: "desc",
 }
+
+// Venues
+
+module.exports.venues = {};
+module.exports.venues.weekdaysNames = {
+    1: 1,
+    2: 1,
+    3: 3,
+    4: 4,
+    5: 5,
+    6: 6,
+    7: 7
+};
+
+module.exports.venues.weekdays = Object.keys(module.exports.venues.weekdaysNames);
