@@ -31,10 +31,9 @@ module.exports.users.sortNames = {
 module.exports.sortOrderNames = {
     asc: "asc",
     desc: "desc",
-}
+};
 
 // Venues
-
 module.exports.venues = {};
 module.exports.venues.weekdaysNames = {
     1: 1,
@@ -47,3 +46,16 @@ module.exports.venues.weekdaysNames = {
 };
 
 module.exports.venues.weekdays = Object.keys(module.exports.venues.weekdaysNames);
+
+// GEO
+module.exports.geo = {};
+module.exports.geo.formNames = {
+    Point:"Point",
+    LineString:"LineString",
+    Polygon:"Polygon",
+    MultiPoint:"MultiPoint",
+    MultiLineString:"MultiLineString",
+    MultiPolygon:"MultiPolygon",
+    GeometryCollection:"GeometryCollection",
+};
+module.exports.geo.forms = Object.keys(module.exports.geo.formNames);

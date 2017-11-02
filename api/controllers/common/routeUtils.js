@@ -289,7 +289,7 @@ utils.filterQuery = function (requestQuery, transform, query = {}) {
         Object.keys(transform.regexQuery).forEach(function (element) {
             let queryValue = transform.regexQuery[element];
             if (requestQuery[element]) {
-                query[queryValue] = { $regex: "/"+requestQuery[element]+"/" };
+                query[queryValue] = { $regex: new RegExp(requestQuery[element], "i") };
                 if (requestQuery[element] instanceof String && requestQuery[element].length === 0) { // if nosize, put a null for the query
                     query[queryValue] = null;
                 }

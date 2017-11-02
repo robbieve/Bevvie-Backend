@@ -17,17 +17,21 @@ let venueValidator = require('api/validators/venueValidator');
 // utils
 const route_utils = require('api/controllers/common/routeUtils');
 const constants = require('api/common/constants');
+const errorConstants = require('api/common/errorConstants');
 
 // Prepost function
 function _prepost(request, response, next, callback) {
     let newObject = request.body;
     // If not admin, cannot post
-    if (!request.user.hasRoles([constants.roleNames.admin])) {
+    if (!request.user.admin) {
         response.status(403).json({
             localizedError: 'You are not authorized to create or update a venue',
             rawError: 'user ' + request.user._id + ' is not admin'
         });
         return;
+    }
+    if (request.body.location && !request.body.location.type){
+        request.body.location.type = constants.geo.formNames.Point;
     }
     callback(newObject)
 }
@@ -113,30 +117,26 @@ router.route('/')
 
             if (request.query.geo) {
                 let geo = request.query.geo;
-                if (!geo.lat || !geo.long){
-                    return response.status(400).json(errorConstants.responseWithError(err,errorConstants.errorNames.venue_getGeoInvalidLatOrLongErr));
+                if (!geo.lat || !geo.long) {
+                    return response.status(400).json(errorConstants.responseWithError(err, errorConstants.errorNames.venue_getGeoInvalidLatOrLongErr));
                 }
                 let distance = geo.dist ? geo.dist : 30000;
-                Venue.aggregate(
-                    [
-                        {
-                            "$geoNear": {
-                                "near": {
-                                    "type": "Point",
-                                    "coordinates": [geo.long,geo.lat]
-                                },
-                                "distanceField": "distance",
-                                "sperical": true,
-                                "maxDistance": distance
-                            }
+                distance = parseFloat(distance);
+                Venue.geoNear(
+                    {type: "Point", coordinates: [parseFloat(geo.long), parseFloat(geo.lat)]},
+                    {
+                        spherical: true,
+                        maxDistance: distance,
+                        query:{
+                            active: true
                         }
-                    ],
+                    },
                     function (err, results) {
                         if (err) {
-                            return response.status(500).json(errorConstants.responseWithError(err,errorConstants.errorNames.dbGenericError));
+                            return response.status(500).json(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
                         }
-                        else if (reply) {
-                            response.status(200).json(reply);
+                        else  {
+                            return response.status(200).json({docs: results});
                         }
                     }
                 )
@@ -205,7 +205,7 @@ router.route('/:id')
      * @apiUse ErrorGroup
      */
     .delete(function (request, response) {
-        if (!request.user.hasRoles([constants.roleNames.admin])) {
+        if (!request.user.admin) {
             response.status(403).json({
                 localizedError: 'You are not authorized to delete a venue',
                 rawError: 'user ' + request.user._id + ' is not admin'

@@ -25,6 +25,22 @@ exports.test_createUser = function (server, parameters, callback) {
             callback(res.body);
         });
 };
+
+exports.test_createVenue = function (server, token, parameters, callback) {
+    chai.request(server)
+        .post('/api/v1/venues')
+        .send(parameters)
+        .set("Content-Type", "application/json")
+        .set("Authorization", "Bearer " + token)
+        .end(function (err, res) {
+            res.should.have.status(201);
+            res.should.be.json;
+            res.body.should.be.an('object');
+            res.body.should.have.property('_id');
+            callback(res.body);
+        });
+};
+
 exports.test_createPet = function (server, token, parameters, callback) {
     chai.request(server)
         .post('/api/v1/pets')
@@ -197,18 +213,18 @@ exports.venueConstants={
         "schedule":[
             {
                 "weekday": 5,
-                "openTime": "=moment('19:00')",
-                "closeTime": "=moment('3:00')"
+                "openTime": moment('19:00',"HH:mm"),
+                "closeTime": moment('03:00',"HH:mm"),
             },
             {
                 "weekday": 6,
-                "openTime": "=moment('19:00')",
-                "closeTime": "=moment('5:00')"
+                "openTime": moment('19:00',"HH:mm"),
+                "closeTime": moment('03:00',"HH:mm"),
             },
             {
                 "weekday": 7,
-                "openTime": "=moment('19:00')",
-                "closeTime": "=moment('00:00')"
+                "openTime": moment('19:00',"HH:mm"),
+                "closeTime": moment('03:00',"HH:mm"),
             }
         ]
     },
@@ -220,18 +236,18 @@ exports.venueConstants={
         "schedule":[
             {
                 "weekday": 5,
-                "openTime": "=moment('19:00')",
-                "closeTime": "=moment('1:00')"
+                "openTime": moment('19:00',"HH:mm"),
+                "closeTime": moment('03:00',"HH:mm"),
             },
             {
                 "weekday": 6,
-                "openTime": "=moment('15:00')",
-                "closeTime": "=moment('00:00')"
+                "openTime": moment('19:00',"HH:mm"),
+                "closeTime": moment('03:00',"HH:mm"),
             },
             {
                 "weekday": 7,
-                "openTime": "=moment('20:00')",
-                "closeTime": "=moment('22:00')"
+                "openTime": moment('19:00',"HH:mm"),
+                "closeTime": moment('03:00',"HH:mm"),
             }
         ]
     },
@@ -242,19 +258,19 @@ exports.venueConstants={
         },
         "schedule":[
             {
-                "weekday": 1,
-                "openTime": "=moment('19:00')",
-                "closeTime": "=moment('1:00')"
+                "weekday": 5,
+                "openTime": moment('19:00',"HH:mm"),
+                "closeTime": moment('03:00',"HH:mm"),
             },
             {
                 "weekday": 6,
-                "openTime": "=moment('15:00')",
-                "closeTime": "=moment('00:00')"
+                "openTime": moment('19:00',"HH:mm"),
+                "closeTime": moment('03:00',"HH:mm"),
             },
             {
                 "weekday": 7,
-                "openTime": "=moment('20:00')",
-                "closeTime": "=moment('22:00')"
+                "openTime": moment('19:00',"HH:mm"),
+                "closeTime": moment('03:00',"HH:mm"),
             }
         ]
     },

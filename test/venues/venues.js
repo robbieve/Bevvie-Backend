@@ -24,18 +24,24 @@ let adminToken = "";
 let venue = {};
 let testDictionary = {
     Venue: {
-        good: commonTestUtils.venueConstants.Venue,
+        good: commonTestUtils.venueConstants.venueDevelapps,
         goodVariants: {
             name: [5, "otro"],
-            location: [{type: "Point", coordinates: [0,0]},undefined],
-            schedule: [[{weekday: 1, openTime: moment("12:00:00"), closeTime: moment("13:00:00")}], undefined],
+            location: [{type: "Point", coordinates: [0, 0]}, undefined],
+            schedule: [
+                [{
+                    weekday: 1,
+                    openTime: moment("12:00", "HH:mm"),
+                    closeTime: moment("13:00", "HH:mm")
+                }]
+                , undefined],
         },
         bad: {
-            location: [{type: "Pepe", coordinates: [0,0]},{coordinates: "badCoordinates"}],
+            location: [{type: "Pepe", coordinates: [0, 0]}, {coordinates: "badCoordinates"}],
             schedule: [
-                [{openTime: moment("12:00"), closeTime: moment("13:00:00")}],
-                [{weekday: 1, closeTime: moment("13:00:00")}],
-                [{weekday: 1, openTime: moment("12:00:00")}],
+                [{openTime: moment("12:00", "HH:mm"), closeTime: moment("13:00", "HH:mm")}],
+                [{weekday: 1, closeTime: moment("13:00", "HH:mm")}],
+                [{weekday: 1, openTime: moment("12:00", "HH:mm")}],
             ],
         }
     }
@@ -151,17 +157,19 @@ describe('Venues Group', () => {
             });
         });
     });
-    describe.skip('GET', () => {
+    describe('GET', () => {
         before((done) => { //Before each test create the object
             // venues.collection.createIndex({"$**": "text"});
             venues.remove({}, (err) => {
-                commonTestUtils.test_createVenue(server, adminToken, commonTestUtils.venueConstants.Venue, function (realVenue) {
-                    venue = realVenue
+                commonTestUtils.test_createVenue(server, adminToken, commonTestUtils.venueConstants.venueDevelapps, function (realVenue) {
+                    venue = realVenue;
                     let inactive = JSON.parse(JSON.stringify(venue));
                     delete inactive._id;
                     inactive.active = false;
                     commonTestUtils.test_createVenue(server, adminToken, inactive, function (realVenue) {
-                        done();
+                        commonTestUtils.test_createVenue(server, adminToken, commonTestUtils.venueConstants.venueBolos, function (realVenue) {
+                            done();
+                        });
                     });
 
                 });
@@ -185,7 +193,7 @@ describe('Venues Group', () => {
                     .end(function (err, res) {
                         commonTestUtils.test_pagination(err, res, function () {
                             res.body.docs.should.be.an('Array');
-                            res.body.docs.should.have.lengthOf(1);
+                            res.body.docs.should.have.lengthOf(2);
                             done();
                         });
                     });
@@ -198,7 +206,7 @@ describe('Venues Group', () => {
                     .end(function (err, res) {
                         commonTestUtils.test_pagination(err, res, function () {
                             res.body.docs.should.be.an('Array');
-                            res.body.docs.should.have.lengthOf(1);
+                            res.body.docs.should.have.lengthOf(2);
                             done();
                         });
                     });
@@ -224,70 +232,56 @@ describe('Venues Group', () => {
                     .end(function (err, res) {
                         commonTestUtils.test_pagination(err, res, function () {
                             res.body.docs.should.be.an('Array');
-                            res.body.docs.should.have.lengthOf(2);
-                            done();
-                        });
-                    });
-            });
-            it('should succeed with telemarketing token', (done) => {
-                chai.request(server)
-                    .get(endpoint)
-                    .set("Content-Type", "application/json")
-                    .set("Authorization", "Bearer " + teleToken)
-                    .end(function (err, res) {
-                        commonTestUtils.test_pagination(err, res, function () {
-                            res.body.docs.should.be.an('Array');
-                            res.body.docs.should.have.lengthOf(1);
-                            done();
-                        });
-                    });
-            });
-            it('should succeed with vetCenter token', (done) => {
-                chai.request(server)
-                    .get(endpoint)
-                    .set("Content-Type", "application/json")
-                    .set("Authorization", "Bearer " + vetCenterToken)
-                    .end(function (err, res) {
-                        commonTestUtils.test_pagination(err, res, function () {
-                            res.body.docs.should.be.an('Array');
-                            res.body.docs.should.have.lengthOf(1);
+                            res.body.docs.should.have.lengthOf(3);
                             done();
                         });
                     });
             });
             it('should succeed with venue name', function (done) {
-                venues.collection.createIndex({"$**": "text"},{name: "textIndex","default_language":"es"}, function (err) {
-                    chai.request(server)
-                        .get(endpoint)
-                        .query({'text': 'razaGuena'})
-                        .set("Authorization", "Bearer " + adminToken)
-                        .end(function (err, res) {
-                            commonTestUtils.test_pagination(err, res, function () {
+                chai.request(server)
+                    .get(endpoint)
+                    .query({'name': 'easant'})
+                    .set("Authorization", "Bearer " + adminToken)
+                    .end(function (err, res) {
+                        commonTestUtils.test_pagination(err, res, function () {
+                            res.body.docs.should.be.an('Array');
+                            res.body.docs.should.have.lengthOf(1);
+                            done();
+                        });
+                    });
+            });
+            it('should succeed with geoloc', function (done) {
+                venues.collection.createIndex({'location': '2dsphere'}, {name: 'locationIndex'},
+                    function (err) {
+                        should.not.exist(err);
+                        chai.request(server)
+                            .get(endpoint)
+                            .query({'geo': {long: 40, lat: 0, dist: 300000}})
+                            .set("Authorization", "Bearer " + adminToken)
+                            .end(function (err, res) {
+                                should.not.exist(err);
+                                res.body.docs.should.be.an('Array');
+                                res.body.docs.should.have.lengthOf(2);
+                                done();
+                            });
+                    });
+            });
+            it('should succeed with closer distance', function (done) {
+                venues.collection.createIndex({'location': '2dsphere'}, {name: 'locationIndex'},
+                    function (err) {
+                        should.not.exist(err);
+                        chai.request(server)
+                            .get(endpoint)
+                            .query({'geo': {long: 40, lat: 0, dist: 71300}})
+                            .set("Authorization", "Bearer " + adminToken)
+                            .end(function (err, res) {
+                                should.not.exist(err);
                                 res.body.docs.should.be.an('Array');
                                 res.body.docs.should.have.lengthOf(1);
                                 done();
                             });
-                        });
-                });
+                    });
             });
-
-            it('should succeed with venue text search and language', function (done) {
-                venues.collection.createIndex({"$**": "text"},{name: "textIndex","default_language":"es"}, function (err) {
-                    chai.request(server)
-                        .get(endpoint)
-                        .query({'text': 'razaGuena'})
-                        .set("Authorization", "Bearer " + adminToken)
-                        .set("Accept-Language", "es")
-                        .end(function (err, res) {
-                            commonTestUtils.test_pagination(err, res, function () {
-                                res.body.docs.should.be.an('Array');
-                                res.body.docs.should.have.lengthOf(1);
-                                done();
-                            });
-                        });
-                });
-            });
-
         });
         describe('venues/id', () => {
             it('should success for admin', function (done) {
@@ -306,30 +300,6 @@ describe('Venues Group', () => {
                 chai.request(server)
                     .get(endpoint + '/' + venue._id)
                     .set("Authorization", "Bearer " + clientToken)
-                    .end(function (err, res) {
-                        res.should.have.status(200);
-                        res.should.be.json;
-                        res.body.should.be.an('Object');
-                        res.body.should.contain.all.keys('_id', 'name', 'apiVersion');
-                        done();
-                    });
-            });
-            it('should success for vet center', function (done) {
-                chai.request(server)
-                    .get(endpoint + '/' + venue._id)
-                    .set("Authorization", "Bearer " + vetCenterToken)
-                    .end(function (err, res) {
-                        res.should.have.status(200);
-                        res.should.be.json;
-                        res.body.should.be.an('Object');
-                        res.body.should.contain.all.keys('_id', 'name', 'apiVersion');
-                        done();
-                    });
-            });
-            it('should success for telemarketing', function (done) {
-                chai.request(server)
-                    .get(endpoint + '/' + venue._id)
-                    .set("Authorization", "Bearer " + teleToken)
                     .end(function (err, res) {
                         res.should.have.status(200);
                         res.should.be.json;
@@ -362,11 +332,11 @@ describe('Venues Group', () => {
             });
         });
     });
-    describe.skip('DELETE', function () {
+    describe('DELETE', function () {
         beforeEach((done) => { //Before each test create the object
             venues.remove({}, (err) => {
-                commonTestUtils.test_createVenue(server, adminToken, commonTestUtils.venueConstants.Venue, function (realVenue) {
-                    venue = realVenue
+                commonTestUtils.test_createVenue(server, adminToken, commonTestUtils.venueConstants.venueDevelapps, function (realVenue) {
+                    venue = realVenue;
                     done();
                 });
             });
@@ -386,26 +356,6 @@ describe('Venues Group', () => {
             chai.request(server)
                 .delete(endpoint + '/' + venue._id)
                 .set("Authorization", "Bearer " + clientToken)
-                .end(function (err, res) {
-                    commonTestUtils.test_error(403, err, res, function () {
-                        done();
-                    })
-                });
-        });
-        it('should succeed for vetCenter on its venue', function (done) {
-            chai.request(server)
-                .delete(endpoint + '/' + venue._id)
-                .set("Authorization", "Bearer " + vetCenterToken)
-                .end(function (err, res) {
-                    commonTestUtils.test_error(403, err, res, function () {
-                        done();
-                    })
-                });
-        });
-        it('should succeed for telemarketing on its venue', function (done) {
-            chai.request(server)
-                .delete(endpoint + '/' + venue._id)
-                .set("Authorization", "Bearer " + teleToken)
                 .end(function (err, res) {
                     commonTestUtils.test_error(403, err, res, function () {
                         done();

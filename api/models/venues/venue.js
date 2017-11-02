@@ -24,38 +24,46 @@ let mongooseValidators = require('lib/validation/mongooseValidators');
 
 let venueSchema = new Schema({
     name: {
-        type: String,
+        $type: String,
         required: true,
         trim: true
     },
-    image: {type: Schema.Types.ObjectId, ref: 'Image'},
-    images: [{type: Schema.Types.ObjectId, ref: 'Image'}],
+    image: {$type: Schema.Types.ObjectId, ref: 'Image'},
+    images: [{$type: Schema.Types.ObjectId, ref: 'Image'}],
     location: {
-        type: {type: String, default: "Point"},
-        coordinates: [{type: Number}],
+        type: {
+            $type: String,
+            default: "Point",
+            enum: {
+                values: constants.geo.forms,
+                message: "value  (`{VALUE}`) not allowed for `{PATH}` , allowed values are " + constants.geo.forms
+            },
+            required: true
+        },
+        coordinates: [Number],
     },
     schedule: [{
         weekday: {
-            type: Number,
+            $type: Number,
             enum: {
                 values: constants.venues.weekdays,
                 message: "value  (`{VALUE}`) not allowed for `{PATH}` , allowed values are " + constants.venues.weekdays
             },
             required: true,
         },
-        openTime: {type: Date, required: true},
-        closeTime: {type: Date, required: true},
+        openTime: {$type: Date, required: true},
+        closeTime: {$type: Date, required: true},
     }],
-    active: {type: Boolean, default: true},
-    apiVersion: {type: String, required: true, default: config.apiVersion},
-}, {timestamps: true});
+    active: {$type: Boolean, default: true},
+    apiVersion: {$type: String, required: true, default: config.apiVersion},
+}, {timestamps: true, typeKey: '$type' });
 
 venueSchema.plugin(mongoosePaginate);
 venueSchema.index({'active': 1}, {name: 'activeIndex'});
 venueSchema.index({'name': 1}, {name: 'nameIndex'});
-venueSchema.index({'schedule.weekday': 1}, {name: 'weekDayIndex'});
 venueSchema.index({'location': '2dsphere'}, {name: 'locationIndex'});
 venueSchema.index({'$**': 'text'}, {name: 'textIndex', default_language: 'es'});
+venueSchema.index({'schedule.weekday': 1}, {name: 'weekDayIndex'});
 
 let autoPopulate = function (next) {
     this.populate('image');
@@ -64,6 +72,7 @@ let autoPopulate = function (next) {
     next();
 };
 venueSchema.pre('findOne', autoPopulate).pre('find', autoPopulate);
+
 
 venueSchema.statics.mapObject = function (newDBObject, newObject) {
     if (!newDBObject) {
