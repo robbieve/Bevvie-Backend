@@ -20,7 +20,6 @@ const endpoint = '/api/v1/login';
 const constants = require('api/common/constants');
 const async = require("async");
 const bootstrap = require("bootstrap/load_data");
-const breeds = require("api/models/pets/breeds");
 
 let plusMail = "develapps+test@develapps.es";
 

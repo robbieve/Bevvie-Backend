@@ -8,7 +8,6 @@ const fs = require("fs");
 let moment = require("moment");
 let async = require("async");
 let bootstrap = require('bootstrap/load_data');
-let breeds = require("api/models/pets/breeds");
 
 exports.test_createUser = function (server, parameters, callback) {
     chai.request(server)
@@ -41,34 +40,7 @@ exports.test_createVenue = function (server, token, parameters, callback) {
         });
 };
 
-exports.test_createPet = function (server, token, parameters, callback) {
-    chai.request(server)
-        .post('/api/v1/pets')
-        .send(parameters)
-        .set("Content-Type", "application/json")
-        .set("Authorization", "Bearer " + token)
-        .end(function (err, res) {
-            res.should.have.status(201);
-            res.should.be.json;
-            res.body.should.be.an('object');
-            res.body.should.have.property('_id');
-            callback(res.body);
-        });
-};
-exports.test_createBreed = function (server, token, parameters, callback) {
-    chai.request(server)
-        .post('/api/v1/breeds')
-        .send(parameters)
-        .set("Content-Type", "application/json")
-        .set("Authorization", "Bearer " + token)
-        .end(function (err, res) {
-            res.should.have.status(201);
-            res.should.be.json;
-            res.body.should.be.an('object');
-            res.body.should.have.property('_id');
-            callback(res.body);
-        });
-};
+
 exports.test_createImage = function (server, aToken, imageFile, callback) {
     chai.request(server)
         .post('/api/v1/images')
