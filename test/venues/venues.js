@@ -296,7 +296,7 @@ describe('Venues Group', () => {
                         done();
                     });
             });
-            it('should success for client', function (done) {
+            it('should succeed for client', function (done) {
                 chai.request(server)
                     .get(endpoint + '/' + venue._id)
                     .set("Authorization", "Bearer " + clientToken)

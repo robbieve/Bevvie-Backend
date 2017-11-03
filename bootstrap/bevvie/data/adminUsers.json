@@ -1,17 +1,11 @@
 {
     "AdminUser": {
-        "_model": "AdminUser",
+        "_model": "User",
         "admin": {
-            "email": "admin@admin.es",
-            "password": "admin",
-            "name": "Administrador de bevvie",
-            "roles": "admin"
-        },
-        "jcadmin": {
-            "email": "jcadmin@admin.es",
-            "password": "12345678",
-            "name": "Juan Carlos de bevvie",
-            "roles": "admin"
+            "accessType": "password",
+            "password": "Develapps16",
+            "name": "admin",
+            "admin": true
         }
     }
 }

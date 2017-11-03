@@ -33,6 +33,10 @@ module.exports.sortOrderNames = {
     desc: "desc",
 };
 
+
+module.exports.users.maxAge = 66;
+
+
 // Venues
 module.exports.venues = {};
 module.exports.venues.weekdaysNames = {
@@ -59,3 +63,7 @@ module.exports.geo.formNames = {
     GeometryCollection:"GeometryCollection",
 };
 module.exports.geo.forms = Object.keys(module.exports.geo.formNames);
+
+// CHECKIN
+module.exports.checkins = {};
+module.exports.checkins.maxTime = 18*3600; //18 hours max per visit

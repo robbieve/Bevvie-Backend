@@ -40,6 +40,20 @@ exports.test_createVenue = function (server, token, parameters, callback) {
         });
 };
 
+exports.test_createCheckin = function (server, token, parameters, callback) {
+    chai.request(server)
+        .post('/api/v1/checkins')
+        .send(parameters)
+        .set("Content-Type", "application/json")
+        .set("Authorization", "Bearer " + token)
+        .end(function (err, res) {
+            res.should.have.status(201);
+            res.should.be.json;
+            res.body.should.be.an('object');
+            res.body.should.have.property('_id');
+            callback(res.body);
+        });
+};
 
 exports.test_createImage = function (server, aToken, imageFile, callback) {
     chai.request(server)
@@ -104,7 +118,6 @@ exports.test_error = function (expectedCode, err, res, callback) {
     res.body.should.have.property('rawError');
     callback();
 };
-
 exports.test_errorCode = function (expectedCode, expectedErrorCode, err, res, callback) {
     should.exist(err);
     res.should.have.status(expectedCode);
@@ -118,39 +131,11 @@ exports.test_errorCode = function (expectedCode, expectedErrorCode, err, res, ca
     callback();
 };
 
-// Helpers
-
-exports.testBuild_createAdminUserAndClient = function (server, values ,callback) {
-    let result = {};
-    values = values ? values : {
-        admin: exports.userConstants.admin,
-        userOne: exports.userConstants.userOne,
-    };
-    async.series([
-            function (isDone) {
-                exports.test_createUser(server, values.admin, function (res) {
-                    result.admin = res;
-                    isDone();
-                });
-            },
-            function (isDone) {
-                exports.test_createUser(server, values.userOne, function (res) {
-                    result.userOne = res;
-                    isDone();
-                });
-            },
-        ],
-        function (err) {
-            should.not.exist(err);
-            callback(result);
-        });
-};
-
 
 exports.userConstants = {
     "admin": {
         'name': 'admin',
-        "age": 20,
+        "age": 22,
         'country': "ES",
         "languages": ["es", "en"],
         "accessType": constants.users.accessTypeNames.password,
@@ -162,6 +147,14 @@ exports.userConstants = {
         "age": 20,
         'country': "GB",
         "languages": ["en"],
+        "accessType": constants.users.accessTypeNames.password,
+        "password": "passw0rd",
+    },
+    "userTwo": {
+        'name': 'userTwo',
+        "age": 40,
+        'country': "ES",
+        "languages": ["es"],
         "accessType": constants.users.accessTypeNames.password,
         "password": "passw0rd",
     },
@@ -246,4 +239,81 @@ exports.venueConstants={
             }
         ]
     },
+};
+
+
+// Helpers
+
+exports.testBuild_createAdminUserAndClients = function (server, values , callback) {
+    let result = {};
+    values = values ? values : {
+        admin: exports.userConstants.admin,
+        userOne: exports.userConstants.userOne,
+        userTwo: exports.userConstants.userTwo
+    };
+    async.series([
+            function (isDone) {
+                exports.test_createUser(server, values.admin, function (res) {
+                    result.admin = res;
+                    isDone();
+                });
+            },
+            function (isDone) {
+                exports.test_createUser(server, values.userOne, function (res) {
+                    result.userOne = res;
+                    isDone();
+                });
+            },
+            function (isDone) {
+                exports.test_createUser(server, values.userTwo, function (res) {
+                    result.userTwo = res;
+                    isDone();
+                });
+            },
+        ],
+        function (err) {
+            should.not.exist(err);
+            callback(result);
+        });
+};
+exports.testBuild_createUsersAndVenues = function (server, values ,callback) {
+    let result = {};
+    values = values ? values : {
+        venueDevelapps: exports.venueConstants.venueDevelapps,
+        venueBolos: exports.venueConstants.venueBolos,
+        venueFarAway: exports.venueConstants.venueFarAway
+    };
+    let token;
+    async.series([
+            function (isDone) {
+                exports.testBuild_createAdminUserAndClients(server, null, function (res) {
+                    Object.assign(result,res);
+                    token = res.admin.token;
+                    isDone();
+                });
+            },
+            function (isDone) {
+                exports.test_createVenue(server,token, values.venueDevelapps, function (res) {
+                    result.venueDevelapps = res;
+                    isDone();
+                });
+            },
+            function (isDone) {
+                exports.test_createVenue(server, token,values.venueBolos, function (res) {
+                    result.venueBolos = res;
+                    isDone();
+                });
+            },
+            function (isDone) {
+                exports.test_createVenue(server, token,values.venueFarAway, function (res) {
+                    result.venueFarAway = res;
+                    isDone();
+                });
+            },
+
+        ],
+        function (err) {
+            should.not.exist(err);
+            callback(result);
+        });
 };

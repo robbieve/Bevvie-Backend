@@ -29,7 +29,7 @@ describe('Login Group', () => {
         commonTestInit.before(function () {
             user.remove({}, (err) => {
                 should.not.exist(err);
-                commonTestUtils.testBuild_createAdminUserAndClient(server,null,function (res) {
+                commonTestUtils.testBuild_createAdminUserAndClients(server,null,function (res) {
                     adminToken = res.admin.token;
                     adminUserId = res.admin.user._id;
                     token = res.userOne.token;

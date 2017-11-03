@@ -8,6 +8,7 @@ module.exports = function (app) {
         "controllers/users": ["login", "register","users"],
         "controllers/blobs": ["images","files"],
         "controllers/venues": ["venues"],
+        "controllers/checkins": ["checkins"],
     };
     Object.keys(includes).forEach(function (key) {
         includes[key].forEach(function (aRoute) {

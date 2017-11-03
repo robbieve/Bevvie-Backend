@@ -5,6 +5,8 @@ let Schema = mongoose.Schema;
 const config = require('config');
 let constants = require('api/common/constants');
 let mongooseValidators = require('lib/validation/mongooseValidators');
+let moment = require("moment");
+
 /**
  * @apiDefine VenueParameters
  * @apiParam (Venue) {String} _id id of the object.
@@ -56,7 +58,7 @@ let venueSchema = new Schema({
     }],
     active: {$type: Boolean, default: true},
     apiVersion: {$type: String, required: true, default: config.apiVersion},
-}, {timestamps: true, typeKey: '$type' });
+}, {timestamps: true, typeKey: '$type'});
 
 venueSchema.plugin(mongoosePaginate);
 venueSchema.index({'active': 1}, {name: 'activeIndex'});
@@ -103,6 +105,28 @@ venueSchema.statics.deleteByIds = function (ids, callback) {
         if (callback) callback(err, element.result);
     })
 };
+
+venueSchema.methods.maxTimePerCheck = function () {
+    if (this.schedule) {
+        let dayOfWeek = moment().isoWeekday();
+        let schedule = this.schedule.filter(function (day) {
+            return day.weekday === dayOfWeek;
+        });
+        if (schedule && schedule.length > 0) {
+            let closeTimeString     = moment(schedule[0].closeTime).format("HH:mm");
+            let currentTimeString   = moment().format("HH:mm");
+            let currentTime = moment(currentTimeString,"HH:mm");
+            let closeTime = moment(closeTimeString,"HH:mm");
+            if (closeTime.unix()<currentTime.unix()){ // Time is tomorrow
+                closeTime = moment(closeTime).add(1, "day");
+            }
+            let diff =  closeTime.unix()  - currentTime.unix();
+            return diff < constants.checkins.maxTime ? diff : constants.checkins.maxTime ;
+        }
+    }
+    return constants.checkins.maxTime;
+};
+
 
 let Venue = mongoose.model('Venue', venueSchema);
 

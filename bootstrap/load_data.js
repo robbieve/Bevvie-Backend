@@ -14,25 +14,16 @@ const constants = require('api/common/constants');
 // Constants
 
 const files = [
-    {"file": "bootstrap/bevvie/data/breedsCats.csv", "species": "Cats"},
-    {"file": "bootstrap/bevvie/data/breedsDogs.csv", "species": "Dogs"},
+   // {"file": "bootstrap/bevvie/data/breedsCats.csv", "species": "Cats"},
+   // {"file": "bootstrap/bevvie/data/breedsDogs.csv", "species": "Dogs"},
 ];
 
-let breedsToLoad = {
-    breeds: {
-        "_model": "Breed",
-    }
-};
 
-let shouldLoad = ["breeds","admin","telemarketing","vetCenters","potentialClients","pets"];
+let shouldLoad = ["venues","admin"];
 
 let jsonToLoad = {
-    breeds: {},
-    pets: require("bootstrap/bevvie/data/pets.json"),
+    venues: require("bootstrap/bevvie/data/venues.json"),
     admin: require("bootstrap/bevvie/data/adminUsers.json"),
-    potentialClients: require("bootstrap/bevvie/data/potentialClients.json"),
-    telemarketing: require("bootstrap/bevvie/data/telemarketing.json"),
-    vetCenters: require("bootstrap/bevvie/data/vetCenters.json")
 };
 
 
@@ -91,52 +82,17 @@ function _getUsers() {
     }
 }
 
-function processBreeds(species, breeds, cb) {
-    let finalObject = {};
-    async.each(breeds,
-        function (breed, done) {
-            let id = breed["ID"];
-            let object = {};
-            object[id] = {
-                royalCaninIdentifier: id,
-                species: species,
-                name: [
-                    {
-                        localizedName: breed["Spanish"],
-                        language: "es",
-                    }, {
-                        localizedName: (breed["Portuguese"] + "_PT"),
-                        language: "pt",
-                    }
-                ],
-            };
-            Object.assign(finalObject, object);
-            done();
-        },
-        function (err) {
-            if (err) {
-                winston.error("ERROR: " + err);
-                process.exit(-1)
-            }
-            cb(finalObject)
-        })
-}
+
 
 function _loadDB(callback) {
     winston.info('Seeding...');
 
     let data = {};
     //let userData = _getUsers();
-    jsonToLoad.breeds = breedsToLoad;
 
     // Models
     const user = require('api/models/users/user');
-    const breeds = require('api/models/pets/breeds');
-    const potentialUser = require('api/models/users/potentiaclientUser');
-    const telemarketing = require('api/models/users/telemarketingUser');
-    const vetcenter = require('api/models/users/vetcenterUser');
-    const admin = require('api/models/users/adminUser');
-    const pets = require('api/models/pets/pets');
+    const venues = require('api/models/venues/venue');
 
     // Order is important
 
@@ -145,7 +101,7 @@ function _loadDB(callback) {
         Object.assign(data, dataElement);
     });
 
-    ["AdminUser","PotentialClientUser","TelemarketingUser","VetcenterUser"].forEach(function (dataIn) {
+    ["AdminUser"].forEach(function (dataIn) {
         let users = data[dataIn];
         Object.keys(users).forEach(function (user) {
             let userObject = users[user];
@@ -179,38 +135,14 @@ function _loadDB(callback) {
 }
 
 function startDBCreation(callback) {
-    // Read Product data from files
-    async.eachSeries(files, function (file, fileDone) {
-            let breedsReadData = [];
-            let filename = file["file"];
-            let species = file["species"];
-            winston.info('Reading ' + filename);
-            _readCSV(filename, breedsReadData, function (err, result) {
-                winston.info('Read data from files ' + species + ' nº: ' + breedsReadData.length);
-                processBreeds(species, breedsReadData, function (resultData) {
-                    Object.assign(breedsToLoad.breeds, resultData);
-                    fileDone();
-                });
-
-            });
-        },
-        function (err) {
-            if (err) {
-                winston.error('Error reading files ' + err);
-                process.exit(-1)
-            }
-            else {
-                _loadDB(callback)
-            }
-        }
-    )
+    _loadDB(callback)
 }
 
 
 module.exports.initDatabase = function (elements,callback) {
     if (typeof elements === "function"){
         callback = elements;
-        elements = ["breeds"];
+        elements = ["venues"];
     }
     shouldLoad = elements;
     const mongoose = require('lib/db/mongoose')(function () {

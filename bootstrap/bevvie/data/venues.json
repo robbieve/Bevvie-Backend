@@ -4,26 +4,72 @@
   },
   "venues": {
     "_model": "Venue",
-    "Venue1": {
+    "venue1":{
       "name": "The Peasant Pub",
       "location": {
-          "coordinates": [39.466089,-0.350823]
+        "coordinates": [39.466089,-0.350823]
       },
       "schedule":[
         {
           "weekday": 5,
-          "openTime": "=moment('19:00')",
-          "closeTime": "=moment('3:00')"
+          "openTime": "=moment('19:00','HH:mm')",
+          "closeTime": "=moment('03:00','HH:mm')"
         },
         {
           "weekday": 6,
-          "openTime": "=moment('19:00')",
-          "closeTime": "=moment('5:00')"
-        }
+          "openTime": "=moment('19:00','HH:mm')",
+          "closeTime": "=moment('03:00','HH:mm')"
+        },
         {
           "weekday": 7,
-          "openTime": "=moment('19:00')",
-          "closeTime": "=moment('00:00')"
+          "openTime": "=moment('19:00','HH:mm')",
+          "closeTime": "=moment('03:00','HH:mm')"
+        }
+      ]
+    },
+    "venue2":{
+      "name": "The Bolos Pub",
+      "location": {
+        "coordinates": [39.4638609,-0.3515847]
+      },
+      "schedule":[
+        {
+          "weekday": 5,
+          "openTime": "=moment('19:00','HH:mm')",
+          "closeTime": "=moment('03:00','HH:mm')"
+        },
+        {
+          "weekday": 6,
+          "openTime": "=moment('19:00','HH:mm')",
+          "closeTime": "=moment('03:00','HH:mm')"
+        },
+        {
+          "weekday": 7,
+          "openTime": "=moment('19:00','HH:mm')",
+          "closeTime": "=moment('03:00','HH:mm')"
+        }
+      ]
+    },
+    "venue3":{
+      "name": "The Faraway Pub",
+      "location": {
+        "coordinates": [0,20.3515847]
+      },
+      "schedule":[
+        {
+          "weekday": 5,
+          "openTime": "=moment('19:00','HH:mm')",
+          "closeTime": "=moment('03:00','HH:mm')"
+        },
+        {
+          "weekday": 6,
+          "openTime": "=moment('19:00','HH:mm')",
+          "closeTime": "=moment('03:00','HH:mm')"
+        },
+        {
+          "weekday": 7,
+          "openTime": "=moment('19:00','HH:mm')",
+          "closeTime": "=moment('03:00','HH:mm')"
         }
       ]
     }
