@@ -264,6 +264,7 @@ describe('Venues Group', () => {
                                 should.not.exist(err);
                                 res.body.docs.should.be.an('Array');
                                 res.body.docs.should.have.lengthOf(2);
+                                should.exist(res.body.docs[0].checkins);
                                 done();
                             });
                     });

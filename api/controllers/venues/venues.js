@@ -8,6 +8,7 @@ const jsonParser = require('lib/parsers/jsonBodyParser');
 
 // DB
 let Venue = require('api/models/venues/venue');
+let Checkin = require('api/models/checkins/checkin');
 let User = require('api/models/users/user');
 let dbError = require('lib/loggers/db_error');
 
@@ -18,6 +19,7 @@ let venueValidator = require('api/validators/venueValidator');
 const route_utils = require('api/controllers/common/routeUtils');
 const constants = require('api/common/constants');
 const errorConstants = require('api/common/errorConstants');
+const async = require("async");
 
 // Prepost function
 function _prepost(request, response, next, callback) {
@@ -79,7 +81,8 @@ router.route('/')
      * @apiParam {String="name"} sort.field=name field to sort with
      * @apiParam {String="asc","desc"} sort.order=asc whether to sort ascending or descending
      * @apiParam {String="true","false","all"} active=true match active venues or not
-
+     * @apiDescription this method will return the number of checkins for each venue if geo filtering is enabled
+     *
      * @apiSuccess {Object[]} docs       List of venues.
      * @apiSuccess {String}   docs._id   Id of the venue.
      * @apiSuccess {String}   docs.versionNumber   versionNumber of the venue.
@@ -136,7 +139,18 @@ router.route('/')
                             return response.status(500).json(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
                         }
                         else  {
-                            return response.status(200).json({docs: results});
+                            async.each(results,
+                                function (venue,isDone) {
+                                    Checkin.count({venue: venue._id},function (err, count) {
+                                        venue.checkins = count;
+                                        isDone(err);
+                                    });
+                                },
+                                function (err) {
+                                    if (err)  return response.status(500).json(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
+                                    return response.status(200).json({docs: results});
+                                });
+
                         }
                     }
                 )
@@ -148,7 +162,6 @@ router.route('/')
                     request, response, next)
             }
         });
-
 
 router.route('/:id')
     .all(passport.authenticate('bearer', {session: false}),
