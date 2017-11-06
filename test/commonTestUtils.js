@@ -55,6 +55,21 @@ exports.test_createCheckin = function (server, token, parameters, callback) {
         });
 };
 
+exports.test_createBlock= function (server, token, parameters, callback) {
+    chai.request(server)
+        .post('/api/v1/blocks')
+        .send(parameters)
+        .set("Content-Type", "application/json")
+        .set("Authorization", "Bearer " + token)
+        .end(function (err, res) {
+            res.should.have.status(201);
+            res.should.be.json;
+            res.body.should.be.an('object');
+            res.body.should.have.property('_id');
+            callback(res.body);
+        });
+};
+
 exports.test_createImage = function (server, aToken, imageFile, callback) {
     chai.request(server)
         .post('/api/v1/images')
@@ -77,28 +92,7 @@ exports.test_createImage = function (server, aToken, imageFile, callback) {
             callback(res.body._id);
         });
 };
-exports.test_createFile = function (server, aToken, imageFile, fileName, callback) {
-    chai.request(server)
-        .post('/api/v1/files')
-        .set("Authorization", "Bearer " + aToken)
-        .set("Content-Type", "multipart/form")
-        .attach("file", imageFile, fileName)
-        .end(function (err, res) {
-            should.not.exist(err);
-            let keys = [
-                "__v",
-                "_id",
-                "apiVersion",
-                "owner",
-                "contentType",
-                "md5",
-                "s3",
-            ];
-            res.body.should.contain.all.keys(keys);
-            res.body.s3.should.contain.all.keys('identifier', 'url');
-            callback(res.body._id);
-        });
-};
+
 exports.test_pagination = function (err, res, callback) {
     should.not.exist(err);
     res.should.have.status(200);

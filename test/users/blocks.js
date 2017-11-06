@@ -11,10 +11,9 @@ let fs = require('fs');
 
 // User
 let user = require('api/models/users/user');
-let checkins = require('api/models/checkins/checkin');
-let venues = require('api/models/venues/venue');
+let blocks = require('api/models/users/block');
 
-const endpoint = '/api/v1/checkins';
+const endpoint = '/api/v1/blocks';
 const bootstrap = require("bootstrap/load_data");
 
 let clientId = "";
@@ -22,14 +21,11 @@ let clientIdTwo = "";
 let clientToken = "";
 let adminId = "";
 let adminToken = "";
-let venueDevelapps = "";
-let venueBolos = "";
 
-let develappsCheckin = {};
-let bolosCheckin = {};
-let develappsCheckinTwo = {};
+let develappsBlock = {};
+let develappsBlockTwo = {};
 
-describe('Checkins Group', () => {
+describe('Blocks Group', () => {
     // Needed to not recreate schemas
     before(function (done) {
         async.series([
@@ -46,20 +42,11 @@ describe('Checkins Group', () => {
                         clientIdTwo = res.userTwo.user._id;
 
                         clientToken = res.userOne.token;
-                        venueDevelapps = res.venueDevelapps;
-                        venueBolos = res.venueBolos;
-                        develappsCheckin = {
-                            user: clientId,
-                            venue: venueDevelapps._id
+                        develappsBlock = {
+                            userBlocks: clientId,
+                            userBlocked: clientIdTwo
                         };
-                        bolosCheckin = {
-                            user: clientId,
-                            venue: venueBolos._id
-                        };
-                        develappsCheckinTwo = {
-                            user: clientIdTwo,
-                            venue: venueDevelapps._id
-                        };
+
                         doneFunc();
                     });
                 }],
@@ -71,7 +58,7 @@ describe('Checkins Group', () => {
     // Needed to not fail on close
     after(function (done) {
         user.remove({}, (err) => {
-            checkins.remove({}, (err) => {
+            blocks.remove({}, (err) => {
                 should.not.exist(err);
                 done();
             });
@@ -79,7 +66,7 @@ describe('Checkins Group', () => {
     });
     describe('POST', () => {
         beforeEach((done) => { //Before each test we empty the database
-            checkins.remove({}, (err) => {
+            blocks.remove({}, (err) => {
                 should.not.exist(err);
                 done();
             });
@@ -87,26 +74,24 @@ describe('Checkins Group', () => {
         it('should succeed for good values', (done) => {
             chai.request(server)
                 .post(endpoint)
-                .send(develappsCheckin)
+                .send(develappsBlock)
                 .set("Content-Type", "application/json")
                 .set("Authorization", "Bearer " + clientToken)
                 .end(function (err, res) {
                     res.should.have.status(201);
                     res.should.be.json;
                     res.body.should.be.an('object');
-                    res.body.should.have.property('_id');
-                    res.body.should.have.property('user');
-                    res.body.should.have.property('venue');
+                    res.body.should.contain.all.keys('_id', 'userBlocks', 'userBlocked');
                     done();
                 });
         });
 
         it('should fail for bad UserId', (done) => {
-            let checkIn = JSON.parse(JSON.stringify(develappsCheckin));
-            checkIn.user = "bad-user-id";
+            let block = JSON.parse(JSON.stringify(develappsBlock));
+            block.userBlocks = "bad-user-id";
             chai.request(server)
                 .post(endpoint)
-                .send(checkIn)
+                .send(block)
                 .set("Content-Type", "application/json")
                 .set("Authorization", "Bearer " + adminToken)
                 .end(function (err, res) {
@@ -115,12 +100,12 @@ describe('Checkins Group', () => {
                     });
                 });
         });
-        it('should fail for bad venue', (done) => {
-            let checkIn = JSON.parse(JSON.stringify(develappsCheckin));
-            checkIn.venue = "very-bad-venue-id";
+        it('should fail for bad UserId blocked', (done) => {
+            let block = JSON.parse(JSON.stringify(develappsBlock));
+            block.userBlocked = "bad-user-id";
             chai.request(server)
                 .post(endpoint)
-                .send(checkIn)
+                .send(block)
                 .set("Content-Type", "application/json")
                 .set("Authorization", "Bearer " + adminToken)
                 .end(function (err, res) {
@@ -132,32 +117,25 @@ describe('Checkins Group', () => {
     });
     describe('GET', () => {
         before((done) => { //Before each test create the object
-            checkins.remove({}, (err) => {
-                develappsCheckin = {
-                    user: clientId,
-                    venue: venueDevelapps._id
+            blocks.remove({}, (err) => {
+                develappsBlock = {
+                    userBlocks: clientId,
+                    userBlocked: clientIdTwo
                 };
-                bolosCheckin = {
-                    user: clientId,
-                    venue: venueBolos._id
+                develappsBlockTwo = {
+                    userBlocks: clientIdTwo,
+                    userBlocked: clientId
                 };
-                develappsCheckinTwo = {
-                    user: clientIdTwo,
-                    venue: venueDevelapps._id
-                };
-                commonTestUtils.test_createCheckin(server, adminToken, develappsCheckin, function (realCheckin) {
-                    develappsCheckin = realCheckin;
-                    commonTestUtils.test_createCheckin(server, adminToken, bolosCheckin, function (realCheckin) {
-                        bolosCheckin = realCheckin;
-                        commonTestUtils.test_createCheckin(server, adminToken, develappsCheckinTwo, function (realCheckin) {
-                            develappsCheckinTwo = realCheckin;
-                            done();
-                        });
+                commonTestUtils.test_createBlock(server, adminToken, develappsBlock, function (realBlock) {
+                    develappsBlock = realBlock;
+                    commonTestUtils.test_createBlock(server, adminToken, develappsBlockTwo, function (realBlock) {
+                        develappsBlockTwo = realBlock;
+                        done();
                     });
                 });
             });
         });
-        describe('checkins/', () => {
+        describe('blocks/', () => {
             it('should fail with no auth header', (done) => {
                 chai.request(server)
                     .get(endpoint)
@@ -175,7 +153,7 @@ describe('Checkins Group', () => {
                     .end(function (err, res) {
                         commonTestUtils.test_pagination(err, res, function () {
                             res.body.docs.should.be.an('Array');
-                            res.body.docs.should.have.lengthOf(3);
+                            res.body.docs.should.have.lengthOf(1);
                             done();
                         });
                     });
@@ -188,114 +166,65 @@ describe('Checkins Group', () => {
                     .end(function (err, res) {
                         commonTestUtils.test_pagination(err, res, function () {
                             res.body.docs.should.be.an('Array');
-                            res.body.docs.should.have.lengthOf(3);
-                            done();
-                        });
-                    });
-            });
-
-            it('should succeed with all checkins data', function (done) {
-                chai.request(server)
-                    .get(endpoint)
-                    .query({'active': "all"})
-                    .set("Authorization", "Bearer " + adminToken)
-                    .end(function (err, res) {
-                        commonTestUtils.test_pagination(err, res, function () {
-                            res.body.docs.should.be.an('Array');
-                            res.body.docs.should.have.lengthOf(3);
-                            done();
-                        });
-                    });
-            });
-            it('should succeed with checkin venue id', function (done) {
-                chai.request(server)
-                    .get(endpoint)
-                    .query({'venue': venueDevelapps._id})
-                    .set("Authorization", "Bearer " + adminToken)
-                    .end(function (err, res) {
-                        commonTestUtils.test_pagination(err, res, function () {
-                            res.body.docs.should.be.an('Array');
                             res.body.docs.should.have.lengthOf(2);
                             done();
                         });
                     });
             });
-            it('should succeed with checkin venue id and maxAge', function (done) {
+
+            it('should succeed with userBlocks', function (done) {
                 chai.request(server)
                     .get(endpoint)
-                    .query({'venue': venueDevelapps._id, 'maxAge': 21})
+                    .query({'userBlocks': develappsBlock.userBlocks})
                     .set("Authorization", "Bearer " + adminToken)
                     .end(function (err, res) {
                         commonTestUtils.test_pagination(err, res, function () {
                             res.body.docs.should.be.an('Array');
                             res.body.docs.should.have.lengthOf(1);
+                            res.body.docs[0].userBlocks._id.should.equal(develappsBlock.userBlocks);
                             done();
                         });
                     });
             });
-            it('should succeed with checkin venue id and minAge', function (done) {
+            it('should succeed with userBlocked', function (done) {
                 chai.request(server)
                     .get(endpoint)
-                    .query({'venue': venueDevelapps._id, 'minAge': 30})
+                    .query({'userBlocked': develappsBlock.userBlocked})
                     .set("Authorization", "Bearer " + adminToken)
                     .end(function (err, res) {
                         commonTestUtils.test_pagination(err, res, function () {
                             res.body.docs.should.be.an('Array');
                             res.body.docs.should.have.lengthOf(1);
-                            done();
-                        });
-                    });
-            });
-            it('should succeed with checkin venue id and minAge and maxAge', function (done) {
-                chai.request(server)
-                    .get(endpoint)
-                    .query({'venue': venueDevelapps._id, 'minAge': 30, 'maxAge': 34})
-                    .set("Authorization", "Bearer " + adminToken)
-                    .end(function (err, res) {
-                        commonTestUtils.test_pagination(err, res, function () {
-                            res.body.docs.should.be.an('Array');
-                            res.body.docs.should.have.lengthOf(0);
-                            done();
-                        });
-                    });
-            });
-            it('should succeed with userid', function (done) {
-                chai.request(server)
-                    .get(endpoint)
-                    .query({'user': clientIdTwo})
-                    .set("Authorization", "Bearer " + adminToken)
-                    .end(function (err, res) {
-                        commonTestUtils.test_pagination(err, res, function () {
-                            res.body.docs.should.be.an('Array');
-                            res.body.docs.should.have.lengthOf(1);
+                            res.body.docs[0].userBlocked._id.should.equal(develappsBlock.userBlocked);
                             done();
                         });
                     });
             });
 
+
         });
-        describe('checkins/id', () => {
+        describe('blocks/id', () => {
             it('should success for admin', function (done) {
                 chai.request(server)
-                    .get(endpoint + '/' + develappsCheckin._id)
+                    .get(endpoint + '/' + develappsBlock._id)
                     .set("Authorization", "Bearer " + adminToken)
                     .end(function (err, res) {
                         res.should.have.status(200);
                         res.should.be.json;
                         res.body.should.be.an('Object');
-                        res.body.should.contain.all.keys('_id', 'venue', 'user', 'apiVersion');
+                        res.body.should.contain.all.keys('_id', 'userBlocks', 'userBlocked');
                         done();
                     });
             });
             it('should success for client', function (done) {
                 chai.request(server)
-                    .get(endpoint + '/' + develappsCheckin._id)
+                    .get(endpoint + '/' + develappsBlock._id)
                     .set("Authorization", "Bearer " + clientToken)
                     .end(function (err, res) {
                         res.should.have.status(200);
                         res.should.be.json;
                         res.body.should.be.an('Object');
-                        res.body.should.contain.all.keys('_id', 'venue', 'user', 'apiVersion');
+                        res.body.should.contain.all.keys('_id', 'userBlocks', 'userBlocked');
                         done();
                     });
             });
@@ -310,7 +239,7 @@ describe('Checkins Group', () => {
 
                     });
             });
-            it('should fail for non existing checkin id with 404', function (done) {
+            it('should fail for non existing block id with 404', function (done) {
                 chai.request(server)
                     .get(endpoint + '/' + "59ce0578f418c80bde508890")
                     .set("Authorization", "Bearer " + adminToken)
@@ -325,19 +254,19 @@ describe('Checkins Group', () => {
     });
     describe('DELETE', function () {
         beforeEach((done) => { //Before each test create the object
-            checkins.remove({}, (err) => {
-                develappsCheckin = {
-                    user: clientId,
-                    venue: venueDevelapps._id
+            blocks.remove({}, (err) => {
+                develappsBlock = {
+                    userBlocks: clientId,
+                    userBlocked: clientIdTwo
                 };
-                commonTestUtils.test_createCheckin(server, adminToken, develappsCheckin, function (realCheckin) {
-                    develappsCheckin= realCheckin;
-                    bolosCheckin = {
-                        user: adminId,
-                        venue: venueBolos._id
-                    };
-                    commonTestUtils.test_createCheckin(server, adminToken, bolosCheckin, function (realCheckin) {
-                        bolosCheckin= realCheckin;
+                develappsBlockTwo = {
+                    userBlocks: clientIdTwo,
+                    userBlocked: clientId
+                };
+                commonTestUtils.test_createBlock(server, adminToken, develappsBlock, function (realBlock) {
+                    develappsBlock = realBlock;
+                    commonTestUtils.test_createBlock(server, adminToken, develappsBlockTwo, function (realBlock) {
+                        develappsBlockTwo = realBlock;
                         done();
                     });
                 });
@@ -345,7 +274,7 @@ describe('Checkins Group', () => {
         });
         it('should succeed for admin', function (done) {
             chai.request(server)
-                .delete(endpoint + '/' + develappsCheckin._id)
+                .delete(endpoint + '/' + develappsBlock._id)
                 .set("Authorization", "Bearer " + adminToken)
                 .end(function (err, res) {
                     res.should.have.status(200);
@@ -356,7 +285,7 @@ describe('Checkins Group', () => {
         });
         it('should succeed for client', function (done) {
             chai.request(server)
-                .delete(endpoint + '/' + develappsCheckin._id)
+                .delete(endpoint + '/' + develappsBlock._id)
                 .set("Authorization", "Bearer " + clientToken)
                 .end(function (err, res) {
                     res.should.have.status(200);
@@ -365,19 +294,19 @@ describe('Checkins Group', () => {
                     done();
                 });
         });
-        it('should fail for client on other`s checkin', function (done) {
+        it('should fail for client on other`s block', function (done) {
             chai.request(server)
-                .delete(endpoint + '/' + bolosCheckin._id)
+                .delete(endpoint + '/' + develappsBlockTwo._id)
                 .set("Authorization", "Bearer " + clientToken)
                 .end(function (err, res) {
-                    commonTestUtils.test_error(403, err, res, function () {
+                    commonTestUtils.test_error(404, err, res, function () {
                         done();
                     })
                 });
         });
         it('should fail for bad id with 400', function (done) {
             chai.request(server)
-                .delete(endpoint + '/' + 'bad-product-id')
+                .delete(endpoint + '/' + 'bad-id')
                 .set("Authorization", "Bearer " + adminToken)
                 .end(function (err, res) {
                     commonTestUtils.test_error(400, err, res, function () {

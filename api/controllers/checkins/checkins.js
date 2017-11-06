@@ -201,7 +201,7 @@ router.route('/:id')
      * @apiUse ErrorGroup
      */
     .delete(function (request, response) {
-        if (!request.user.admin &&request.user.id.toString() !== response.object.user._id.toString()) {
+        if (!request.user.admin &&request.user._id.toString() !== response.object.user._id.toString()) {
             response.status(403).json({
                 localizedError: 'You are not authorized to delete a checkin',
                 rawError: 'user ' + request.user._id + ' is not admin'
