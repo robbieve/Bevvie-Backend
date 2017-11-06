@@ -6,6 +6,48 @@
             "password": "Develapps16",
             "name": "admin",
             "admin": true
+        },
+        "user1": {
+            "accessType": "password",
+            "password": "Develapps16",
+            "name": "user1",
+            "admin": false,
+            "age": 20
+        },
+        "user2": {
+            "accessType": "password",
+            "password": "Develapps16",
+            "name": "user2",
+            "admin": false,
+            "age": 30
+        },
+        "user3": {
+            "accessType": "password",
+            "password": "Develapps16",
+            "name": "user3",
+            "admin": false,
+            "age": 40
+        },
+        "user4": {
+            "accessType": "password",
+            "password": "Develapps16",
+            "name": "user4",
+            "admin": false,
+            "age": 50
+        },
+        "user5": {
+            "accessType": "password",
+            "password": "Develapps16",
+            "name": "user5",
+            "admin": false,
+            "age": 60
+        },
+        "user6": {
+            "accessType": "password",
+            "password": "Develapps16",
+            "name": "user6",
+            "admin": false,
+            "age": 70
         }
     }
 }
