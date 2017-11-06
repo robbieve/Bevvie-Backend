@@ -64,7 +64,7 @@ router.route('/')
     /**
      * @api {get} /venues Get venues
      * @apiName GetVenues
-     * @apiVersion 0.2.0
+     * @apiVersion 0.5.0
      * @apiGroup Venues
      * @apiUse AuthorizationTokenHeader
      *
