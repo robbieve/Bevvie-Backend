@@ -9,6 +9,7 @@ module.exports = function (app) {
         "controllers/blobs": ["images"],
         "controllers/venues": ["venues"],
         "controllers/checkins": ["checkins"],
+        "controllers/chats": ["chats"],
     };
     Object.keys(includes).forEach(function (key) {
         includes[key].forEach(function (aRoute) {

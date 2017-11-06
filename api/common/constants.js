@@ -67,3 +67,17 @@ module.exports.geo.forms = Object.keys(module.exports.geo.formNames);
 // CHECKIN
 module.exports.checkins = {};
 module.exports.checkins.maxTime = 18*3600; //18 hours max per visit
+
+// Chat constants
+
+// Venues
+module.exports.chats = {};
+module.exports.chats.chatStatusNames= {
+    "created":"created",
+    "accepted":"accepted",
+    "rejected":"rejected",
+    "exhausted":"exhausted",
+    "expired":"expired"
+};
+
+module.exports.chats.chatStatuses = Object.keys(module.exports.chats.chatStatusNames);
