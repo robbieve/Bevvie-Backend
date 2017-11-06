@@ -130,11 +130,13 @@ router.route('/')
                     {
                         spherical: true,
                         maxDistance: distance,
+                        lean: true,
                         query:{
                             active: true
                         }
                     },
                     function (err, results) {
+                        let finalResults = [];
                         if (err) {
                             return response.status(500).json(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
                         }
@@ -142,13 +144,16 @@ router.route('/')
                             async.each(results,
                                 function (venue,isDone) {
                                     Checkin.count({venue: venue.obj._id},function (err, count) {
-                                        venue.checkins = count;
+                                        let finalVenue = venue.obj;
+                                        finalVenue.checkins = count;
+                                        finalVenue.distance = venue.dis;
+                                        finalResults.push(finalVenue);
                                         isDone(err);
                                     });
                                 },
                                 function (err) {
                                     if (err)  return response.status(500).json(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
-                                    return response.status(200).json({docs: results});
+                                    return response.status(200).json({docs: finalResults});
                                 });
 
                         }
