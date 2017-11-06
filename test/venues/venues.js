@@ -160,20 +160,24 @@ describe('Venues Group', () => {
         });
     });
     describe('GET', () => {
+        let venueDevelapps;
+        const checkins = require("api/models/checkins/checkin");
         before((done) => { //Before each test create the object
-            // venues.collection.createIndex({"$**": "text"});
-            venues.remove({}, (err) => {
-                commonTestUtils.test_createVenue(server, adminToken, commonTestUtils.venueConstants.venueDevelapps, function (realVenue) {
-                    venue = realVenue;
-                    let inactive = JSON.parse(JSON.stringify(venue));
-                    delete inactive._id;
-                    inactive.active = false;
-                    commonTestUtils.test_createVenue(server, adminToken, inactive, function (realVenue) {
-                        commonTestUtils.test_createVenue(server, adminToken, commonTestUtils.venueConstants.venueBolos, function (realVenue) {
-                            done();
+            checkins.remove({},(err) => {
+                venues.remove({}, (err) => {
+                    commonTestUtils.test_createVenue(server, adminToken, commonTestUtils.venueConstants.venueDevelapps, function (realVenue) {
+                        venue = realVenue;
+                        venueDevelapps = realVenue;
+                        let inactive = JSON.parse(JSON.stringify(venue));
+                        delete inactive._id;
+                        inactive.active = false;
+                        commonTestUtils.test_createVenue(server, adminToken, inactive, function (realVenue) {
+                            commonTestUtils.test_createVenue(server, adminToken, commonTestUtils.venueConstants.venueBolos, function (realVenue) {
+                                done();
+                            });
                         });
-                    });
 
+                    });
                 });
             });
         });
@@ -258,15 +262,38 @@ describe('Venues Group', () => {
                         should.not.exist(err);
                         chai.request(server)
                             .get(endpoint)
-                            .query({'geo': {long: 40, lat: 0, dist: 300000}})
+                            .query({'geo': {long: 0, lat: 40, dist: 300000}})
                             .set("Authorization", "Bearer " + adminToken)
                             .end(function (err, res) {
                                 should.not.exist(err);
                                 res.body.docs.should.be.an('Array');
                                 res.body.docs.should.have.lengthOf(2);
-                                should.exist(res.body.docs[0].checkins);
                                 done();
                             });
+                    });
+            });
+            it('should succeed with geoloc and checkins', function (done) {
+                venues.collection.createIndex({'location': '2dsphere'}, {name: 'locationIndex'},
+                    function (err) {
+                        should.not.exist(err);
+                        commonTestUtils.test_createCheckin(server, adminToken, {
+                            user: clientId,
+                            venue: venueDevelapps._id
+                        }, function (venue) {
+                            should.exist(venue);
+                            chai.request(server)
+                                .get(endpoint)
+                                .query({'geo': {long: 0, lat: 40, dist: 300000}})
+                                .set("Authorization", "Bearer " + adminToken)
+                                .end(function (err, res) {
+                                    should.not.exist(err);
+                                    res.body.docs.should.be.an('Array');
+                                    res.body.docs.should.have.lengthOf(2);
+                                    should.exist(res.body.docs[0].checkins);
+                                    res.body.docs[0].checkins.should.equal(1);
+                                    done();
+                                });
+                        });
                     });
             });
             it('should succeed with closer distance', function (done) {
@@ -275,7 +302,7 @@ describe('Venues Group', () => {
                         should.not.exist(err);
                         chai.request(server)
                             .get(endpoint)
-                            .query({'geo': {long: 40, lat: 0, dist: 71300}})
+                            .query({'geo': {long: 0, lat: 40, dist: 66800}})
                             .set("Authorization", "Bearer " + adminToken)
                             .end(function (err, res) {
                                 should.not.exist(err);
