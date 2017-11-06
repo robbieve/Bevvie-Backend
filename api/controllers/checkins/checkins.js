@@ -19,6 +19,7 @@ let checkinValidator = require('api/validators/checkinValidator');
 const route_utils = require('api/controllers/common/routeUtils');
 const constants = require('api/common/constants');
 const errorConstants = require('api/common/errorConstants');
+const moment = require("moment");
 
 // Prepost function
 function _prepost(request, response, next, callback) {
@@ -36,7 +37,7 @@ function _prepost(request, response, next, callback) {
         if (!theUser) return response.status(404).toJSON(errorConstants.responseWithError(request.user.id,errorConstants.errorNames.notFound));
         newObject.user_age = theUser.age ? theUser.age : constants.users.maxAge ;
         Venue.findOne({_id: newObject.venue},function (err,theVenue) {
-                newObject.expiration = theVenue.maxTimePerCheck();
+                newObject.expiration = moment().add(theVenue.maxTimePerCheck(),"seconds");
                 callback(newObject);
         });
     });
