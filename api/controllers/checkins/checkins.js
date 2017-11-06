@@ -84,6 +84,7 @@ router.route('/')
      * @apiParam {Number} [limit] number of slices to get
      * @apiParam {Number} [offset] start of slices to get
      * @apiParam {String} [venue] id of the venue to match on checkin name
+     * @apiParam {String} [user] id of the user to match on checkin name
      * @apiParam {String} [maxAge] max age of the users
      * @apiParam {String} [minAge] min age of the users
      * @apiParam {Object[]} [sort] sort struct array
@@ -104,6 +105,7 @@ router.route('/')
             let transform = {
                 directQuery: {
                     "venue": "venue",
+                    "user": "user",
                 },
                 other: {
                     active: {

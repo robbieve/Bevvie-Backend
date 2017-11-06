@@ -28,6 +28,7 @@ let testDictionary = {
         goodVariants: {
             name: [5, "otro"],
             location: [{type: "Point", coordinates: [0, 0]}, undefined],
+            radius: [undefined, 300, 30.4],
             schedule: [
                 [{
                     weekday: 1,
@@ -38,6 +39,7 @@ let testDictionary = {
         },
         bad: {
             location: [{type: "Pepe", coordinates: [0, 0]}, {coordinates: "badCoordinates"}],
+            radius: ["notAValidRadius"],
             schedule: [
                 [{openTime: moment("12:00", "HH:mm"), closeTime: moment("13:00", "HH:mm")}],
                 [{weekday: 1, closeTime: moment("13:00", "HH:mm")}],

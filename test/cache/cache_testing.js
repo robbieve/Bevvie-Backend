@@ -24,7 +24,7 @@ let token = "";
 let userid = "";
 let adminToken = "";
 let adminUserId = "";
-describe.skip('Cache Group', () => {
+describe('Cache Group', () => {
     // create users and clients
     before(function (done) {
         commonTestInit.before(function () {
@@ -105,6 +105,7 @@ describe.skip('Cache Group', () => {
                             let aQuery = prefix + ':User-list:' + JSON.stringify({
                                 'email': commonTestUtils.userConstants.userOne.email,
                                 active: true,
+                                admin: false,
                                 sort: []
                             });
                             cache.get(aQuery, function (err, reply) {
@@ -187,39 +188,6 @@ describe.skip('Cache Group', () => {
         });
 
         describe('update object', function () {
-            it('should update existing cache', function (done) {
-                if (!config.cache.enabled) {
-                    return done()
-                }
-                chai.request(server)
-                    .post(endpoint + "/" + userid)
-                    .send({'name': 'otherName'})
-                    .set("Authorization", "Bearer " + adminToken)
-                    .set("Content-Type", "application/json")
-                    .end(function (err, res) {
-                        setTimeout(function () {
-                            let aQuery = prefix + ':User-list:' + JSON.stringify({
-                                'email': commonTestUtils.userConstants.userOne.email,
-                                active: true,
-                                sort: {createdAt: 1}
-                            });
-                            cache.get(aQuery, function (err, reply) {
-                                should.not.exist(err);
-                                should.not.exist(reply);
-                                aQuery = prefix + ':User:' + JSON.stringify({
-                                    '_id': userid
-                                });
-                                cache.get(aQuery, function (err, reply) {
-                                    reply = JSON.parse(reply);
-                                    should.not.exist(err);
-                                    reply.should.be.an('Object');
-                                    reply.name.should.be.equal("otherName");
-                                    done();
-                                });
-                            });
-                        },cacheDelay);
-                    });
-            });
             it('should delete listing cache', function (done) {
                 if (!config.cache.enabled) {
                     return done()
