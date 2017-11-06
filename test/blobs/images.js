@@ -31,7 +31,7 @@ let imageFile = fs.readFileSync("test/blobs/images/develapps.png");
 let adminImageFile = fs.readFileSync("test/blobs/images/develapps2.png");
 
 
-describe.skip('Images Group', () => {
+describe('Images Group', () => {
     // create users and clients
     before(function (done) {
         commonTestInit.before(function () {
