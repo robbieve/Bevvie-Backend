@@ -6,7 +6,7 @@ module.exports = function (app) {
     const colors = require('chalk');
     let includes = {
         "controllers/users": ["login", "register","users"],
-        "controllers/blobs": ["images","files"],
+        "controllers/blobs": ["images"],
         "controllers/venues": ["venues"],
         "controllers/checkins": ["checkins"],
     };
