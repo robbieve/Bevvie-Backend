@@ -23,6 +23,7 @@ module.exports.getValidator = function (request, response, next) {
 module.exports.postValidator = function (request, response, next) {
     request.checkBody('name', 'No valid name provided');
     request.checkBody('image', 'No valid image provided').optional().isObjectId();
+    request.checkBody('radius', 'No valid radius provided').optional().isFloat();
     request.checkBody('geo.lat', 'No valid latitude provided').optional().isFloat();
     request.checkBody('geo.long', 'No valid longitude provided').optional().isFloat();
     request.checkBody('geo.dist', 'No valid distance provided').optional().isFloat();
@@ -32,6 +33,7 @@ module.exports.postValidator = function (request, response, next) {
 module.exports.postUpdateValidator = function (request, response, next) {
     request.checkBody('name', 'No valid name provided');
     request.checkBody('image', 'No valid image provided').optional().isObjectId();
+    request.checkBody('radius', 'No valid radius provided').optional().isFloat();
     request.checkBody('geo.lat', 'No valid latitude provided').optional().isFloat();
     request.checkBody('geo.long', 'No valid longitude provided').optional().isFloat();
     request.checkBody('geo.dist', 'No valid distance provided').optional().isFloat();

@@ -259,6 +259,19 @@ describe('Checkins Group', () => {
                         });
                     });
             });
+            it('should succeed with userid', function (done) {
+                chai.request(server)
+                    .get(endpoint)
+                    .query({'user': clientIdTwo})
+                    .set("Authorization", "Bearer " + adminToken)
+                    .end(function (err, res) {
+                        commonTestUtils.test_pagination(err, res, function () {
+                            res.body.docs.should.be.an('Array');
+                            res.body.docs.should.have.lengthOf(1);
+                            done();
+                        });
+                    });
+            });
 
         });
         describe('checkins/id', () => {
