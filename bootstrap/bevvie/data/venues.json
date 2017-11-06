@@ -72,6 +72,12 @@
           "closeTime": "=moment('03:00','HH:mm')"
         }
       ]
+    },
+    "venue4":{
+      "name": "The Argentina Croissant Pub",
+      "location": {
+        "coordinates": [39.475362,-0.3466937]
+      }
     }
   }
 }

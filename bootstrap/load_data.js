@@ -23,7 +23,9 @@ let shouldLoad = ["venues","admin"];
 
 let jsonToLoad = {
     venues: require("bootstrap/bevvie/data/venues.json"),
+    blocks: require("bootstrap/bevvie/data/blocks.json"),
     admin: require("bootstrap/bevvie/data/adminUsers.json"),
+    checkins: require("bootstrap/bevvie/data/checkins.json"),
 };
 
 
@@ -93,6 +95,8 @@ function _loadDB(callback) {
     // Models
     const user = require('api/models/users/user');
     const venues = require('api/models/venues/venue');
+    const blocks = require('api/models/users/block');
+    const chekins = require('api/models/checkins/checkin');
 
     // Order is important
 

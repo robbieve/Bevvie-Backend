@@ -1,0 +1,9 @@
+{
+  "Blocks": {
+    "_model": "Block",
+    "block1": {
+      "userBlocked": "->AdminUser.user7",
+      "userBlocks": "->AdminUser.user1"
+    }
+  }
+}
