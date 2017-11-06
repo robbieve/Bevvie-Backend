@@ -173,7 +173,7 @@ exports.venueConstants={
     "venueDevelapps":{
         "name": "The Peasant Pub",
         "location": {
-            "coordinates": [39.466089,-0.350823]
+            "coordinates": [-0.350823,39.466089]
         },
         "schedule":[
             {
@@ -196,7 +196,7 @@ exports.venueConstants={
     "venueBolos":{
         "name": "The Bolos Pub",
         "location": {
-            "coordinates": [39.4638609,-0.3515847]
+            "coordinates": [-0.3515847,39.4638609]
         },
         "schedule":[
             {
@@ -219,7 +219,7 @@ exports.venueConstants={
     "venueFarAway":{
         "name": "The Faraway Pub",
         "location": {
-            "coordinates": [0,20.3515847]
+            "coordinates": [20.3515847,0]
         },
         "schedule":[
             {

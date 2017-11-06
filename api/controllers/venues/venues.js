@@ -141,7 +141,7 @@ router.route('/')
                         else  {
                             async.each(results,
                                 function (venue,isDone) {
-                                    Checkin.count({venue: venue._id},function (err, count) {
+                                    Checkin.count({venue: venue.obj._id},function (err, count) {
                                         venue.checkins = count;
                                         isDone(err);
                                     });
