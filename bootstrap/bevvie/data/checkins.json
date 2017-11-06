@@ -1,0 +1,38 @@
+{
+  "_dependencies": {
+    "moment": "moment"
+  },
+  "checkin": {
+    "_model": "Checkin",
+    "checkin1":{
+      "venue": "->venues.venue1",
+      "user": "->AdminUser.user1",
+      "user_age": 20,
+      "expiration": "=moment().add(1,'year')"
+    },
+    "checkin2":{
+      "venue": "->venues.venue1",
+      "user": "->AdminUser.user2",
+      "user_age": 30,
+      "expiration": "=moment().add(1,'year')"
+    },
+    "checkin3":{
+      "venue": "->venues.venue1",
+      "user": "->AdminUser.user3",
+      "user_age": 40,
+      "expiration": "=moment().add(1,'year')"
+    },
+    "checkin4":{
+      "venue": "->venues.venue1",
+      "user": "->AdminUser.user4",
+      "user_age": 50,
+      "expiration": "=moment().add(1,'year')"
+    },
+    "checkin5":{
+      "venue": "->venues.venue1",
+      "user": "->AdminUser.user5",
+      "user_age": 60,
+      "expiration": "=moment().add(1,'year')"
+    }
+  }
+}
