@@ -84,6 +84,12 @@ module.exports.chats.chatStatuses = Object.keys(module.exports.chats.chatStatusN
 
 // Push
 module.exports.pushes = {};
+module.exports.pushes.pushTypeNames= {
+    "chatCreate":"chatCreate",
+    "chatMessage":"chatMessage"
+};
+module.exports.pushes.pushTypes = Object.keys(module.exports.pushes.pushTypeNames);
+
 module.exports.pushes.priorityNames= {
     "high":"high",
     "normal":"normal"

@@ -108,9 +108,25 @@ describe('Push Group', () => {
                             res.should.be.json;
                             res.body.should.be.an('object');
                             res.body.should.contain.all.keys('_id', 'members', 'status');
-                            setTimeout(function () {
-                                done();
-                            },3000);
+                            let chat = JSON.parse(JSON.stringify(res.body));
+                            let message = {
+                                message: "This is a test message"
+                            };
+                            chai.request(server)
+                                .post("/api/v1/chats/"+chat._id+"/messages")
+                                .send(message)
+                                .set("Content-Type", "application/json")
+                                .set("Authorization", "Bearer " + clientToken)
+                                .end(function (err, res) {
+                                    res.should.have.status(201);
+                                    res.should.be.json;
+                                    res.body.should.be.an('object');
+                                    res.body.should.contain.all.keys('_id', 'message', 'chat');
+                                    setTimeout(function () {
+                                        done();
+                                    },15000);
+                                });
+
                         });
                 });
         });
