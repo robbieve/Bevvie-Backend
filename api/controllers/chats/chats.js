@@ -11,6 +11,7 @@ let Chat = require('api/models/chats/chat');
 let Message = require('api/models/chats/message');
 let User = require('api/models/users/user');
 let dbError = require('lib/loggers/db_error');
+let pushUtils = require("api/controllers/common/pushUtils");
 
 // Validator
 let expressValidator = require('lib/validation/validator');
@@ -58,7 +59,15 @@ router.route('/')
         chatValidator.postValidator,
         function (request, response, next) {
             _prepost(request, response, next, function (newObject) {
-                route_utils.post(Chat, newObject, request, response, next);
+                route_utils.post(Chat, newObject, request, response, next,function (err,chat) {
+                    let creator = newObject.members.filter(function (element) {
+                        return element && element.user && element.user.toString() === request.user._id.toString() && element.creator;
+                    });
+                    if (creator.length>0){
+                        let user = creator[0].user;
+                        pushUtils.sendCreateChatPush(user,chat);
+                    }
+                });
             });
         })
 
@@ -257,7 +266,9 @@ router.route('/:id/messages')
                 user: request.user._id,
                 message: request.body.message
             };
-            route_utils.post(Message, message, request, response, next);
+            route_utils.post(Message, message, request, response, next,function (err,message) {
+                pushUtils.sendCreateMessagePush(message);
+            });
         });
 
 

@@ -10,6 +10,7 @@ module.exports = function (app) {
         "controllers/venues": ["venues"],
         "controllers/checkins": ["checkins"],
         "controllers/chats": ["chats"],
+        "controllers/push": ["devices"],
     };
     Object.keys(includes).forEach(function (key) {
         includes[key].forEach(function (aRoute) {

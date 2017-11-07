@@ -4,11 +4,6 @@ config = {
     'db': {
         database: process.env.PM2_MONGODB_DATABASE ? process.env.PM2_MONGODB_DATABASE : 'bevvie'
     },
-    'aws': {
-        's3': {
-            bucket: 'dvamcomerce'
-        }
-    },
     'auth': {
         'bearer': true,
         'local': true,

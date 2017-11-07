@@ -67,6 +67,47 @@ config = {
         'type': 'console',
         'loglevel': 'info',
     },
+    push:{
+        /* // Enable for GCM
+        gcm: {
+            id: null // No notifications for GCM
+        },
+        */
+        topic: 'com.bevvie.App', // Mandatory
+        apn: { // See options at https://github.com/node-apn/node-apn/blob/master/doc/provider.markdown
+            token: {
+                 key: "-----BEGIN PRIVATE KEY-----\n" +
+                 "MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQgLNNZh6zucL/2xiRL\n" +
+                 "2kixsgeu/V1vMSA7r7pUPLR7+YagCgYIKoZIzj0DAQehRANCAAR9FxXxQi1hmjM8\n" +
+                 "35eVNYS8lVDb+cOtdMOfWq92qBj1wpS7NDKnPRUytWyVewWgTzFc6WKzq7Rt73o8\n" +
+                 "i9GTX1+h\n" +
+                 "-----END PRIVATE KEY-----",
+                 keyId: process.env.PM2_PUSH_APN_KEY_ID,
+                 teamId: 'YK8V5JJZ8V',
+            },
+            /*cert: 'cert.pem',
+            key: 'key.pem',*/
+            ca: null,
+            pfx: null,
+            passphrase: null,
+            production: process.env.NODE_ENV === 'production',
+            voip: false,
+            address: null,
+            port: 443,
+            rejectUnauthorized: true,
+            connectionRetryLimit: 10,
+            cacheLength: 1000,
+            connectionTimeout: 3600000,
+            autoAdjustCache: true,
+            maxConnections: 1,
+            minConnections: 1,
+            connectTimeout: 10000,
+            buffersNotifications: true,
+            fastMode: false,
+            disableNagle: false,
+            disableEPIPEFix: false
+        }
+    },
     stripe:{
         public: process.env.PM2_STRIPE_PUBLIC,
         secret: process.env.PM2_STRIPE_SECRET,

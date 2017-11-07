@@ -34,6 +34,7 @@
     "node-cron": "^1.2.1",
     "node-gcm": "^0.14.9",
     "node-mime": "^1.0.0",
+    "node-pushnotifications": "^1.0.18",
     "nodemailer": "^4.2.0",
     "nodemon": "^1.12.1",
     "passport": "^0.4",

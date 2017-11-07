@@ -81,3 +81,20 @@ module.exports.chats.chatStatusNames= {
 };
 
 module.exports.chats.chatStatuses = Object.keys(module.exports.chats.chatStatusNames);
+
+// Push
+module.exports.pushes = {};
+module.exports.pushes.priorityNames= {
+    "high":"high",
+    "normal":"normal"
+};
+
+module.exports.pushes.priorities = Object.keys(module.exports.pushes.priorityNames);
+module.exports.pushes.statusNames= {
+    "pending":"pending",
+    "failedAttempt":"failedAttempt",
+    "failed":"failed",
+    "succeed":"succeed"
+};
+
+module.exports.pushes.statuses = Object.keys(module.exports.pushes.statusNames);

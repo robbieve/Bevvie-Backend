@@ -100,6 +100,21 @@ exports.test_createMessage = function (server, token, parameters, callback) {
         });
 };
 
+exports.test_createDevice= function (server, token, parameters, callback) {
+    chai.request(server)
+        .post('/api/v1/devices')
+        .send(parameters)
+        .set("Content-Type", "application/json")
+        .set("Authorization", "Bearer " + token)
+        .end(function (err, res) {
+            res.should.have.status(201);
+            res.should.be.json;
+            res.body.should.be.an('object');
+            res.body.should.have.property('_id');
+            callback(res.body);
+        });
+};
+
 exports.test_createImage = function (server, aToken, imageFile, callback) {
     chai.request(server)
         .post('/api/v1/images')
@@ -265,6 +280,7 @@ exports.venueConstants = {
     },
 };
 
+exports.pushToken = "aa8274e5adb21089c4cfbc04e69f869b8df74e6d5e3899d4955762439611c6e1";
 
 // Helpers
 

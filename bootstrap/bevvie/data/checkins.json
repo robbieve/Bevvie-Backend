@@ -33,6 +33,78 @@
       "user": "->AdminUser.user5",
       "user_age": 60,
       "expiration": "=moment().add(1,'year')"
+    },
+    "checkin10":{
+      "venue": "->venues.venue5",
+      "user": "->AdminUser.user10",
+      "user_age": 30,
+      "expiration": "=moment().add(1,'year')"
+    },
+    "checkin11":{
+      "venue": "->venues.venue5",
+      "user": "->AdminUser.user11",
+      "user_age": 30,
+      "expiration": "=moment().add(1,'year')"
+    },
+    "checkin12":{
+      "venue": "->venues.venue5",
+      "user": "->AdminUser.user12",
+      "user_age": 30,
+      "expiration": "=moment().add(1,'year')"
+    },
+    "checkin13":{
+      "venue": "->venues.venue5",
+      "user": "->AdminUser.user13",
+      "user_age": 30,
+      "expiration": "=moment().add(1,'year')"
+    },
+    "checkin14":{
+      "venue": "->venues.venue5",
+      "user": "->AdminUser.user14",
+      "user_age": 30,
+      "expiration": "=moment().add(1,'year')"
+    },
+    "checkin15":{
+      "venue": "->venues.venue5",
+      "user": "->AdminUser.user15",
+      "user_age": 30,
+      "expiration": "=moment().add(1,'year')"
+    },
+    "checkin16":{
+      "venue": "->venues.venue5",
+      "user": "->AdminUser.user16",
+      "user_age": 30,
+      "expiration": "=moment().add(1,'year')"
+    },
+    "checkin17":{
+      "venue": "->venues.venue5",
+      "user": "->AdminUser.user17",
+      "user_age": 30,
+      "expiration": "=moment().add(1,'year')"
+    },
+    "checkin18":{
+      "venue": "->venues.venue5",
+      "user": "->AdminUser.user18",
+      "user_age": 30,
+      "expiration": "=moment().add(1,'year')"
+    },
+    "checkin19":{
+      "venue": "->venues.venue5",
+      "user": "->AdminUser.user19",
+      "user_age": 30,
+      "expiration": "=moment().add(1,'year')"
+    },
+    "checkin20":{
+      "venue": "->venues.venue5",
+      "user": "->AdminUser.user20",
+      "user_age": 30,
+      "expiration": "=moment().add(1,'year')"
+    },
+    "checkin21":{
+      "venue": "->venues.venue5",
+      "user": "->AdminUser.user21",
+      "user_age": 30,
+      "expiration": "=moment().add(1,'year')"
     }
   }
 }
