@@ -190,3 +190,88 @@ module.exports.sendCreateMessagePush = function (message, callback = function ()
         callback(err);
     });
 };
+
+module.exports.sendRejectedChat = function (aChat,user, callback = function () {
+}) {
+    let creatorUser = aChat.chatCreator();
+    let finalMessage;
+    async.series([
+        function (isDone) {
+            Device.find({user: {$in: [creatorUser]}}, function (err, someDevices) {
+                if (!someDevices || someDevices.length===0) return isDone({
+                    localizedError: "No devices to notify found",
+                    rawError: "No devices to notify for "+JSON.stringify(aChat)
+                });
+                devices = someDevices;
+                finalMessage = {
+                    title: 'Chat rejected',
+                    topic: config.push.topic,
+                    body: user.name + ' rejected to chat',
+                    custom: {
+                        chatId: aChat._id,
+                        userId: user._id
+                    },
+                    priority: 'high', // gcm, apn. Supported values are 'high' or 'normal' (gcm). Will be translated to 10 and 5 for apn. Defaults to 'high'
+                    retries: 3, // gcm, apn
+                    badge: 2, // gcm for ios, apn
+                    //expiry: Math.floor(Date.now() / 1000) + 28 * 86400, // seconds
+                };
+                isDone(err);
+            })
+        },
+        function (isReallyDone) {
+            async.each(
+                devices,
+                function (element, isDone) {
+                    let newPush = { pushMessage: JSON.parse(JSON.stringify(finalMessage))};
+                    newPush.device = element;
+                    newPush.pushType = constants.pushes.pushTypeNames.chatRejected;
+                    let pushObject = new Push(newPush);
+                    pushObject.save(function (err, object) {
+                        if (err) return isDone(err);
+                        let job = kue.createJob("push", {
+                            token: element.pushToken,
+                            message: finalMessage
+                        });
+                        let pushId = object._id;
+                        job.on('complete', function (result) {
+                            Push.findOne({_id: pushId}, function (err, object) {
+                                if (!object) return winston.error("PUSH: object not found for id " + pushId);
+                                object.status = constants.pushes.statusNames.succeed;
+                                object.save(function (err, object) {
+                                    if (!object) return winston.error("PUSH: could not save object for id " + pushId);
+                                    winston.info("PUSH: chat rejected push finished to " + object.device.pushToken);
+                                })
+                            })
+                        }).on('failed attempt', function (result) {
+                            Push.findOne({_id: pushId}, function (err, object) {
+                                if (!object) return winston.error("PUSH: object not found for id " + pushId);
+                                object.status = constants.pushes.statusNames.failedAttempt;
+                                object.save(function (err) {
+                                    if (!object) return winston.error("PUSH: could not save object for id " + pushId);
+                                    winston.warn("PUSH: chat rejected push failed attempt to " + object.device.pushToken);
+                                })
+                            })
+                        }).on('failed', function (errorMessage) {
+                            Push.findOne({_id: pushId}, function (err, object) {
+                                if (!object) return winston.error("PUSH: object not found for id " + pushId);
+                                object.status = constants.pushes.statusNames.failed;
+                                object.save(function (err) {
+                                    if (!object) return winston.error("PUSH: could not save object for id " + pushId);
+                                    winston.err("PUSH: chat rejected push failed to " + object.device.pushToken);
+                                })
+                            })
+
+                            winston.error("PUSH: Failed push " + errorMessage);
+                        }).attempts(3).backoff({type: 'exponential'}).save(isDone);
+                    })
+                },
+                function (err) {
+                    isReallyDone(err);
+                });
+        }
+    ], function (err) {
+        if (err) winston.error("PUSH: an error occurred for "+JSON.stringify(message)+" error: " + JSON.stringify(err));
+        callback(err);
+    });
+};

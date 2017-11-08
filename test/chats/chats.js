@@ -268,6 +268,7 @@ describe('Chats Group', () => {
                     });
             });
         });
+
     });
     describe('DELETE', function () {
         beforeEach((done) => { //Before each test create the object
@@ -535,5 +536,49 @@ describe('Chats Group', () => {
             });
 
         })
+    })
+    describe('Reject', function () {
+        describe("POST",function () {
+            beforeEach((done) => { //Before each test create the object
+                chats.remove({}, (err) => {
+                    messages.remove({}, (err) => {
+                        commonTestUtils.test_createChat(server, adminToken, allChats.chatCreated, function (realChat) {
+                            allChats.chatCreated = realChat;
+                            commonTestUtils.test_createChat(server, adminToken, allChats.chatAccepted, function (realChat) {
+                                allChats.chatAccepted = realChat;
+                                done();
+                            });
+                        });
+                    });
+                });
+            });
+            it('should succeed for good values', (done) => {
+                let chat = JSON.parse(JSON.stringify(allChats.chatAccepted));
+                chai.request(server)
+                    .post("/api/v1/chats/"+chat._id+"/reject")
+                    .set("Content-Type", "application/json")
+                    .set("Authorization", "Bearer " + clientTokenTwo)
+                    .end(function (err, res) {
+                        res.should.have.status(201);
+                        res.should.be.json;
+                        res.body.should.be.an('object');
+                        res.body.should.contain.all.keys('_id', 'status');
+                        res.body.status.should.equal(constants.chats.chatStatusNames.rejected);
+                        done();
+                    });
+            });
+            it('should fail for created chat and creator calling', (done) => {
+                let chat = JSON.parse(JSON.stringify(allChats.chatAccepted));
+                chai.request(server)
+                    .post("/api/v1/chats/"+chat._id+"/reject")
+                    .set("Content-Type", "application/json")
+                    .set("Authorization", "Bearer " + clientToken)
+                    .end(function (err, res) {
+                        commonTestUtils.test_error(403, err, res, function () {
+                            done();
+                        });
+                    });
+            });
+        });
     })
 });

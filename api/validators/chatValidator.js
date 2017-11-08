@@ -42,3 +42,8 @@ module.exports.postOneMessageValidator = function (request, response, next) {
     request.checkBody('message', 'No valid message for chat provided').notEmpty();
     commonFunctions.validate(request,response,next);
 };
+module.exports.postRejectValidator = function (request, response, next) {
+    request.checkParams('id', 'No valid id of chat provided').isObjectId();
+    commonFunctions.validate(request,response,next);
+};
+

@@ -238,7 +238,7 @@ router.route('/:id/messages')
     })
     /**
      * @api {post} /chats/id/messages post a message
-     * @apiName UpdateChatMessages
+     * @apiName SendChatMessages
      * @apiVersion 0.8.0
      * @apiGroup ChatMessages
      * @apiParam {String} id the chat's id
@@ -277,9 +277,9 @@ router.route('/:id/messages')
             else if (
                 chat.status === constants.chats.chatStatusNames.created &&
                 chat.chatCreator().user._id.toString() !== request.user._id.toString()
-            ){ // If Chat's state is CREATED and requester's user isn't Chat's creator, Chat's state will change to ACCEPTED.
+            ) { // If Chat's state is CREATED and requester's user isn't Chat's creator, Chat's state will change to ACCEPTED.
                 chat.status = constants.chats.chatStatusNames.accepted;
-                chat.save(function (err,chat) {
+                chat.save(function (err, chat) {
                     if (err) return response.status(500).json(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
                     redis.deleteCachedResult({_id: chat._id}, Chat.modelName, function (err) {
                         route_utils.post(Message, message, request, response, next, function (err, message) {
@@ -291,13 +291,13 @@ router.route('/:id/messages')
             else if (
                 chat.status === constants.chats.chatStatusNames.accepted &&
                 chat.chatCreator().user._id.toString() === request.user._id.toString()
-            ){ // If this is creator's third message, Chat's state will change to EXHAUSTED and, 18 hours later, it will change to EXPIRED.
-                Message.count({chat: chat._id},function (err, count) {
+            ) { // If this is creator's third message, Chat's state will change to EXHAUSTED and, 18 hours later, it will change to EXPIRED.
+                Message.count({chat: chat._id}, function (err, count) {
                     if (err) return response.status(500).json(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
-                    if (count>=constants.chats.maxMessages-1){
+                    if (count >= constants.chats.maxMessages - 1) {
                         chat.status = constants.chats.chatStatusNames.exhausted;
                     }
-                    chat.save(function (err,chat) {
+                    chat.save(function (err, chat) {
                         if (err) return response.status(500).json(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
                         redis.deleteCachedResult({_id: chat._id}, Chat.modelName, function (err) {
                             route_utils.post(Message, message, request, response, next, function (err, message) {
@@ -309,6 +309,7 @@ router.route('/:id/messages')
             }
             else if (
                 chat.status === constants.chats.chatStatusNames.exhausted ||
+                chat.status === constants.chats.chatStatusNames.rejected ||
                 chat.status === constants.chats.chatStatusNames.expired
             ) { // If Chat's state is CREATED and requester's user is Chat's creator, an error will be returned.
                 return response.status(400).json(errorConstants.responseWithError(chat, errorConstants.errorNames.chat_chatExhausted));
@@ -322,5 +323,42 @@ router.route('/:id/messages')
             }
         });
 
+router.route('/:id/reject')
+    .all(passport.authenticate('bearer', {session: false}),
+        expressValidator,
+        chatValidator.getOneValidator,
+        function (request, response, next) {
+            route_utils.getOne(Chat, request, response, next)
+        })
+
+    /**
+     * @api {post} /chats/id/reject post a message
+     * @apiName RejectChatMessages
+     * @apiVersion 0.9.0
+     * @apiGroup ChatMessages
+     * @apiParam {String} id the chat's id
+     * @apiUse ChatParameters
+     *
+     * @apiSuccess (201) {String} _id the chat's id
+     * @apiUse ErrorGroup
+     */
+    .post(jsonParser,
+        expressValidator,
+        chatValidator.postRejectValidator,
+        function (request, response, next) {
+            let chat = response.object;
+            // If not admin, cannot post
+            if (!request.user.admin && request.user._id.toString() === chat.chatCreator().user._id.toString()) {
+                response.status(403).json({
+                    localizedError: 'You are not authorized to reject a chat',
+                    rawError: 'user ' + request.user._id + ' is not admin'
+                });
+                return;
+            }
+            chat.status = constants.chats.chatStatusNames.rejected
+            route_utils.post(Chat, chat, request, response, next, function (err, aChat) {
+                pushUtils.sendRejectedChat(aChat,request.user);
+            });
+        });
 
 module.exports = router;
