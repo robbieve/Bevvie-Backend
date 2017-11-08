@@ -118,6 +118,7 @@ module.exports = {
 let startServer = function startServer() {
     // Add mail queue
     require('lib/queue/queues/mailQueue')(kue);
+    require('lib/queue/queues/pushQueue')(kue);
 
     if (config.has('server.port')) {
         server.listen(config.server.port, config.server.host, function () {

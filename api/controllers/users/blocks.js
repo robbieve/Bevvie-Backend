@@ -46,11 +46,7 @@ router.route('/')
         blockValidator.postValidator,
         function (request, response, next) {
             _prepost(request, response, next, function (newObject) {
-
-                Block.remove({user: request.user._id},function (err) {
-                    if (err) return response.status(500).json(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
-                    route_utils.post(Block, newObject, request, response, next);
-                });
+                route_utils.post(Block, newObject, request, response, next);
             });
         })
 

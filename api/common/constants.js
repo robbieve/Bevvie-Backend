@@ -67,3 +67,40 @@ module.exports.geo.forms = Object.keys(module.exports.geo.formNames);
 // CHECKIN
 module.exports.checkins = {};
 module.exports.checkins.maxTime = 18*3600; //18 hours max per visit
+
+// Chat constants
+
+// Venues
+module.exports.chats = {};
+module.exports.chats.chatStatusNames= {
+    "created":"created",
+    "accepted":"accepted",
+    "rejected":"rejected",
+    "exhausted":"exhausted",
+    "expired":"expired"
+};
+
+module.exports.chats.chatStatuses = Object.keys(module.exports.chats.chatStatusNames);
+
+// Push
+module.exports.pushes = {};
+module.exports.pushes.pushTypeNames= {
+    "chatCreate":"chatCreate",
+    "chatMessage":"chatMessage"
+};
+module.exports.pushes.pushTypes = Object.keys(module.exports.pushes.pushTypeNames);
+
+module.exports.pushes.priorityNames= {
+    "high":"high",
+    "normal":"normal"
+};
+
+module.exports.pushes.priorities = Object.keys(module.exports.pushes.priorityNames);
+module.exports.pushes.statusNames= {
+    "pending":"pending",
+    "failedAttempt":"failedAttempt",
+    "failed":"failed",
+    "succeed":"succeed"
+};
+
+module.exports.pushes.statuses = Object.keys(module.exports.pushes.statusNames);

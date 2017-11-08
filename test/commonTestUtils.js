@@ -55,9 +55,54 @@ exports.test_createCheckin = function (server, token, parameters, callback) {
         });
 };
 
-exports.test_createBlock= function (server, token, parameters, callback) {
+exports.test_createBlock = function (server, token, parameters, callback) {
     chai.request(server)
         .post('/api/v1/blocks')
+        .send(parameters)
+        .set("Content-Type", "application/json")
+        .set("Authorization", "Bearer " + token)
+        .end(function (err, res) {
+            res.should.have.status(201);
+            res.should.be.json;
+            res.body.should.be.an('object');
+            res.body.should.have.property('_id');
+            callback(res.body);
+        });
+};
+
+exports.test_createChat = function (server, token, parameters, callback) {
+    chai.request(server)
+        .post('/api/v1/chats')
+        .send(parameters)
+        .set("Content-Type", "application/json")
+        .set("Authorization", "Bearer " + token)
+        .end(function (err, res) {
+            res.should.have.status(201);
+            res.should.be.json;
+            res.body.should.be.an('object');
+            res.body.should.have.property('_id');
+            callback(res.body);
+        });
+};
+
+exports.test_createMessage = function (server, token, parameters, callback) {
+    chai.request(server)
+        .post('/api/v1/chats/' + parameters.chat + '/messages')
+        .send({message: parameters.message})
+        .set("Content-Type", "application/json")
+        .set("Authorization", "Bearer " + token)
+        .end(function (err, res) {
+            res.should.have.status(201);
+            res.should.be.json;
+            res.body.should.be.an('object');
+            res.body.should.have.property('_id');
+            callback(res.body);
+        });
+};
+
+exports.test_createDevice= function (server, token, parameters, callback) {
+    chai.request(server)
+        .post('/api/v1/devices')
         .send(parameters)
         .set("Content-Type", "application/json")
         .set("Authorization", "Bearer " + token)
@@ -163,82 +208,83 @@ exports.firebaseConstants = {
     firebaseToken: "eyJhbGciOiJSUzI1NiIsImtpZCI6ImY4MjIyYjYzYmIwNTc0NDIzNDIyMWVhNDBkZjY1YjM0N2FlMDA0OTIifQ.eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vYmV2dmllLWIyM2I2IiwiYXVkIjoiYmV2dmllLWIyM2I2IiwiYXV0aF90aW1lIjoxNTA5NDQyMzc2LCJ1c2VyX2lkIjoic0M4WEM0RnpsOVZTRzZQNW9ZaGFPY1c4V0JYMiIsInN1YiI6InNDOFhDNEZ6bDlWU0c2UDVvWWhhT2NXOFdCWDIiLCJpYXQiOjE1MDk0NDIzNzYsImV4cCI6MTUwOTQ0NTk3NiwicGhvbmVfbnVtYmVyIjoiKzM0Njk2NjcxNDgxIiwiZmlyZWJhc2UiOnsiaWRlbnRpdGllcyI6eyJwaG9uZSI6WyIrMzQ2OTY2NzE0ODEiXX0sInNpZ25faW5fcHJvdmlkZXIiOiJwaG9uZSJ9fQ.AJtYcJDugAgVAtwlyHddmrCKwhod9w25oD7XC4E7Pzmoh_9pvSsqQdlE48Mgd0CWD8ClSLt3_QCWhxCwEyfe2cIXAH_dwZ_EBdBlpWLlPnPQni9dGZQr9Qv1akSiAsRq9_6AHyg24YWDEwqQFxD90NIZ3VoQjamntSTB8GNni1FbsH6zsv7TQrrdc4wOPapZ5NTFrYcc0_LKilGvvn2NNnTsJRI8D0arG4lRC2rdxYOwqngzjUhMyY_h2IypLxy2hNtXRxZYtZgnR4e4LEA1xiNzHu2M7nWTE1-kR-QWhKcqPNN3lL5ti6WJi2FHS6Frf2gTgq8eR3JLRcSPVydj3g",
 };
 
-exports.venueConstants={
-    "venueDevelapps":{
+exports.venueConstants = {
+    "venueDevelapps": {
         "name": "The Peasant Pub",
         "location": {
-            "coordinates": [-0.350823,39.466089]
+            "coordinates": [-0.350823, 39.466089]
         },
-        "schedule":[
+        "schedule": [
             {
                 "weekday": 5,
-                "openTime": moment('19:00',"HH:mm"),
-                "closeTime": moment('03:00',"HH:mm"),
+                "openTime": moment('19:00', "HH:mm"),
+                "closeTime": moment('03:00', "HH:mm"),
             },
             {
                 "weekday": 6,
-                "openTime": moment('19:00',"HH:mm"),
-                "closeTime": moment('03:00',"HH:mm"),
+                "openTime": moment('19:00', "HH:mm"),
+                "closeTime": moment('03:00', "HH:mm"),
             },
             {
                 "weekday": 7,
-                "openTime": moment('19:00',"HH:mm"),
-                "closeTime": moment('03:00',"HH:mm"),
+                "openTime": moment('19:00', "HH:mm"),
+                "closeTime": moment('03:00', "HH:mm"),
             }
         ]
     },
-    "venueBolos":{
+    "venueBolos": {
         "name": "The Bolos Pub",
         "location": {
-            "coordinates": [-0.3515847,39.4638609]
+            "coordinates": [-0.3515847, 39.4638609]
         },
-        "schedule":[
+        "schedule": [
             {
                 "weekday": 5,
-                "openTime": moment('19:00',"HH:mm"),
-                "closeTime": moment('03:00',"HH:mm"),
+                "openTime": moment('19:00', "HH:mm"),
+                "closeTime": moment('03:00', "HH:mm"),
             },
             {
                 "weekday": 6,
-                "openTime": moment('19:00',"HH:mm"),
-                "closeTime": moment('03:00',"HH:mm"),
+                "openTime": moment('19:00', "HH:mm"),
+                "closeTime": moment('03:00', "HH:mm"),
             },
             {
                 "weekday": 7,
-                "openTime": moment('19:00',"HH:mm"),
-                "closeTime": moment('03:00',"HH:mm"),
+                "openTime": moment('19:00', "HH:mm"),
+                "closeTime": moment('03:00', "HH:mm"),
             }
         ]
     },
-    "venueFarAway":{
+    "venueFarAway": {
         "name": "The Faraway Pub",
         "location": {
-            "coordinates": [20.3515847,0]
+            "coordinates": [20.3515847, 0]
         },
-        "schedule":[
+        "schedule": [
             {
                 "weekday": 5,
-                "openTime": moment('19:00',"HH:mm"),
-                "closeTime": moment('03:00',"HH:mm"),
+                "openTime": moment('19:00', "HH:mm"),
+                "closeTime": moment('03:00', "HH:mm"),
             },
             {
                 "weekday": 6,
-                "openTime": moment('19:00',"HH:mm"),
-                "closeTime": moment('03:00',"HH:mm"),
+                "openTime": moment('19:00', "HH:mm"),
+                "closeTime": moment('03:00', "HH:mm"),
             },
             {
                 "weekday": 7,
-                "openTime": moment('19:00',"HH:mm"),
-                "closeTime": moment('03:00',"HH:mm"),
+                "openTime": moment('19:00', "HH:mm"),
+                "closeTime": moment('03:00', "HH:mm"),
             }
         ]
     },
 };
 
+exports.pushToken = "aa8274e5adb21089c4cfbc04e69f869b8df74e6d5e3899d4955762439611c6e1";
 
 // Helpers
 
-exports.testBuild_createAdminUserAndClients = function (server, values , callback) {
+exports.testBuild_createAdminUserAndClients = function (server, values, callback) {
     let result = {};
     values = values ? values : {
         admin: exports.userConstants.admin,
@@ -270,7 +316,7 @@ exports.testBuild_createAdminUserAndClients = function (server, values , callbac
             callback(result);
         });
 };
-exports.testBuild_createUsersAndVenues = function (server, values ,callback) {
+exports.testBuild_createUsersAndVenues = function (server, values, callback) {
     let result = {};
     values = values ? values : {
         venueDevelapps: exports.venueConstants.venueDevelapps,
@@ -281,30 +327,132 @@ exports.testBuild_createUsersAndVenues = function (server, values ,callback) {
     async.series([
             function (isDone) {
                 exports.testBuild_createAdminUserAndClients(server, null, function (res) {
-                    Object.assign(result,res);
+                    Object.assign(result, res);
                     token = res.admin.token;
                     isDone();
                 });
             },
             function (isDone) {
-                exports.test_createVenue(server,token, values.venueDevelapps, function (res) {
+                exports.test_createVenue(server, token, values.venueDevelapps, function (res) {
                     result.venueDevelapps = res;
                     isDone();
                 });
             },
             function (isDone) {
-                exports.test_createVenue(server, token,values.venueBolos, function (res) {
+                exports.test_createVenue(server, token, values.venueBolos, function (res) {
                     result.venueBolos = res;
                     isDone();
                 });
             },
             function (isDone) {
-                exports.test_createVenue(server, token,values.venueFarAway, function (res) {
+                exports.test_createVenue(server, token, values.venueFarAway, function (res) {
                     result.venueFarAway = res;
                     isDone();
                 });
             },
 
+        ],
+        function (err) {
+            should.not.exist(err);
+            callback(result);
+        });
+};
+
+exports.testBuild_createUsersVenuesAndChats = function (server, values, callback) {
+    let result = {};
+    values = values ? values : {
+        chatCreated: {},
+        chatAccepted: {},
+        chatRejected: {},
+        chatExpired: {},
+        chatExhausted: {},
+    };
+    let messages = {
+       chatMessageOne:{
+           message: "This is one message",
+       },
+        chatMessageTwo:{
+            message: "This is two message",
+        },
+        chatMessageThree:{
+            message: "This is three message",
+        },
+    };
+    let token;
+    async.series([
+            function (isDone) {
+                exports.testBuild_createUsersAndVenues(server, null, function (res) {
+                    Object.assign(result, res);
+                    token = res.admin.token;
+                    let members = [
+                        {
+                            user: res.userOne.user._id,
+                            creator: true,
+                        },
+                        {
+                            user: res.userTwo.user._id,
+                        }
+                    ];
+                    messages.chatMessageOne.token = res.userOne.token;
+                    messages.chatMessageTwo.token = res.userTwo.token;
+                    messages.chatMessageThree.token = res.userOne.token;
+
+                    values.chatCreated = {
+                        status: constants.chats.chatStatusNames.created,
+                        members: members
+                    };
+                    values.chatAccepted = {
+                        status: constants.chats.chatStatusNames.accepted,
+                        members: members
+                    };
+                    values.chatRejected = {
+                        status: constants.chats.chatStatusNames.rejected,
+                        members: members
+                    };
+                    values.chatExpired = {
+                        status: constants.chats.chatStatusNames.expired,
+                        members: members
+                    };
+                    values.chatExhausted = {
+                        status: constants.chats.chatStatusNames.exhausted,
+                        members: members
+                    };
+                    isDone();
+                });
+            },
+            function (isDone) {
+                async.each(["chatCreated", "chatAccepted", "chatRejected", "chatExpired", "chatExhausted"],
+                    function (element, isDoneEach) {
+                        exports.test_createChat(server,token, values[element], function (res) {
+                            result[element] = res;
+                            isDoneEach();
+                        });
+                    },
+                    function (err) {
+                        isDone(err);
+                    }
+                );
+            },
+            function (isDone) {
+                async.each(["chatCreated", "chatAccepted", "chatRejected", "chatExpired", "chatExhausted"],
+                    function (element, isDoneEach) {
+                        async.each(Object.keys(messages),function (messageElement, isDoneMessage) {
+                            let params = {
+                                message: messages[messageElement].message,
+                                chat: result[element]._id,
+                            };
+                            exports.test_createMessage(server,messages[messageElement].token, params, function (res) {
+                                isDoneMessage();
+                            });
+                        },function (err) {
+                            isDoneEach(err)
+                        });
+                    },
+                    function (err) {
+                        isDone(err);
+                    }
+                );
+            },
         ],
         function (err) {
             should.not.exist(err);

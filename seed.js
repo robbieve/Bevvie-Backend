@@ -39,7 +39,7 @@ const mongoose = require('lib/db/mongoose')(function () {
             }
             winston.log("LOADING DATABASE");
             dataLoader.initDatabase(
-                ["admin","venues","checkins"]
+                ["admin","images","users","venues","checkins","blocks"]
                 ,function () {
                 winston.log("Loaded database");
                 done();

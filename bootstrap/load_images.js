@@ -4,11 +4,11 @@ let async = require("async");
 const md5 = require('md5');
 const config = require('config').aws;
 let path = require('path');
-let basedir = "bootstrap/bevvie/images/upload";
+let basedir = "bootstrap/bevvie/data/images/upload";
 let winston = require('lib/loggers/logger').winston;
 let s3Files = {};
 let glob = require( 'glob' );
-
+let imageModel = require('api/models/blobs/images');
 let maxThreads = 10;
 let cache = {
 
@@ -43,7 +43,6 @@ function _loadImage(file, cb) {
                         if (err && err.statusCode !== 404) {
                             return callback(err,null)
                         }
-
                         s3file = {
                             ACL: 'public-read',
                             Key: identifier,
@@ -91,7 +90,7 @@ function _loadImage(file, cb) {
                 image.s3 = {};
                 image.s3.identifier = fileData.identifier;
                 image.s3.url = fileData.location;
-                image.client = "->clients.bevvie";
+                image.owner = "->AdminUser.admin";
                 let noPointsBase = baseName.replace(/\./g, "_").replace(/[\u0303]/g, 'N');
                 s3Files[noPointsBase] = image;
                 callback(null, image)
