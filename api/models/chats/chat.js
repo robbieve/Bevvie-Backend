@@ -93,6 +93,13 @@ chatSchema.statics.deleteByIds = function (ids, callback) {
     });
 };
 
+chatSchema.methods.chatCreator = function () {
+    let creator = this.members.filter(function (element) {
+        return element && element.creator;
+    });
+    return creator.length>0 ? creator[0]:null;
+}
+
 
 let Chat = mongoose.model('Chat', chatSchema);
 

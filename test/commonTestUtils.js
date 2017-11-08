@@ -434,9 +434,9 @@ exports.testBuild_createUsersVenuesAndChats = function (server, values, callback
                 );
             },
             function (isDone) {
-                async.each(["chatCreated", "chatAccepted", "chatRejected", "chatExpired", "chatExhausted"],
+                async.each(["chatAccepted"],
                     function (element, isDoneEach) {
-                        async.each(Object.keys(messages),function (messageElement, isDoneMessage) {
+                        async.each(["chatMessageOne"],function (messageElement, isDoneMessage) {
                             let params = {
                                 message: messages[messageElement].message,
                                 chat: result[element]._id,

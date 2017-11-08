@@ -47,7 +47,7 @@ describe('Push Group', () => {
                         clientId = res.userOne.user._id;
                         clientIdTwo = res.userTwo.user._id;
 
-                        clientToken = res.userOne.token;
+                        clientToken = res.userTwo.token;
 
                         Object.keys(allChats).forEach(function (element) {
                             allChats[element] = res[element];
@@ -82,10 +82,10 @@ describe('Push Group', () => {
             });
         });
         it('should succeed for good values', (done) => {
-            let chat = JSON.parse(JSON.stringify(allChats.chatCreated));
+            let chat = JSON.parse(JSON.stringify(allChats.chatAccepted));
             delete chat._id;
             let device = {
-                user: clientIdTwo,
+                user: clientId,
                 pushToken: commonTestUtils.pushToken
             }
             chai.request(server)

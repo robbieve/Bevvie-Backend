@@ -21,6 +21,7 @@ const route_utils = require('api/controllers/common/routeUtils');
 const constants = require('api/common/constants');
 const errorConstants = require('api/common/errorConstants');
 const moment = require("moment");
+let redis = require("lib/redis/redis");
 
 // Prepost function
 function _prepost(request, response, next, callback) {
@@ -29,7 +30,7 @@ function _prepost(request, response, next, callback) {
         return element && element.user && element.user.toString() === request.user._id.toString();
     });
     // If not admin, cannot post
-    if (!request.user.admin && userInChat === 0) {
+    if (!request.user.admin && userInChat === 0) {
         response.status(403).json({
             localizedError: 'You are not authorized to create or update this chat',
             rawError: 'user ' + request.user._id + ' is not admin'
@@ -59,14 +60,15 @@ router.route('/')
         chatValidator.postValidator,
         function (request, response, next) {
             _prepost(request, response, next, function (newObject) {
-                route_utils.post(Chat, newObject, request, response, next,function (err,chat) {
-                    let creator = newObject.members.filter(function (element) {
-                        return element && element.user && element.user.toString() === request.user._id.toString() && element.creator;
+                route_utils.post(Chat, newObject, request, response, next, function (err, chat) {
+                    let notCreators = newObject.members.filter(function (element) {
+                        return element && element.user && element.user.toString() === request.user._id.toString() && !element.creator;
                     });
-                    if (creator.length>0){
-                        let user = creator[0].user;
-                        pushUtils.sendCreateChatPush(user,chat);
-                    }
+                    notCreators.forEach(function (chatUser) {
+                        let user = chatUser.user;
+                        pushUtils.sendCreateChatPush(user, chat);
+                    });
+
                 });
             });
         })
@@ -190,7 +192,7 @@ router.route('/:id')
         let userInChat = chat.members.filter(function (element) {
             return element.user._id.toString() === request.user._id.toString();
         });
-        if (!request.user.admin && userInChat.length===0) {
+        if (!request.user.admin && userInChat.length === 0) {
             response.status(403).json({
                 localizedError: 'You are not authorized to delete a chat',
                 rawError: 'user ' + request.user._id + ' is not admin'
@@ -223,11 +225,11 @@ router.route('/:id/messages')
      * @apiSuccess {String}   _id   Id of the chat.
      * @apiUse ErrorGroup
      */
-    .get(function (request, response,next) {
+    .get(function (request, response, next) {
         let options = {sort: [["createdAt", -1]]};
-        let query =  {chat: request.params.id};
-        if (request.query.fromDate){
-            query["createdAt"] ={ $gte : request.query.fromDate };
+        let query = {chat: request.params.id};
+        if (request.query.fromDate) {
+            query["createdAt"] = {$gte: request.query.fromDate};
         }
         route_utils.getAll(Message,
             query,
@@ -251,10 +253,10 @@ router.route('/:id/messages')
         function (request, response, next) {
             let chat = response.object;
             let userInChat = chat.members.filter(function (element) {
-               return element.user._id.toString() === request.user._id.toString();
+                return element.user._id.toString() === request.user._id.toString();
             });
             // If not admin, cannot post
-            if (!request.user.admin && userInChat.length === 0) {
+            if (!request.user.admin && userInChat.length === 0) {
                 response.status(403).json({
                     localizedError: 'You are not authorized to create a message',
                     rawError: 'user ' + request.user._id + ' is not admin'
@@ -266,9 +268,58 @@ router.route('/:id/messages')
                 user: request.user._id,
                 message: request.body.message
             };
-            route_utils.post(Message, message, request, response, next,function (err,message) {
-                pushUtils.sendCreateMessagePush(message);
-            });
+            if (
+                chat.status === constants.chats.chatStatusNames.created &&
+                chat.chatCreator().user._id.toString() === request.user._id.toString()
+            ) { // If Chat's state is CREATED and requester's user is Chat's creator, an error will be returned.
+                return response.status(400).json(errorConstants.responseWithError(request.user, errorConstants.errorNames.chat_chatNotYetAccepted));
+            }
+            else if (
+                chat.status === constants.chats.chatStatusNames.created &&
+                chat.chatCreator().user._id.toString() !== request.user._id.toString()
+            ){ // If Chat's state is CREATED and requester's user isn't Chat's creator, Chat's state will change to ACCEPTED.
+                chat.status = constants.chats.chatStatusNames.accepted;
+                chat.save(function (err,chat) {
+                    if (err) return response.status(500).json(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
+                    redis.deleteCachedResult({_id: chat._id}, Chat.modelName, function (err) {
+                        route_utils.post(Message, message, request, response, next, function (err, message) {
+                            pushUtils.sendCreateMessagePush(message);
+                        });
+                    });
+                })
+            }
+            else if (
+                chat.status === constants.chats.chatStatusNames.accepted &&
+                chat.chatCreator().user._id.toString() === request.user._id.toString()
+            ){ // If this is creator's third message, Chat's state will change to EXHAUSTED and, 18 hours later, it will change to EXPIRED.
+                Message.count({chat: chat._id},function (err, count) {
+                    if (err) return response.status(500).json(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
+                    if (count>=constants.chats.maxMessages-1){
+                        chat.status = constants.chats.chatStatusNames.exhausted;
+                    }
+                    chat.save(function (err,chat) {
+                        if (err) return response.status(500).json(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
+                        redis.deleteCachedResult({_id: chat._id}, Chat.modelName, function (err) {
+                            route_utils.post(Message, message, request, response, next, function (err, message) {
+                                pushUtils.sendCreateMessagePush(message);
+                            });
+                        });
+                    })
+                })
+            }
+            else if (
+                chat.status === constants.chats.chatStatusNames.exhausted ||
+                chat.status === constants.chats.chatStatusNames.expired
+            ) { // If Chat's state is CREATED and requester's user is Chat's creator, an error will be returned.
+                return response.status(400).json(errorConstants.responseWithError(chat, errorConstants.errorNames.chat_chatExhausted));
+            }
+            else {
+                redis.deleteCachedResult({_id: chat._id}, Chat.modelName, function (err) {
+                    route_utils.post(Message, message, request, response, next, function (err, message) {
+                        pushUtils.sendCreateMessagePush(message);
+                    });
+                });
+            }
         });
 
 

@@ -70,7 +70,7 @@ module.exports.checkins.maxTime = 18*3600; //18 hours max per visit
 
 // Chat constants
 
-// Venues
+// Chats
 module.exports.chats = {};
 module.exports.chats.chatStatusNames= {
     "created":"created",
@@ -81,6 +81,7 @@ module.exports.chats.chatStatusNames= {
 };
 
 module.exports.chats.chatStatuses = Object.keys(module.exports.chats.chatStatusNames);
+module.exports.chats.maxMessages = 3;
 
 // Push
 module.exports.pushes = {};
