@@ -93,6 +93,7 @@ describe('Chats Group', () => {
                     res.should.be.json;
                     res.body.should.be.an('object');
                     res.body.should.contain.all.keys('_id', 'members', 'status');
+                    res.body.status.should.equal(constants.chats.chatStatusNames.created)
                     done();
                 });
         });
