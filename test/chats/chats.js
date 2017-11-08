@@ -196,7 +196,24 @@ describe('Chats Group', () => {
                     });
             });
 
-
+            it('should succeed with statuses', function (done) {
+                chai.request(server)
+                    .get(endpoint)
+                    .query({'status': [
+                        constants.chats.chatStatusNames.created,
+                        constants.chats.chatStatusNames.accepted,
+                        constants.chats.chatStatusNames.exhausted,
+                    ]})
+                    .set("Authorization", "Bearer " + adminToken)
+                    .end(function (err, res) {
+                        commonTestUtils.test_pagination(err, res, function () {
+                            res.body.docs.should.be.an('Array');
+                            res.body.docs.should.have.lengthOf(2);
+                            res.body.docs[0].members[0].user._id.should.equal(clientId);
+                            done();
+                        });
+                    });
+            });
         });
         describe('chats/id', () => {
             it('should success for admin', function (done) {

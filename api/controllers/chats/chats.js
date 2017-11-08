@@ -82,7 +82,7 @@ router.route('/')
      *
      * @apiParam {Number} [limit] number of slices to get
      * @apiParam {Number} [offset] start of slices to get
-     * @apiParam {String="pending","accepted","rejected","exhausted","expired"} [status] status to match
+     * @apiParam {String="pending","accepted","rejected","exhausted","expired"} [status] status to match. Might be an array
      * @apiParam {String} [user] id of a user in the chat
      * @apiParam {Object[]} [sort] sort struct array
      * @apiParam {String="createdAt"} sort.field=createdAt field to sort with
