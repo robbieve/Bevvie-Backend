@@ -124,7 +124,7 @@ describe('Push Group', () => {
                                     res.body.should.contain.all.keys('_id', 'message', 'chat');
                                     setTimeout(function () {
                                         done();
-                                    },15000);
+                                    },3000);
                                 });
 
                         });
