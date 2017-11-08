@@ -162,7 +162,8 @@ describe('Venues Group', () => {
     describe('GET', () => {
         let venueDevelapps;
         let imageFile = fs.readFileSync("test/blobs/images/develapps.png");
-        let adminImageFile = fs.readFileSync("test/blobs/images/develapps2.png");let imageId,imageIdTwo;
+        let adminImageFile = fs.readFileSync("test/blobs/images/develapps2.png");
+        let imageId, imageIdTwo;
 
 
         const checkins = require("api/models/checkins/checkin");
@@ -242,7 +243,7 @@ describe('Venues Group', () => {
                         commonTestUtils.test_pagination(err, res, function () {
                             res.body.docs.should.be.an('Array');
                             res.body.docs.should.have.lengthOf(2);
-                            res.body.docs[0].should.contain.all.keys('_id', 'name', 'apiVersion','image');
+                            res.body.docs[0].should.contain.all.keys('_id', 'name', 'apiVersion', 'image');
                             done();
                         });
                     });
@@ -298,6 +299,25 @@ describe('Venues Group', () => {
                                 should.not.exist(err);
                                 res.body.docs.should.be.an('Array');
                                 res.body.docs.should.have.lengthOf(2);
+                                done();
+                            });
+                    });
+            });
+            it('should succeed with geoloc and images', (done) => {
+                venues.collection.createIndex({'location': '2dsphere'}, {name: 'locationIndex'},
+                    function (err) {
+                        should.not.exist(err);
+                        chai.request(server)
+                            .get(endpoint)
+                            .set("Content-Type", "application/json")
+                            .set("Authorization", "Bearer " + adminToken)
+                            .query({'geo': {long: 0, lat: 40, dist: 300000}})
+                            .end(function (err, res) {
+                                should.not.exist(err);
+                                res.body.docs.should.be.an('Array');
+                                res.body.docs.should.have.lengthOf(2);
+                                res.body.docs[0].should.contain.all.keys('_id', 'name', 'apiVersion', 'image');
+                                res.body.docs[0].image.should.contain.all.keys('_id', 's3');
                                 done();
                             });
                     });

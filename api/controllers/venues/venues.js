@@ -32,7 +32,7 @@ function _prepost(request, response, next, callback) {
         });
         return;
     }
-    if (request.body.location && !request.body.location.type){
+    if (request.body.location && !request.body.location.type) {
         request.body.location.type = constants.geo.formNames.Point;
     }
     callback(newObject)
@@ -125,40 +125,49 @@ router.route('/')
                 }
                 let distance = geo.dist ? geo.dist : 30000;
                 distance = parseFloat(distance);
+                let distances = [];
                 Venue.geoNear(
                     {type: "Point", coordinates: [parseFloat(geo.long), parseFloat(geo.lat)]},
                     {
                         spherical: true,
                         maxDistance: distance,
-                        lean: true,
-                        query:{
+                        query: {
                             active: true
                         }
-                    },
-                    function (err, results) {
+                    })
+                    .then(function (results) {
+                        distances = results.map(function (x) {
+                            return x.dis;
+                        });
+                        let populateResults = results.map(function (x) {
+                            delete x.dis;
+                            return new Venue(x.obj);
+                        });
+                        return Venue.populate(populateResults, {path: "image"})
+                    })
+                    .then(function (results) {
+                        return Venue.populate(results, {path: "images"});
+                    })
+                    .then((results) => {
                         let finalResults = [];
-                        if (err) {
-                            return response.status(500).json(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
-                        }
-                        else  {
-                            async.each(results,
-                                function (venue,isDone) {
-                                    Checkin.count({venue: venue.obj._id},function (err, count) {
-                                        let finalVenue = venue.obj;
-                                        finalVenue.checkins = count;
-                                        finalVenue.distance = venue.dis;
-                                        finalResults.push(finalVenue);
-                                        isDone(err);
-                                    });
-                                },
-                                function (err) {
-                                    if (err)  return response.status(500).json(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
-                                    return response.status(200).json({docs: finalResults});
+                        async.eachOf(results,
+                            function (venue, index,isDone) {
+                                Checkin.count({venue: venue._id}, function (err, count) {
+                                    let finalVenue = venue.toJSON();
+                                    finalVenue.checkins = count;
+                                    finalVenue.distance = distances[index];
+                                    finalResults.push(finalVenue);
+                                    isDone(err);
                                 });
+                            },
+                            function (err) {
+                                if (err) return response.status(500).json(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
+                                return response.status(200).json({docs: finalResults});
+                            });
+                    }).catch((err) => {
+                    return response.status(500).json(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
 
-                        }
-                    }
-                )
+                })
             }
             else {
                 route_utils.getAll(Venue,
@@ -167,6 +176,7 @@ router.route('/')
                     request, response, next)
             }
         });
+
 
 router.route('/:id')
     .all(passport.authenticate('bearer', {session: false}),
