@@ -87,7 +87,9 @@ module.exports.chats.maxMessages = 3;
 module.exports.pushes = {};
 module.exports.pushes.pushTypeNames= {
     "chatCreate":"chatCreate",
-    "chatMessage":"chatMessage"
+    "chatMessage":"chatMessage",
+    "chatRejected":"chatRejected"
+
 };
 module.exports.pushes.pushTypes = Object.keys(module.exports.pushes.pushTypeNames);
 
