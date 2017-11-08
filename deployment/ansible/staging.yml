@@ -12,7 +12,7 @@
     - fail2ban
     - mongodb
     - redis
-    - web
+    #- web
     - nginx
     - awscli
     - application
