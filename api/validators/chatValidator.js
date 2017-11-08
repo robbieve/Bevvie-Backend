@@ -13,8 +13,7 @@ module.exports.getOneValidator = function (request, response, next) {
 
 module.exports.getValidator = function (request, response, next) {
     request.checkQuery('user', 'No valid user provided').optional().isObjectId();
-    request.checkQuery('status', 'No valid status provided').optional().isIn(constants.chats.chatStatuses);
-
+    request.checkQuery('status', 'No valid status provided').optional().isArrayAndIsIn(constants.chats.chatStatuses);
     request.checkQuery('venue', 'No valid venue provided').optional().isObjectId();
     request.checkQuery('maxAge', 'No valid maxAge provided').optional().isNumeric();
     request.checkQuery('minAge', 'No valid minAge provided').optional().isNumeric();

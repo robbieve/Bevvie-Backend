@@ -265,6 +265,9 @@ utils.filterQuery = function (requestQuery, transform, query = {}) {
             let queryValue = transform.directQuery[element];
             if (requestQuery[element]) {
                 query[queryValue] = requestQuery[element];
+                if (Array.isArray(query[queryValue])){
+                    query[queryValue] = {$in: query[queryValue]};
+                }
                 if (requestQuery[element] instanceof String && requestQuery[element].length === 0) { // if nosize, put a null for the query
                     query[queryValue] = null;
                 }
@@ -272,7 +275,6 @@ utils.filterQuery = function (requestQuery, transform, query = {}) {
         });
     }
     // regexQuery
-
     if (transform.regexQuery){
         Object.keys(transform.regexQuery).forEach(function (element) {
             let queryValue = transform.regexQuery[element];
