@@ -161,22 +161,38 @@ describe('Venues Group', () => {
     });
     describe('GET', () => {
         let venueDevelapps;
+        let imageFile = fs.readFileSync("test/blobs/images/develapps.png");
+        let adminImageFile = fs.readFileSync("test/blobs/images/develapps2.png");let imageId,imageIdTwo;
+
+
         const checkins = require("api/models/checkins/checkin");
         before((done) => { //Before each test create the object
-            checkins.remove({},(err) => {
+            checkins.remove({}, (err) => {
                 venues.remove({}, (err) => {
-                    commonTestUtils.test_createVenue(server, adminToken, commonTestUtils.venueConstants.venueDevelapps, function (realVenue) {
-                        venue = realVenue;
-                        venueDevelapps = realVenue;
-                        let inactive = JSON.parse(JSON.stringify(venue));
-                        delete inactive._id;
-                        inactive.active = false;
-                        commonTestUtils.test_createVenue(server, adminToken, inactive, function (realVenue) {
-                            commonTestUtils.test_createVenue(server, adminToken, commonTestUtils.venueConstants.venueBolos, function (realVenue) {
-                                done();
+                    const aFile = imageFile;
+                    const anAdminFile = adminImageFile;
+                    commonTestUtils.test_createImage(server, adminToken, aFile, function (objectId) {
+                        imageId = objectId;
+                        commonTestUtils.test_createImage(server, adminToken, anAdminFile, function (objectId) {
+                            imageIdTwo = objectId;
+                            let avenue = JSON.parse(JSON.stringify(commonTestUtils.venueConstants.venueDevelapps));
+                            avenue.image = imageId;
+                            commonTestUtils.test_createVenue(server, adminToken, avenue, function (realVenue) {
+                                venue = realVenue;
+                                venueDevelapps = realVenue;
+                                let inactive = JSON.parse(JSON.stringify(venue));
+                                delete inactive._id;
+                                inactive.active = false;
+                                commonTestUtils.test_createVenue(server, adminToken, inactive, function (realVenue) {
+                                    let avenue = JSON.parse(JSON.stringify(commonTestUtils.venueConstants.venueBolos));
+                                    avenue.image = imageIdTwo;
+                                    commonTestUtils.test_createVenue(server, adminToken, avenue, function (realVenue) {
+                                        done();
+                                    });
+                                });
+
                             });
                         });
-
                     });
                 });
             });
@@ -213,6 +229,20 @@ describe('Venues Group', () => {
                         commonTestUtils.test_pagination(err, res, function () {
                             res.body.docs.should.be.an('Array');
                             res.body.docs.should.have.lengthOf(2);
+                            done();
+                        });
+                    });
+            });
+            it('should succeed with images data token', (done) => {
+                chai.request(server)
+                    .get(endpoint)
+                    .set("Content-Type", "application/json")
+                    .set("Authorization", "Bearer " + adminToken)
+                    .end(function (err, res) {
+                        commonTestUtils.test_pagination(err, res, function () {
+                            res.body.docs.should.be.an('Array');
+                            res.body.docs.should.have.lengthOf(2);
+                            res.body.docs[0].should.contain.all.keys('_id', 'name', 'apiVersion','image');
                             done();
                         });
                     });

@@ -80,7 +80,7 @@ let userSchema = new Schema({
     apiVersion: {type: String, required: true, default: config.apiVersion},
 }, {timestamps: true, discriminatorKey: 'userType'});
 userSchema.plugin(mongoosePaginate);
-userSchema.index({'facebook_id': 1,'firebase_id': 1}, {name: 'nameIndex'});
+userSchema.index({'facebook_id': 1,'firebase_id': 1});
 userSchema.index({'name': 1}, {name: 'nameIndex', unique: true});
 userSchema.index({'age': 1}, {name: 'ageIndex'});
 userSchema.index({'country': 1}, {name: 'countryIndex'});

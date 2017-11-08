@@ -6,6 +6,7 @@
     "_model": "Venue",
     "venue1":{
       "name": "The Peasant Pub",
+      "image": "->images.venue1",
       "location": {
         "coordinates": [-0.3508229,39.466089]
       },
@@ -29,6 +30,7 @@
     },
     "venue2":{
       "name": "The Bolos Pub",
+      "image": "->images.venue1",
       "location": {
         "coordinates": [-0.351655,39.4652121]
       },
@@ -52,6 +54,7 @@
     },
     "venue3":{
       "name": "The Faraway Pub",
+      "image": "->images.venue1",
       "location": {
         "coordinates": [20.3515847,0]
       },
@@ -75,12 +78,14 @@
     },
     "venue4":{
       "name": "The Argentina Croissant Pub",
+      "image": "->images.venue1",
       "location": {
         "coordinates": [-0.3509577,39.4657256]
       }
     },
     "venue5":{
       "name": "The Bocatas Chinos Bar",
+      "image": "->images.venue1",
       "location": {
         "coordinates": [-0.3509771,39.4677781]
       }

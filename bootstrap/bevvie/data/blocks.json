@@ -2,8 +2,8 @@
   "Blocks": {
     "_model": "Block",
     "block1": {
-      "userBlocked": "->AdminUser.user7",
-      "userBlocks": "->AdminUser.user1"
+      "userBlocked": "->users.user7",
+      "userBlocks": "->users.user1"
     }
   }
 }

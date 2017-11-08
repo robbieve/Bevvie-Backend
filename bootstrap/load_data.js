@@ -25,6 +25,7 @@ let jsonToLoad = {
     venues: require("bootstrap/bevvie/data/venues.json"),
     blocks: require("bootstrap/bevvie/data/blocks.json"),
     admin: require("bootstrap/bevvie/data/adminUsers.json"),
+    users: require("bootstrap/bevvie/data/users.json"),
     checkins: require("bootstrap/bevvie/data/checkins.json"),
 };
 
@@ -86,6 +87,8 @@ function _getUsers() {
 
 
 
+
+
 function _loadDB(callback) {
     winston.info('Seeding...');
 
@@ -97,6 +100,7 @@ function _loadDB(callback) {
     const venues = require('api/models/venues/venue');
     const blocks = require('api/models/users/block');
     const chekins = require('api/models/checkins/checkin');
+    const iamges = require('api/models/blobs/images');
 
     // Order is important
 
@@ -105,7 +109,7 @@ function _loadDB(callback) {
         Object.assign(data, dataElement);
     });
 
-    ["AdminUser"].forEach(function (dataIn) {
+    ["AdminUser","users"].forEach(function (dataIn) {
         let users = data[dataIn];
         Object.keys(users).forEach(function (user) {
             let userObject = users[user];
@@ -139,7 +143,14 @@ function _loadDB(callback) {
 }
 
 function startDBCreation(callback) {
-    _loadDB(callback)
+    imageLoader.loadImages(function (err,load) {
+        if (err) {
+            winston.info('loaded images err: ' + JSON.stringify(err));
+            process.exit(-1);
+        }
+        jsonToLoad.images = load;
+        _loadDB(callback)
+    });
 }
 
 
