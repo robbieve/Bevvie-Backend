@@ -14,6 +14,8 @@ module.exports.errorNames = {
     user_facebookLoginAuthFailure: "user_facebookLoginAuthFailure",
     user_firebaseLoginAuthFailure: "user_firebaseLoginAuthFailure",
     venue_getGeoInvalidLatOrLongErr: "venue_getGeoInvalidLatOrLongErr",
+    chat_chatNotYetAccepted: "chat_chatNotYetAccepted",
+    chat_chatExhausted: "chat_chatExhausted",
 };
 
 module.exports.errorCodes = function (code) {
@@ -38,6 +40,12 @@ module.exports.errorCodes = function (code) {
             break;
         case module.exports.errorNames.venue_getGeoInvalidLatOrLongErr:
             return -201;
+            break;
+        case module.exports.errorNames.chat_chatNotYetAccepted:
+            return -301;
+            break;
+        case module.exports.errorNames.chat_chatExhausted:
+            return -302;
             break;
         default:
             return -1;
@@ -73,6 +81,15 @@ module.exports.errors = {
         localizedError: "No valid latitude and longitude provided",
         rawError: "No valid latitude and longitude provided: ",
     },
+    chat_chatNotYetAccepted: {
+        localizedError: "User has not accepted to chat yet",
+        rawError: "User has not accepted to chat yet: ",
+    },
+    chat_chatExhausted: {
+        localizedError: "No more message available. Chat exhausted.",
+        rawError: "No more message available. Chat exhausted: ",
+    },
+
 };
 
 module.exports.responseWithError = function (err, key) {

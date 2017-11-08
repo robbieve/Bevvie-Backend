@@ -15,6 +15,7 @@ let dbError = require('lib/loggers/db_error');
 
 // load the auth variables
 let configAuth = require('config').auth;
+let redis = require("lib/redis/redis");
 
 let constants = require('api/common/constants');
 
@@ -71,19 +72,21 @@ router.route('/')
                     return dbError(err, request, response, next)
                 }
                 else {
-                    newToken.save(
-                        function (err) {
-                            if (err) {
-                                return dbError(err, request, response, next)
+                    redis.deleteCachedResult({_id: user._id}, User.modelName, function (err) {
+                        newToken.save(
+                            function (err) {
+                                if (err) {
+                                    return dbError(err, request, response, next)
+                                }
+                                else {
+                                    response.status(201).json({'token': token, 'user': user});
+                                }
                             }
-                            else {
-                                response.status(201).json({'token': token, 'user': user});
-                            }
-                        }
-                    )
+                        )
 
+
+                    });
                 }
-
             });
         }).catch(function (err) {
             return response.status(500).json({

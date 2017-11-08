@@ -14,12 +14,16 @@ let user = require('api/models/users/user');
 let chats = require('api/models/chats/chat');
 let messages = require('api/models/chats/message');
 
+let errorConstants = require("api/common/errorConstants");
+
 const endpoint = '/api/v1/chats';
 const bootstrap = require("bootstrap/load_data");
 
 let clientId = "";
 let clientIdTwo = "";
 let clientToken = "";
+let clientTokenTwo = "";
+
 let adminId = "";
 let adminToken = "";
 
@@ -48,6 +52,7 @@ describe('Chats Group', () => {
                         clientIdTwo = res.userTwo.user._id;
 
                         clientToken = res.userOne.token;
+                        clientTokenTwo = res.userTwo.token;
 
                         Object.keys(allChats).forEach(function (element) {
                             allChats[element] = res[element];
@@ -340,7 +345,7 @@ describe('Chats Group', () => {
                 });
             });
             it('should succeed for good values', (done) => {
-                let chat = JSON.parse(JSON.stringify(allChats.chatCreated));
+                let chat = JSON.parse(JSON.stringify(allChats.chatAccepted));
                 let message = {
                     message: "This is a test message"
                 };
@@ -357,7 +362,91 @@ describe('Chats Group', () => {
                         done();
                     });
             });
+            it('should succeed for created and receiver posting message accepting chat', (done) => {
+                let chat = JSON.parse(JSON.stringify(allChats.chatAccepted));
+                let message = {
+                    message: "This is a test message"
+                };
+                chai.request(server)
+                    .post("/api/v1/chats/"+chat._id+"/messages")
+                    .send(message)
+                    .set("Content-Type", "application/json")
+                    .set("Authorization", "Bearer " + clientTokenTwo)
+                    .end(function (err, res) {
+                        res.should.have.status(201);
+                        res.should.be.json;
+                        res.body.should.be.an('object');
+                        res.body.should.contain.all.keys('_id', 'message', 'chat');
+                        chai.request(server)
+                            .get("/api/v1/chats/"+chat._id)
+                            .send(message)
+                            .set("Content-Type", "application/json")
+                            .set("Authorization", "Bearer " + clientTokenTwo)
+                            .end(function (err, res) {
+                                res.should.have.status(200);
+                                res.should.be.json;
+                                res.body.should.be.an('object');
+                                res.body.should.contain.all.keys('_id', 'status');
+                                res.body.status.should.equal(constants.chats.chatStatusNames.accepted);
+                                done();
+                            });
 
+                    });
+            });
+            it('should succeed for third message and chat exhausted', (done) => {
+                let chat = JSON.parse(JSON.stringify(allChats.chatAccepted));
+                let message = {
+                    message: "This is a test message"
+                };
+                async.eachSeries([message,message,message],
+                    function (aMessage, doneMessage) {
+                        chai.request(server)
+                            .post("/api/v1/chats/"+chat._id+"/messages")
+                            .send(aMessage)
+                            .set("Content-Type", "application/json")
+                            .set("Authorization", "Bearer " + clientToken)
+                            .end(function (err, res) {
+                                res.should.have.status(201);
+                                res.should.be.json;
+                                res.body.should.be.an('object');
+                                res.body.should.contain.all.keys('_id', 'message', 'chat');
+                                doneMessage()
+                            });
+
+                    },
+                    function (err) {
+                        should.not.exist(err);
+                        chai.request(server)
+                            .get("/api/v1/chats/"+chat._id)
+                            .send(message)
+                            .set("Content-Type", "application/json")
+                            .set("Authorization", "Bearer " + clientToken)
+                            .end(function (err, res) {
+                                res.should.have.status(200);
+                                res.should.be.json;
+                                res.body.should.be.an('object');
+                                res.body.should.contain.all.keys('_id', 'status');
+                                res.body.status.should.equal(constants.chats.chatStatusNames.exhausted);
+                                done();
+                            });
+                    });
+            });
+            it('should fail for created chat and not receiver values', (done) => {
+                let chat = JSON.parse(JSON.stringify(allChats.chatCreated));
+                let message = {
+                    message: "This is a test message"
+                };
+                chai.request(server)
+                    .post("/api/v1/chats/"+chat._id+"/messages")
+                    .send(message)
+                    .set("Content-Type", "application/json")
+                    .set("Authorization", "Bearer " + clientToken)
+                    .end(function (err, res) {
+                        commonTestUtils.test_errorCode(400, errorConstants.errorCodes(errorConstants.errorNames.chat_chatNotYetAccepted), err, res, function () {
+                            done();
+                        });
+                    });
+            });
             it('should fail for bad UserId', (done) => {
                 let chat = JSON.parse(JSON.stringify(allChats.chatCreated));
                 delete chat._id;
