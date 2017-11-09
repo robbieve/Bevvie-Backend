@@ -5,7 +5,7 @@ module.exports = function (app) {
     // Routes in all subdirs
     const colors = require('chalk');
     let includes = {
-        "controllers/users": ["login", "register","users","blocks"],
+        "controllers/users": ["login", "register","users","blocks","reports"],
         "controllers/blobs": ["images"],
         "controllers/venues": ["venues"],
         "controllers/checkins": ["checkins"],

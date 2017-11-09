@@ -70,6 +70,21 @@ exports.test_createBlock = function (server, token, parameters, callback) {
         });
 };
 
+exports.test_createReport = function (server, token, parameters, callback) {
+    chai.request(server)
+        .post('/api/v1/reports')
+        .send(parameters)
+        .set("Content-Type", "application/json")
+        .set("Authorization", "Bearer " + token)
+        .end(function (err, res) {
+            res.should.have.status(201);
+            res.should.be.json;
+            res.body.should.be.an('object');
+            res.body.should.have.property('_id');
+            callback(res.body);
+        });
+};
+
 exports.test_createChat = function (server, token, parameters, callback) {
     chai.request(server)
         .post('/api/v1/chats')

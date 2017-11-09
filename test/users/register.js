@@ -19,7 +19,7 @@ let testDictionary = {
         "goodVariants":
             {
                 'country': ["GB","PT"],
-                'languages': ["es","pt","en","spa"],
+                'languages': ["es","pt","en"],
                 "accessType": [constants.users.accessTypeNames.facebook,constants.users.accessTypeNames.firebase],
                 "banned": [true],
                 "admin": [false],
