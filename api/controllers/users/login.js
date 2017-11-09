@@ -39,6 +39,8 @@ router.route('/')
      *
      * @apiSuccess {String} token access token.
      * @apiUse ErrorGroup
+     * @apiUse ErrorFacebookLogin
+     * @apiUse ErrorFirebaseLogin
      */
     .post(parseJSONencoded,
         expressValidator,

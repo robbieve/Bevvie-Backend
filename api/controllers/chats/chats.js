@@ -246,6 +246,8 @@ router.route('/:id/messages')
      *
      * @apiSuccess (201) {String} _id the chat's id
      * @apiUse ErrorGroup
+     * @apiUse ErrorChatNotYetAccepted
+     * @apiUse ErrorChatExhausted
      */
     .post(jsonParser,
         expressValidator,
@@ -333,9 +335,9 @@ router.route('/:id/reject')
 
     /**
      * @api {post} /chats/id/reject Rejects a message
-     * @apiName RejectChatMessages
+     * @apiName RejectChat
      * @apiVersion 0.9.0
-     * @apiGroup ChatMessages
+     * @apiGroup Chats
      * @apiParam {String} id the chat's id
      * @apiUse ChatParameters
      *

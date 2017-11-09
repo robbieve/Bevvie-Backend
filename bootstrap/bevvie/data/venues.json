@@ -12,19 +12,39 @@
       },
       "schedule":[
         {
+          "weekday": 1,
+          "openTime": "=moment('00:01','HH:mm')",
+          "closeTime": "=moment('23:59','HH:mm')"
+        },
+        {
+          "weekday": 2,
+          "openTime": "=moment('00:01','HH:mm')",
+          "closeTime": "=moment('23:59','HH:mm')"
+        },
+        {
+          "weekday": 3,
+          "openTime": "=moment('00:01','HH:mm')",
+          "closeTime": "=moment('23:59','HH:mm')"
+        },
+        {
+          "weekday": 4,
+          "openTime": "=moment('00:01','HH:mm')",
+          "closeTime": "=moment('23:59','HH:mm')"
+        },
+        {
           "weekday": 5,
-          "openTime": "=moment('19:00','HH:mm')",
-          "closeTime": "=moment('03:00','HH:mm')"
+          "openTime": "=moment('00:01','HH:mm')",
+          "closeTime": "=moment('23:59','HH:mm')"
         },
         {
           "weekday": 6,
-          "openTime": "=moment('19:00','HH:mm')",
-          "closeTime": "=moment('03:00','HH:mm')"
+          "openTime": "=moment('00:01','HH:mm')",
+          "closeTime": "=moment('23:59','HH:mm')"
         },
         {
           "weekday": 7,
-          "openTime": "=moment('19:00','HH:mm')",
-          "closeTime": "=moment('03:00','HH:mm')"
+          "openTime": "=moment('00:01','HH:mm')",
+          "closeTime": "=moment('23:59','HH:mm')"
         }
       ]
     },

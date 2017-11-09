@@ -3,6 +3,10 @@
  * @apiError (Any Error) {String} localizedDescription A user-friendly description of the error
  * @apiError (Any Error) {String} rawError A technical description of the error
  * @apiError (Any Error) {String} [errorCode] A code for the error
+ * @apiError (Any Error) errorCode.-1 Generic error. See "rawError".
+ * @apiError (Any Error) errorCode.-2 Database Error
+ * @apiError (Any Error) errorCode.-3 Mail Error
+ * @apiError (Any Error) errorCode.-4 Not Found.
  */
 let winston = require("lib/loggers/logger").winston;
 
@@ -32,18 +36,38 @@ module.exports.errorCodes = function (code) {
         case module.exports.errorNames.notFound:
             return -4;
             break;
+        /**
+         * @apiDefine ErrorFacebookLogin
+         * @apiError (Any Error) errorCode.-101 Facebook login failed.
+         */
         case module.exports.errorNames.user_facebookLoginAuthFailure:
             return -101;
             break;
+        /**
+         * @apiDefine ErrorFirebaseLogin
+         * @apiError (Any Error) errorCode.-102 Firebase login failed
+         */
         case module.exports.errorNames.user_firebaseLoginAuthFailure:
             return -102;
             break;
+        /**
+         * @apiDefine ErrorInvalidGeoLocation
+         * @apiError (Any Error) errorCode.-201 Geolocation invalid
+         */
         case module.exports.errorNames.venue_getGeoInvalidLatOrLongErr:
             return -201;
             break;
+            /**
+             * @apiDefine ErrorChatNotYetAccepted
+             * @apiError (Any Error) errorCode.-301 Receiver has not yet accepted the chat.
+             */
         case module.exports.errorNames.chat_chatNotYetAccepted:
             return -301;
             break;
+        /**
+         * @apiDefine ErrorChatExhausted
+         * @apiError (Any Error) errorCode.-302 Chat exhausted
+         */
         case module.exports.errorNames.chat_chatExhausted:
             return -302;
             break;

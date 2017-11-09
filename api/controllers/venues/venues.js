@@ -87,6 +87,7 @@ router.route('/')
      * @apiSuccess {String}   docs._id   Id of the venue.
      * @apiSuccess {String}   docs.versionNumber   versionNumber of the venue.
      * @apiUse ErrorGroup
+     * @apiUse ErrorInvalidGeoLocation
      */
     .get(expressValidator,
         venueValidator.getValidator,
