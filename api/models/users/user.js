@@ -22,7 +22,7 @@ let mongooseValidators = require('lib/validation/mongooseValidators');
  * @apiParam (User Model) {String} [studies] studies of the user
  * @apiParam (User Model) {String[]} [images] array with id of the image or an image object
  * @apiParam (User Model) {Boolean} [banned=0] whether the user is banned or not.
- * @apiParam (User Model) {Boolean} [about_validated=0] whether the about is validated or not.
+ * @apiParam (User Model) {Boolean} [about_validated] whether the about is validated or not. If not present, validation is pending
  * @apiParam (User Model) {Boolean} active=1 user is active (not deleted)
  * @apiParam (User Model) {Boolean} admin=0 user is admin
  */
@@ -74,7 +74,7 @@ let userSchema = new Schema({
     studies: {type: String, trim: true},
     images: [{type: Schema.Types.ObjectId, ref: 'Image'}],
     banned: {type: Boolean, default: false},
-    about_validated: {type: Boolean, default: false},
+    about_validated: {type: Boolean},
     active: {type: Boolean, default: true},
     admin: {type: Boolean, default: false},
     apiVersion: {type: String, required: true, default: config.apiVersion},

@@ -33,14 +33,16 @@ router.route('/')
     /**
      * @api {get} /users Get users
      * @apiName GetUsers
-     * @apiVersion 0.2.0
+     * @apiVersion 0.11.0
      * @apiGroup Users
      * @apiHeader  {String} Accept-Language=es Accepted language.
      * @apiUse AuthorizationTokenHeader
      *
      * @apiParam {Number} limit number of slices to get
      * @apiParam {Number} offset start of slices to get
+     * @apiParam {String} name name search on user
      * @apiParam {String} text text search on user
+     * @apiParam {String="true","false","pending"} [validated] filter by validated.
      * @apiParam {Object[]} [sort] sort struct array
      * @apiParam {String="createdAt","name","country","languages","banned"} sort.field=createdAt field to sort with
      * @apiParam {String="asc","desc"} sort.order=asc whether to sort ascending or descending
@@ -59,6 +61,9 @@ router.route('/')
 
             // FILTER
             let transform = {
+                regexQuery: {
+                    "name": "name",
+                },
                 textQuery: {
                     language: request.headers["Accept-Language"]
                 },
@@ -81,55 +86,88 @@ router.route('/')
             };
             let query = route_utils.filterQuery(request.query, transform);
 
-            // SORT
-            let sortTransform = {
-                _default: "createdAt",
-                createdAt: "createdAt",
-                name: "name",
-                country: "country",
-                languages: "languages",
-                banned: "banned",
-
-            };
 
             let options = {};
-            if (request.query.limit !== undefined && Number(request.query.limit) >= 0) {
-                options.limit = Number(request.query.limit);
-            }
-            if (request.query.offset !== undefined && Number(request.query.offset) >= 0) {
-                options.offset = Number(request.query.offset);
-            }
-            else if (request.query.page !== undefined && Number(request.query.page) >= 0) {
-                options.page = Number(request.query.page);
-            }
+            async.series([
+                function (isDone) {
+                    // SORT
+                    let sortTransform = {
+                        _default: "createdAt",
+                        createdAt: "createdAt",
+                        name: "name",
+                        country: "country",
+                        languages: "languages",
+                        banned: "banned",
 
-            options["sort"] = route_utils.sortQuery(request.query.sort, sortTransform);
+                    };
 
-            let filterQuery = User.filterQuery(request.user, function (error, filter) {
-                if (error) return response.status(404).json(error);
-                Object.assign(query, filter);
-                let cacheQuery = {};
-                Object.assign(cacheQuery, query);
-                Object.assign(cacheQuery, options);
-                redis.getCachedResults(cacheQuery, User.modelName + "-list", request, function (err, reply) {
-                    if (err) {
-                        return response.status(500).json({
-                            localizedError: 'There was an error at the caching system',
-                            rawError: 'error: ' + err
-                        });
+                    if (request.query.limit !== undefined && Number(request.query.limit) >= 0) {
+                        options.limit = Number(request.query.limit);
                     }
-                    else if (reply) {
-                        response.status(200).json(reply);
+                    if (request.query.offset !== undefined && Number(request.query.offset) >= 0) {
+                        options.offset = Number(request.query.offset);
                     }
-                    else {
-                        User.paginate(query, options, function (err, object) {
-                            redis.setCachedResult(cacheQuery, User.modelName + "-list", object);
-                            if (err) return dbError(err, request, response, next);
-                            response.json(object);
-                        });
+                    else if (request.query.page !== undefined && Number(request.query.page) >= 0) {
+                        options.page = Number(request.query.page);
                     }
+
+                    options["sort"] = route_utils.sortQuery(request.query.sort, sortTransform);
+                    isDone();
+                },
+                function (isDone) {
+                    if (!request.query.validated){
+                        isDone();
+                    }
+                    else{
+                        let validated = request.query.validated;
+                        if (validated === constants.users.validationTypeNames.pending){
+                            validated = null;
+                        }
+                        Image.find({validated: validated},function (err,result) {
+                            if (err) return isDone(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
+                            let ids = result.map(function (image) {
+                                return image.owner;
+                            });
+                            //({$or: [{_id: {$in: ids}},{about_validated: validated}]})
+                            query["about_validated"] = validated;
+                            query = { $or: [
+                                {_id: {$in: ids}},
+                                query
+                            ]}
+                            isDone();
+                        })
+                    }
+                }
+            ],function (err) {
+                User.filterQuery(request.user, function (error, filter) {
+                    if (error) return response.status(404).json(error);
+                    Object.assign(query, filter);
+                    let cacheQuery = {};
+                    Object.assign(cacheQuery, query);
+                    Object.assign(cacheQuery, options);
+                    redis.getCachedResults(cacheQuery, User.modelName + "-list", request, function (err, reply) {
+                        if (err) {
+                            return response.status(500).json({
+                                localizedError: 'There was an error at the caching system',
+                                rawError: 'error: ' + err
+                            });
+                        }
+                        else if (reply) {
+                            response.status(200).json(reply);
+                        }
+                        else {
+                            User.paginate(query, options, function (err, object) {
+                                redis.setCachedResult(cacheQuery, User.modelName + "-list", object);
+                                if (err) return dbError(err, request, response, next);
+                                response.json(object);
+                            });
+                        }
+                    });
                 });
-            });
+            })
+
+
+
         });
 
 router.route('/:id')
@@ -200,6 +238,36 @@ router.route('/:id')
         });
 
     });
+
+router.route('/:id/validate')
+    .all(passport.authenticate('bearer', {session: false}),
+        expressValidator,
+        function (request, response, next) {
+            route_utils.getOne(User, request, response, next)
+        })
+    /**
+     * @api {post} /users/id/validate Validate a user profile or images
+     * @apiName ModifyUser
+     * @apiVersion 0.11.0
+     * @apiGroup Users
+     * @apiUse AuthorizationTokenHeader
+     *
+     * @apiParam {Number} id id of the user
+     * @apiParam {String[]} validated_images id of the validated images
+     * @apiParam {String[]} rejected_images id of the rejected images
+     * @apiParam {Boolean} about_validated whether the about has been validated or not
+     * @apiDescription This method will update a user.
+     *
+     * @apiSuccess {String} name Name of the user
+     * @apiUse ErrorGroup
+     */
+    .post(jsonParser,
+        userValidator.postValidateValidator,
+        function (request, response, next) {
+        // TODO: PENDING!
+            let newObject = request.body;
+            route_utils.postUpdate(User, {'_id': request.params.id}, newObject, request, response, next);
+        })
 
 
 module.exports = router;

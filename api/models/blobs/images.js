@@ -14,6 +14,7 @@ const mime = require("node-mime");
  * @apiSuccess (Image) {String} [imageLocalName] a image of a local image in the remote device: e.g.: Mobile, Tablet...
  * @apiSuccess (Image) {String} [placeholderName] placeholder to be used while downloading new image.
  * @apiSuccess (Image) {String} contentType an image type. Must be a valid mime type.
+ * @apiSuccess (Image) {Boolean} [validated] whether the image has been validated or not. If not present, validation is pending
  * @apiSuccess (Image) {String} md5 md5 checksum of the image
  * @apiSuccess (Image) {Object} [s3] s3 block, if stored at s3
  * @apiSuccess (Image) {String} s3.identifier s3 identifier. usually matches md5.
@@ -34,6 +35,7 @@ const objectSchema = new Schema({
             message: "value  (`{VALUE}`) not allowed for `{PATH}` , allowed values are " + Object.keys(mime.types)
         }
     },
+    validated: {type: Boolean},
     md5: {type: String, required: true},
     s3: {
         identifier: {type: String, trim: true},

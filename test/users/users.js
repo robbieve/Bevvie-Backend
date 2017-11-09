@@ -26,7 +26,7 @@ let imageFile = fs.readFileSync("test/blobs/images/develapps.png");
 let adminImageFile = fs.readFileSync("test/blobs/images/develapps2.png");
 
 let moment = require("moment");
-let imageId,imageIdTwo;
+let imageId, imageIdTwo;
 let fakeObjectId = "590c5df8f7145e88b3c498a9";
 let constants = require("api/common/constants");
 let redis = require("lib/redis/redis");
@@ -74,9 +74,9 @@ describe('Users Group', () => {
                     function (isDone) {
                         const aFile = imageFile;
                         const anAdminFile = adminImageFile;
-                        commonTestUtils.test_createImage(server,adminToken, aFile, function (objectId) {
+                        commonTestUtils.test_createImage(server, adminToken, aFile, function (objectId) {
                             imageId = objectId;
-                            commonTestUtils.test_createImage(server,adminToken, anAdminFile, function (objectId) {
+                            commonTestUtils.test_createImage(server, adminToken, anAdminFile, function (objectId) {
                                 imageIdTwo = objectId;
                                 isDone();
                             });
@@ -85,7 +85,7 @@ describe('Users Group', () => {
                     function (isDone) {
                         // Potential client
                         let temp = JSON.parse(JSON.stringify(commonTestUtils.userConstants.userOne));
-                        temp.images=[imageId];
+                        temp.images = [imageId];
                         commonTestUtils.test_createUser(server, temp, function (res) {
                             token = res.token;
                             aUser = res.user;
@@ -96,7 +96,7 @@ describe('Users Group', () => {
                         // Potential client
                         let temp = JSON.parse(JSON.stringify(commonTestUtils.userConstants.userOne));
                         temp.active = false;
-                        temp.images=[imageIdTwo];
+                        temp.images = [imageIdTwo];
                         commonTestUtils.test_createUser(server, temp, function (res) {
                             isDone()
                         });
@@ -164,7 +164,7 @@ describe('Users Group', () => {
                         commonTestUtils.test_pagination(err, res, function () {
                             res.body.docs.should.be.an('Array');
                             res.body.docs.should.have.lengthOf(2);
-                            res.body.docs[0].should.contain.all.keys('_id', 'updatedAt', 'createdAt', 'name', 'apiVersion', 'admin','images');
+                            res.body.docs[0].should.contain.all.keys('_id', 'updatedAt', 'createdAt', 'name', 'apiVersion', 'admin', 'images');
 
                             done();
                         });
@@ -202,10 +202,23 @@ describe('Users Group', () => {
                         });
                 });
             });
+            it('should succeed with name search', function (done) {
+                chai.request(server)
+                    .get(endpoint)
+                    .query({'name': "user"})
+                    .set("Authorization", "Bearer " + adminToken)
+                    .end(function (err, res) {
+                        commonTestUtils.test_pagination(err, res, function () {
+                            res.body.docs.should.be.an('Array');
+                            res.body.docs.should.have.lengthOf(2);
+                            done();
+                        });
+                    });
+            });
             it('should succeed with offset, limit', function (done) {
                 chai.request(server)
                     .get(endpoint)
-                    .query({active: "all", admin: "all",'offset': 2, 'limit': 2})
+                    .query({active: "all", admin: "all", 'offset': 2, 'limit': 2})
                     .set("Authorization", "Bearer " + adminToken)
                     .end(function (err, res) {
                         commonTestUtils.test_pagination(err, res, function () {
@@ -221,7 +234,7 @@ describe('Users Group', () => {
             it('should succeed with page', function (done) {
                 chai.request(server)
                     .get(endpoint)
-                    .query({active: "all", admin: "all",'page': 2, 'limit': 2})
+                    .query({active: "all", admin: "all", 'page': 2, 'limit': 2})
                     .set("Authorization", "Bearer " + adminToken)
                     .end(function (err, res) {
                         commonTestUtils.test_pagination(err, res, function () {

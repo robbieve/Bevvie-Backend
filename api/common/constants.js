@@ -20,6 +20,13 @@ module.exports.users.accessTypeNames  = {
 };
 module.exports.users.accessTypes = Object.keys(module.exports.users.accessTypeNames);
 
+module.exports.users.validationTypeNames  = {
+    true: "true",
+    false: "false",
+    pending: "pending",
+};
+module.exports.users.validationTypes = Object.keys(module.exports.users.validationTypeNames  );
+
 module.exports.users.sortNames = {
     name: "name",
     country: "country",
