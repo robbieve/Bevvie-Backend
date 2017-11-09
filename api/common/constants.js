@@ -5,6 +5,7 @@ let allCountries = CountryLanguage.getCountryCodes(2);
 allCountries.push('none');
 let allLanguages = CountryLanguage.getLanguageCodes(1);
 allLanguages.push('none');
+allLanguages = allLanguages.concat(CountryLanguage.getLanguageCodes(2));
 module.exports.allCountries = allCountries;
 module.exports.allLanguages = allLanguages;
 
