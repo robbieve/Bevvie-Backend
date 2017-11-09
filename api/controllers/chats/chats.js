@@ -237,7 +237,7 @@ router.route('/:id/messages')
             request, response, next)
     })
     /**
-     * @api {post} /chats/id/messages post a message
+     * @api {post} /chats/id/messages Post a message
      * @apiName SendChatMessages
      * @apiVersion 0.8.0
      * @apiGroup ChatMessages
@@ -332,7 +332,7 @@ router.route('/:id/reject')
         })
 
     /**
-     * @api {post} /chats/id/reject post a message
+     * @api {post} /chats/id/reject Rejects a message
      * @apiName RejectChatMessages
      * @apiVersion 0.9.0
      * @apiGroup ChatMessages
