@@ -105,6 +105,78 @@
       "user": "->users.user21",
       "user_age": 30,
       "expiration": "=moment().add(1,'year')"
+    },
+    "checkin30":{
+      "venue": "->venues.venue6",
+      "user": "->users.user10",
+      "user_age": 30,
+      "expiration": "=moment().add(1,'year')"
+    },
+    "checkin31":{
+      "venue": "->venues.venue6",
+      "user": "->users.user11",
+      "user_age": 30,
+      "expiration": "=moment().add(1,'year')"
+    },
+    "checkin32":{
+      "venue": "->venues.venue7",
+      "user": "->users.user12",
+      "user_age": 30,
+      "expiration": "=moment().add(1,'year')"
+    },
+    "checkin33":{
+      "venue": "->venues.venue7",
+      "user": "->users.user13",
+      "user_age": 30,
+      "expiration": "=moment().add(1,'year')"
+    },
+    "checkin34":{
+      "venue": "->venues.venue8",
+      "user": "->users.user14",
+      "user_age": 30,
+      "expiration": "=moment().add(1,'year')"
+    },
+    "checkin35":{
+      "venue": "->venues.venue8",
+      "user": "->users.user15",
+      "user_age": 30,
+      "expiration": "=moment().add(1,'year')"
+    },
+    "checkin36":{
+      "venue": "->venues.venue9",
+      "user": "->users.user16",
+      "user_age": 30,
+      "expiration": "=moment().add(1,'year')"
+    },
+    "checkin37":{
+      "venue": "->venues.venue9",
+      "user": "->users.user17",
+      "user_age": 30,
+      "expiration": "=moment().add(1,'year')"
+    },
+    "checkin38":{
+      "venue": "->venues.venue10",
+      "user": "->users.user18",
+      "user_age": 30,
+      "expiration": "=moment().add(1,'year')"
+    },
+    "checkin39":{
+      "venue": "->venues.venue10",
+      "user": "->users.user19",
+      "user_age": 30,
+      "expiration": "=moment().add(1,'year')"
+    },
+    "checkin40":{
+      "venue": "->venues.venue11",
+      "user": "->users.user20",
+      "user_age": 30,
+      "expiration": "=moment().add(1,'year')"
+    },
+    "checkin41":{
+      "venue": "->venues.venue11",
+      "user": "->users.user21",
+      "user_age": 30,
+      "expiration": "=moment().add(1,'year')"
     }
   }
 }

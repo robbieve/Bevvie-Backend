@@ -21,6 +21,7 @@ let token = "";
 let aUser = "";
 let adminToken = "";
 let adminUser = "";
+let tokenTwo, aUserTwo;
 
 let imageFile = fs.readFileSync("test/blobs/images/develapps.png");
 let adminImageFile = fs.readFileSync("test/blobs/images/develapps2.png");
@@ -205,7 +206,7 @@ describe('Users Group', () => {
             it('should succeed with name search', function (done) {
                 chai.request(server)
                     .get(endpoint)
-                    .query({'name': "user"})
+                    .query({'name': "user", "active":"all"})
                     .set("Authorization", "Bearer " + adminToken)
                     .end(function (err, res) {
                         commonTestUtils.test_pagination(err, res, function () {
@@ -517,6 +518,137 @@ describe('Users Group', () => {
 
                     });
             });
+        });
+    });
+    describe('validate', function () {
+        beforeEach(function (done) {
+            async.series(
+                [
+                    function (isDone) {
+                        user.remove({}, isDone);
+                    },
+                    function (isDone) {
+                        image.remove({}, isDone);
+                    },
+                    function (isDone) {
+                        // admin user
+                        commonTestUtils.testBuild_createAdminUserAndClients(server, null, function (res) {
+                            adminToken = res.admin.token;
+                            adminUser = res.admin.user;
+                            token = res.userOne.token;
+                            aUser = res.userOne.user;
+                            tokenTwo = res.userTwo.token;
+                            aUserTwo = res.userTwo.user;
+                            isDone()
+                        });
+                    },
+                    function (isDone) {
+                        // Potential client
+                        const aFile = imageFile;
+                        const aFileTwo = adminImageFile;
+                        commonTestUtils.test_createImage(server,token, aFile, function (objectId) {
+                            imageId = objectId;
+                            commonTestUtils.test_createImage(server,tokenTwo, aFileTwo, function (objectId) {
+                                imageIdTwo = objectId;
+                                isDone();
+                            });
+                        });
+                    },
+                ], function (err) {
+                    should.not.exist(err);
+                    done();
+                });
+        });
+        it('should succeed for admin about_validated', function (done) {
+            let query = {
+                validated_images: [],
+                rejected_images: [],
+                about_validated: true
+            };
+            chai.request(server)
+                .post(endpoint + '/' + aUser._id+ '/validate')
+                .send(query)
+                .set("Authorization", "Bearer " + adminToken)
+                .end(function (err, res) {
+                    res.should.have.status(200);
+                    res.should.be.json;
+                    res.body.should.be.an('Object');
+                    res.body.should.contain.all.keys('_id', 'updatedAt', 'createdAt', 'name', 'apiVersion', 'admin');
+                    res.body.about_validated.should.equal(true);
+                    done()
+                });
+        });
+        it('should fail for non admin user', function (done) {
+            let query = {
+                validated_images: [],
+                rejected_images: [],
+                about_validated: true
+            };
+            chai.request(server)
+                .post(endpoint + '/' + aUser._id+ '/validate')
+                .send(query)
+                .set("Authorization", "Bearer " + token)
+                .end(function (err, res) {
+                    commonTestUtils.test_error(403, err, res, function () {
+                        done();
+                    })
+                });
+        });
+
+        it('should succeed for admin image validated', function (done) {
+            let query = {
+                validated_images: [imageId],
+                rejected_images: [],
+                about_validated: true
+            };
+            chai.request(server)
+                .post(endpoint + '/' + aUser._id+ '/validate')
+                .send(query)
+                .set("Authorization", "Bearer " + adminToken)
+                .end(function (err, res) {
+                    res.should.have.status(200);
+                    res.should.be.json;
+                    res.body.should.be.an('Object');
+                    res.body.should.contain.all.keys('_id', 'updatedAt', 'createdAt', 'name', 'apiVersion', 'admin');
+                    res.body.about_validated.should.equal(true);
+                    chai.request(server)
+                        .get('/api/v1/images/' + imageId)
+                        .set("Authorization", "Bearer " + adminToken)
+                        .end(function (err, res) {
+                            res.should.have.status(200);
+                            res.should.be.json;
+                            res.body.should.be.an('Object');
+                            res.body.should.contain.all.keys('_id', 'validated');
+                            res.body.validated.should.equal(true);
+                            done()
+                        });
+                });
+        });
+        it('should succeed for admin image rejected', function (done) {
+            let query = {
+                validated_images: [],
+                rejected_images: [imageId],
+                about_validated: true
+            };
+            chai.request(server)
+                .post(endpoint + '/' + aUser._id+ '/validate')
+                .send(query)
+                .set("Authorization", "Bearer " + adminToken)
+                .end(function (err, res) {
+                    res.should.have.status(200);
+                    res.should.be.json;
+                    res.body.should.be.an('Object');
+                    res.body.should.contain.all.keys('_id', 'updatedAt', 'createdAt', 'name', 'apiVersion', 'admin');
+                    res.body.about_validated.should.equal(true);
+                    chai.request(server)
+                        .get('/api/v1/images/' + imageId)
+                        .set("Authorization", "Bearer " + adminToken)
+                        .end(function (err, res) {
+                            commonTestUtils.test_error(404, err, res, function () {
+                                done();
+                            })
+                        });
+                });
         });
     });
 });

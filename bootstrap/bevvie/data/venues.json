@@ -109,6 +109,48 @@
       "location": {
         "coordinates": [-0.3509771,39.4677781]
       }
+    },
+    "venue6":{
+      "name": "The Red Lion",
+      "image": "->images.venue1",
+      "location": {
+        "coordinates": [-0.1257049, 51.5020755]
+      }
+    },
+    "venue7":{
+      "name": "The Queens Arms",
+      "image": "->images.venue1",
+      "location": {
+        "coordinates": [-0.1899406,51.5350244]
+      }
+    },
+    "venue8":{
+      "name": "The Warrington",
+      "image": "->images.venue1",
+      "location": {
+        "coordinates": [-0.1831751,51.5272232]
+      }
+    },
+    "venue9":{
+      "name": "Oatley Hotel",
+      "image": "->images.venue1",
+      "location": {
+        "coordinates": [-0.1685344,51.4847831]
+      }
+    },
+    "venue10":{
+      "name": "i Darts ZEN",
+      "image": "->images.venue1",
+      "location": {
+        "coordinates": [151.2077617,-33.875723]
+      }
+    },
+    "venue11":{
+      "name": "Ivy bar",
+      "image": "->images.venue1",
+      "location": {
+        "coordinates": [151.207385,-33.866635]
+      }
     }
   }
 }

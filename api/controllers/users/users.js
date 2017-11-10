@@ -8,6 +8,7 @@ const jsonParser = require('lib/parsers/jsonBodyParser');
 
 // DB
 let User = require('api/models/users/user');
+let Image = require('api/models/blobs/images');
 
 let dbError = require('lib/loggers/db_error');
 let redis = require('lib/redis/redis');
@@ -115,30 +116,32 @@ router.route('/')
                     isDone();
                 },
                 function (isDone) {
-                    if (!request.query.validated){
+                    if (!request.query.validated) {
                         isDone();
                     }
-                    else{
+                    else {
                         let validated = request.query.validated;
-                        if (validated === constants.users.validationTypeNames.pending){
+                        if (validated === constants.users.validationTypeNames.pending) {
                             validated = null;
                         }
-                        Image.find({validated: validated},function (err,result) {
+                        Image.find({validated: validated}, function (err, result) {
                             if (err) return isDone(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
                             let ids = result.map(function (image) {
                                 return image.owner;
                             });
                             //({$or: [{_id: {$in: ids}},{about_validated: validated}]})
                             query["about_validated"] = validated;
-                            query = { $or: [
-                                {_id: {$in: ids}},
-                                query
-                            ]}
+                            query = {
+                                $or: [
+                                    {_id: {$in: ids}},
+                                    query
+                                ]
+                            }
                             isDone();
                         })
                     }
                 }
-            ],function (err) {
+            ], function (err) {
                 User.filterQuery(request.user, function (error, filter) {
                     if (error) return response.status(404).json(error);
                     Object.assign(query, filter);
@@ -165,7 +168,6 @@ router.route('/')
                     });
                 });
             })
-
 
 
         });
@@ -243,6 +245,13 @@ router.route('/:id/validate')
     .all(passport.authenticate('bearer', {session: false}),
         expressValidator,
         function (request, response, next) {
+            // If not admin, fail
+            if (!request.user.admin) {
+                return response.status(403).json({
+                    localizedError: 'You are not authorized to delete users',
+                    rawError: 'user ' + request.user._id + ' is not admin'
+                });
+            }
             route_utils.getOne(User, request, response, next)
         })
     /**
@@ -264,9 +273,54 @@ router.route('/:id/validate')
     .post(jsonParser,
         userValidator.postValidateValidator,
         function (request, response, next) {
-        // TODO: PENDING!
             let newObject = request.body;
-            route_utils.postUpdate(User, {'_id': request.params.id}, newObject, request, response, next);
+            async.series([
+                    function (isDone) {
+                        if (request.body.about_validated) {
+                            newObject.about_validated = request.body.about_validated;
+                        }
+                        isDone();
+                    },
+                    function (isDone) {
+                        if (!newObject.validated_images || !Array.isArray(newObject.validated_images)){
+                            return isDone();
+                        }
+                        else {
+                            async.each(
+                                newObject.validated_images,
+                                function (element,isDoneImage) {
+                                    Image.findOne({_id: element},function (err,image) {
+                                        if (err) return isDoneImage(err)
+                                        image.validated = true;
+                                        image.save(isDoneImage);
+                                    })
+                                },
+                                function (err) {
+                                    isDone(err);
+                                })
+                        }
+                    },
+                    function (isDone) {
+                        if (!newObject.rejected_images || !Array.isArray(newObject.rejected_images)){
+                            return isDone();
+                        }
+                        else {
+                            async.each(
+                                newObject.rejected_images,
+                                function (element,isDoneImage) {
+                                    Image.remove({_id: element},isDoneImage)
+                                },
+                                function (err) {
+                                    isDone(err);
+                                })
+                        }
+                    },
+                ],
+                function (err) {
+                    if (err) return isDone(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
+                    route_utils.postUpdate(User, {'_id': request.params.id}, newObject, request, response, next);
+
+                })
         })
 
 
