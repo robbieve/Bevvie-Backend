@@ -563,7 +563,7 @@ describe('Users Group', () => {
             let query = {
                 validated_images: [],
                 rejected_images: [],
-                about_validated: true
+                about_validated: false
             };
             chai.request(server)
                 .post(endpoint + '/' + aUser._id+ '/validate')
@@ -574,7 +574,7 @@ describe('Users Group', () => {
                     res.should.be.json;
                     res.body.should.be.an('Object');
                     res.body.should.contain.all.keys('_id', 'updatedAt', 'createdAt', 'name', 'apiVersion', 'admin');
-                    res.body.about_validated.should.equal(true);
+                    res.body.about_validated.should.equal(false);
                     done()
                 });
         });

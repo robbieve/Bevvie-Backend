@@ -93,8 +93,10 @@ module.exports.pushes = {};
 module.exports.pushes.pushTypeNames= {
     "chatCreate":"chatCreate",
     "chatMessage":"chatMessage",
-    "chatRejected":"chatRejected"
-
+    "chatRejected":"chatRejected",
+    "validProfile":"validProfile",
+    "validProfileReview":"validProfileReview",
+    "invalidProfile":"invalidProfile",
 };
 module.exports.pushes.pushTypes = Object.keys(module.exports.pushes.pushTypeNames);
 

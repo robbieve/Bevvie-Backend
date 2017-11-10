@@ -56,7 +56,7 @@ module.exports.sendCreateChatPush = function (user, chat, callback = function ()
                             })
                         }).on('failed attempt', function (result) {
                             Push.findOne({_id: pushId}, function (err, object) {
-                                if (!object)  return winston.error("PUSH: object not found for id " + pushId);
+                                if (!object) return winston.error("PUSH: object not found for id " + pushId);
                                 object.status = constants.pushes.statusNames.failedAttempt;
                                 object.save(function (err) {
                                     if (!object) return winston.error("PUSH: could not save object for id " + pushId);
@@ -97,7 +97,7 @@ module.exports.sendCreateMessagePush = function (message, callback = function ()
             Chat.findOne({_id: message.chat}, function (err, aChat) {
                 if (!aChat) return isDone({
                     localizedError: "No chat found",
-                    rawError: "No chat for "+message.chat
+                    rawError: "No chat for " + message.chat
                 });
                 chat = aChat;
                 isDone(err);
@@ -109,14 +109,14 @@ module.exports.sendCreateMessagePush = function (message, callback = function ()
             }).map(function (element) {
                 return element.user._id
             });
-            if (!usersToNotify ||usersToNotify.length===0) return isDone({
+            if (!usersToNotify || usersToNotify.length === 0) return isDone({
                 localizedError: "No users to notify found",
-                rawError: "No users to notify for "+message.chat
+                rawError: "No users to notify for " + message.chat
             });
             Device.find({user: {$in: usersToNotify}}, function (err, someDevices) {
-                if (!someDevices || someDevices.length===0) return isDone({
+                if (!someDevices || someDevices.length === 0) return isDone({
                     localizedError: "No devices to notify found",
-                    rawError: "No devices to notify for "+message.chat
+                    rawError: "No devices to notify for " + message.chat
                 });
                 devices = someDevices;
                 finalMessage = {
@@ -138,7 +138,7 @@ module.exports.sendCreateMessagePush = function (message, callback = function ()
             async.each(
                 devices,
                 function (element, isDone) {
-                    let newPush = { pushMessage: JSON.parse(JSON.stringify(finalMessage))};
+                    let newPush = {pushMessage: JSON.parse(JSON.stringify(finalMessage))};
                     newPush.device = element;
                     newPush.pushType = constants.pushes.pushTypeNames.chatMessage;
                     let pushObject = new Push(newPush);
@@ -186,21 +186,21 @@ module.exports.sendCreateMessagePush = function (message, callback = function ()
                 });
         }
     ], function (err) {
-        if (err) winston.error("PUSH: an error occurred for "+JSON.stringify(message)+" error: " + JSON.stringify(err));
+        if (err) winston.error("PUSH: an error occurred for " + JSON.stringify(message) + " error: " + JSON.stringify(err));
         callback(err);
     });
 };
 
-module.exports.sendRejectedChat = function (aChat,user, callback = function () {
+module.exports.sendRejectedChat = function (aChat, user, callback = function () {
 }) {
     let creatorUser = aChat.chatCreator();
     let finalMessage;
     async.series([
         function (isDone) {
             Device.find({user: {$in: [creatorUser]}}, function (err, someDevices) {
-                if (!someDevices || someDevices.length===0) return isDone({
+                if (!someDevices || someDevices.length === 0) return isDone({
                     localizedError: "No devices to notify found",
-                    rawError: "No devices to notify for "+JSON.stringify(aChat)
+                    rawError: "No devices to notify for " + JSON.stringify(aChat)
                 });
                 devices = someDevices;
                 finalMessage = {
@@ -223,7 +223,7 @@ module.exports.sendRejectedChat = function (aChat,user, callback = function () {
             async.each(
                 devices,
                 function (element, isDone) {
-                    let newPush = { pushMessage: JSON.parse(JSON.stringify(finalMessage))};
+                    let newPush = {pushMessage: JSON.parse(JSON.stringify(finalMessage))};
                     newPush.device = element;
                     newPush.pushType = constants.pushes.pushTypeNames.chatRejected;
                     let pushObject = new Push(newPush);
@@ -271,7 +271,102 @@ module.exports.sendRejectedChat = function (aChat,user, callback = function () {
                 });
         }
     ], function (err) {
-        if (err) winston.error("PUSH: an error occurred for "+JSON.stringify(message)+" error: " + JSON.stringify(err));
+        if (err) winston.error("PUSH: an error occurred for " + JSON.stringify(message) + " error: " + JSON.stringify(err));
         callback(err);
+    });
+};
+
+module.exports.sendValidationPush = function (userId, pushType, callback = function () {
+}) {
+    Device.find({user: userId}, function (err, devices) {
+        if (err) return callback(err);
+        let message = {
+            topic: config.push.topic,
+            priority: 'high', // gcm, apn. Supported values are 'high' or 'normal' (gcm). Will be translated to 10 and 5 for apn. Defaults to 'high'
+            retries: 3, // gcm, apn
+            badge: 2, // gcm for ios, apn
+        };
+        switch (pushType){
+            case constants.pushes.pushTypeNames.validProfile:
+                Object.assign({
+                    title: 'Profile valid',
+                    body: "Your profile was validated",
+                    custom: {
+                        userId: userId,
+                    }
+                },message);
+                break;
+            case constants.pushes.pushTypeNames.validProfileReview:
+                Object.assign({
+                    title: 'Profile review',
+                    body: "Your have to review your profile",
+                    custom: {
+                        userId: userId,
+                    }
+                },message);
+                break;
+            case constants.pushes.pushTypeNames.invalidProfile:
+                Object.assign({
+                    title: 'Profile invalid',
+                    body: "Your profile is not valid. Please review it.",
+                    custom: {
+                        userId: userId,
+                    }
+                },message);
+                break;
+            default:
+                return callback({
+                    localizedError: "Invalid pushType for validation",
+                    rawError: "Invalid pushType for validation "+pushType
+                });
+        }
+
+        async.each(
+            devices,
+            function (element, isDone) {
+                let newPush = {pushMessage: JSON.parse(JSON.stringify(message))};
+                newPush.device = element;
+                let pushObject = new Push(newPush);
+                pushObject.save(function (err, object) {
+                    if (err) return callback(err);
+                    let job = kue.createJob("push", {
+                        token: element.pushToken,
+                        message: message
+                    });
+                    let pushId = object._id;
+                    job.on('complete', function (result) {
+                        Push.findOne({_id: pushId}, function (err, object) {
+                            if (!object) return winston.error("PUSH: object not found for id " + pushId);
+                            object.status = constants.pushes.statusNames.succeed;
+                            object.save(function (err, object) {
+                                if (!object) return winston.error("PUSH: could not save object for id " + pushId);
+                                winston.info("PUSH: validation finished to " + object.device.pushToken);
+                            })
+                        })
+                    }).on('failed attempt', function (result) {
+                        Push.findOne({_id: pushId}, function (err, object) {
+                            if (!object) return winston.error("PUSH: object not found for id " + pushId);
+                            object.status = constants.pushes.statusNames.failedAttempt;
+                            object.save(function (err) {
+                                if (!object) return winston.error("PUSH: could not save object for id " + pushId);
+                                winston.warn("PUSH: validation failed attempt to " + object.device.pushToken);
+                            })
+                        })
+                    }).on('failed', function (errorMessage) {
+                        Push.findOne({_id: pushId}, function (err, object) {
+                            if (!object) return winston.error("PUSH: object not found for id " + pushId);
+                            object.status = constants.pushes.statusNames.failed;
+                            object.save(function (err) {
+                                if (!object) return winston.error("PUSH: could not save object for id " + pushId);
+                                winston.err("PUSH: validation failed to " + object.device.pushToken);
+                            })
+                        })
+                        winston.error("PUSH: Failed push " + errorMessage);
+                    }).attempts(3).backoff({type: 'exponential'}).save(callback);
+                })
+            },
+            function (err) {
+                callback(err);
+            });
     });
 };

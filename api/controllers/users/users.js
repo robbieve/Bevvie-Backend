@@ -18,6 +18,8 @@ let async = require('async');
 let moment = require("moment");
 let config = require("config");
 let mailUtils = require("api/controllers/common/mailUtils");
+let pushUtils = require("api/controllers/common/pushUtils");
+
 const errorConstants = require('api/common/errorConstants');
 
 
@@ -273,10 +275,11 @@ router.route('/:id/validate')
     .post(jsonParser,
         userValidator.postValidateValidator,
         function (request, response, next) {
+            let sendPushType;
             let newObject = request.body;
             async.series([
                     function (isDone) {
-                        if (request.body.about_validated) {
+                        if (request.body.about_validated !== undefined) {
                             newObject.about_validated = request.body.about_validated;
                         }
                         isDone();
@@ -296,6 +299,14 @@ router.route('/:id/validate')
                                     })
                                 },
                                 function (err) {
+                                    if (newObject.validated_images && Array.isArray(newObject.validated_images) && newObject.validated_images.length>2){
+                                        if (newObject.about_validated===false) {
+                                            sendPushType = constants.pushes.pushTypeNames.validProfileReview;
+                                        }
+                                        else{
+                                            sendPushType = constants.pushes.pushTypeNames.validProfile;
+                                        }
+                                    }
                                     isDone(err);
                                 })
                         }
@@ -319,7 +330,9 @@ router.route('/:id/validate')
                 function (err) {
                     if (err) return isDone(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
                     route_utils.postUpdate(User, {'_id': request.params.id}, newObject, request, response, next);
-
+                    if (sendPushType){
+                        pushUtils.sendValidationPush(request.params.id,sendPushType);
+                    }
                 })
         })
 
