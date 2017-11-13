@@ -17,6 +17,7 @@ module.exports.errorNames = {
     notFound: "notFound",
     user_facebookLoginAuthFailure: "user_facebookLoginAuthFailure",
     user_firebaseLoginAuthFailure: "user_firebaseLoginAuthFailure",
+    user_banned: "user_banned",
     venue_getGeoInvalidLatOrLongErr: "venue_getGeoInvalidLatOrLongErr",
     chat_chatNotYetAccepted: "chat_chatNotYetAccepted",
     chat_chatExhausted: "chat_chatExhausted",
@@ -50,6 +51,13 @@ module.exports.errorCodes = function (code) {
          */
         case module.exports.errorNames.user_firebaseLoginAuthFailure:
             return -102;
+            break;
+        /**
+         * @apiDefine ErrorBannedLogin
+         * @apiError (Any Error) errorCode.-103 User banned
+         */
+        case module.exports.errorNames.user_banned:
+            return -103;
             break;
         /**
          * @apiDefine ErrorInvalidGeoLocation
@@ -110,6 +118,10 @@ module.exports.errors = {
         localizedError: "Authentication with firebase failed",
         rawError: "Authentication failure: ",
     },
+    user_banned: {
+        localizedError: "User banned",
+        rawError: "User banned: ",
+    },
     venue_getGeoInvalidLatOrLongErr: {
         localizedError: "No valid latitude and longitude provided",
         rawError: "No valid latitude and longitude provided: ",
@@ -126,6 +138,7 @@ module.exports.errors = {
         localizedError: "You cannot chat with that user.",
         rawError: "User blocked: ",
     }
+
 
 };
 

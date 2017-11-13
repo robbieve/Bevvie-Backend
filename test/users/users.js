@@ -702,6 +702,51 @@ describe('Users Group', () => {
 
                 });
         });
+        it('should succeed for admin deleting token', function (done) {
+            chai.request(server)
+                .post(endpoint + '/' + aUser._id+ '/ban')
+                .set("Authorization", "Bearer " + adminToken)
+                .end(function (err, res) {
+                    res.should.have.status(200);
+                    res.should.be.json;
+                    res.body.should.be.an('Object');
+                    res.body.should.contain.all.keys('_id', 'updatedAt', 'createdAt', 'name', 'apiVersion', 'admin', 'banned');
+                    res.body.banned.should.equal(true)
+                    chai.request(server)
+                        .get("/api/v1/users")
+                        .set("Authorization", "Bearer " + token)
+                        .end(function (err, res) {
+                            commonTestUtils.test_error(401, err, res, function () {
+                                done();
+                            })
+                        });
+                });
+        });
+        it('should succeed for admin preventing login', function (done) {
+            let copiedUser = JSON.parse(JSON.stringify(aUser));
+            copiedUser.banned = true;
+            chai.request(server)
+                .post(endpoint + '/' + aUser._id)
+                .send(copiedUser)
+                .set("Authorization", "Bearer " + adminToken)
+                .end(function (err, res) {
+                    res.should.have.status(200);
+                    res.should.be.json;
+                    res.body.should.be.an('Object');
+                    res.body.should.contain.all.keys('_id', 'updatedAt', 'createdAt', 'name', 'apiVersion', 'admin', 'banned');
+                    res.body.banned.should.equal(true)
+                    chai.request(server)
+                        .post("/api/v1/login")
+                        .send({'id':copiedUser._id,'accessKey': 'passw0rd', 'accessType': constants.users.accessTypeNames.password})
+                        .set("Content-Type", "application/json")
+                        .set("register-token", configAuth.baseToken)
+                        .end(function (err, res) {
+                            commonTestUtils.test_errorCode(403,errorConstants.errorCodes(errorConstants.errorNames.user_banned), err, res, function () {
+                                done();
+                            })
+                        });
+                });
+        });
 
     });
 });

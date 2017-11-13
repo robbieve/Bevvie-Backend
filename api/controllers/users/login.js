@@ -124,6 +124,9 @@ router.route('/')
         },
         function (request, response) {
             let newUser = request.user;
+            if (newUser.banned){
+                return response.status(403).json(errorConstants.responseWithError(newUser,errorConstants.errorNames.user_banned));
+            }
             let token = newUser.generateHash(newUser.name + Date.now() + newUser._id);
             let newToken = new Token({
                 'token': token,
