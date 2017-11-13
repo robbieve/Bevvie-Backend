@@ -96,7 +96,7 @@ describe('Cache Group', () => {
                     .end(function (err, res) {
                         commonTestUtils.test_pagination(err, res, function () {
                             res.body.docs.should.be.an('Array');
-                            res.body.docs.should.have.lengthOf(1);
+                            res.body.docs.should.have.lengthOf(2);
 
                             let aQuery = prefix + ':User-list:' + JSON.stringify({
                                 'email': commonTestUtils.userConstants.userOne.email,
@@ -141,7 +141,7 @@ describe('Cache Group', () => {
                     .end(function (err, res) {
                         commonTestUtils.test_pagination(err, res, function () {
                             res.body.docs.should.be.an('Array');
-                            res.body.docs.should.have.lengthOf(1);
+                            res.body.docs.should.have.lengthOf(2);
                             chai.request(server)
                                 .get(endpoint)
                                 .query({'email': commonTestUtils.userConstants.userOne.email})
@@ -149,7 +149,7 @@ describe('Cache Group', () => {
                                 .end(function (err, res) {
                                     commonTestUtils.test_pagination(err, res, function () {
                                         res.body.docs.should.be.an('Array');
-                                        res.body.docs.should.have.lengthOf(1);
+                                        res.body.docs.should.have.lengthOf(2);
                                         should.exist(res.body._cached);
                                         done();
                                     });
