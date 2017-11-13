@@ -714,11 +714,12 @@ describe('Users Group', () => {
                     res.body.banned.should.equal(true)
                     chai.request(server)
                         .get("/api/v1/users")
+                        .set("Content-Type", "application/json")
                         .set("Authorization", "Bearer " + token)
                         .end(function (err, res) {
-                            commonTestUtils.test_error(401, err, res, function () {
-                                done();
-                            })
+                            should.exist(err);
+                            res.should.have.status(401);
+                            done();
                         });
                 });
         });
