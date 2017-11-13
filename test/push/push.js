@@ -20,6 +20,7 @@ const bootstrap = require("bootstrap/load_data");
 let clientId = "";
 let clientIdTwo = "";
 let clientToken = "";
+let clientTokenTwo = "";
 let adminId = "";
 let adminToken = "";
 
@@ -47,7 +48,8 @@ describe('Push Group', () => {
                         clientId = res.userOne.user._id;
                         clientIdTwo = res.userTwo.user._id;
 
-                        clientToken = res.userTwo.token;
+                        clientToken = res.userOne.token;
+                        clientTokenTwo = res.userTwo.token;
 
                         Object.keys(allChats).forEach(function (element) {
                             allChats[element] = res[element];
@@ -100,7 +102,7 @@ describe('Push Group', () => {
                     res.body.should.contain.all.keys('_id', 'pushToken', 'user');
                     chai.request(server)
                         .post(endpoint)
-                        .send(allChats.chatCreated)
+                        .send(allChats.chatAccepted)
                         .set("Content-Type", "application/json")
                         .set("Authorization", "Bearer " + clientToken)
                         .end(function (err, res) {
@@ -116,7 +118,7 @@ describe('Push Group', () => {
                                 .post("/api/v1/chats/"+chat._id+"/messages")
                                 .send(message)
                                 .set("Content-Type", "application/json")
-                                .set("Authorization", "Bearer " + clientToken)
+                                .set("Authorization", "Bearer " + clientTokenTwo)
                                 .end(function (err, res) {
                                     res.should.have.status(201);
                                     res.should.be.json;

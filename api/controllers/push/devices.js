@@ -25,7 +25,7 @@ const moment = require("moment");
 function _prepost(request, response, next, callback) {
     let newObject = request.body;
     // If not admin, cannot post
-    if (!request.user.admin && newObject.user.toString() === request.user._id.toString()) {
+    if (!request.user.admin && newObject.user.toString() !== request.user._id.toString()) {
         response.status(403).json({
             localizedError: 'You are not authorized to create or update this device',
             rawError: 'user ' + request.user._id + ' is not admin'
