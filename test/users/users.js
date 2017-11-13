@@ -651,4 +651,57 @@ describe('Users Group', () => {
                 });
         });
     });
+    describe('ban', function () {
+        beforeEach(function (done) {
+            async.series(
+                [
+                    function (isDone) {
+                        user.remove({}, isDone);
+                    },
+                    function (isDone) {
+                        TokenModel.remove({}, isDone);
+                    },
+                    function (isDone) {
+                        // admin user
+                        commonTestUtils.testBuild_createAdminUserAndClients(server, null, function (res) {
+                            adminToken = res.admin.token;
+                            adminUser = res.admin.user;
+                            token = res.userOne.token;
+                            aUser = res.userOne.user;
+                            tokenTwo = res.userTwo.token;
+                            aUserTwo = res.userTwo.user;
+                            isDone()
+                        });
+                    }
+                ], function (err) {
+                    should.not.exist(err);
+                    done();
+                });
+        });
+        it('should succeed for admin', function (done) {
+            chai.request(server)
+                .post(endpoint + '/' + aUser._id+ '/ban')
+                .set("Authorization", "Bearer " + adminToken)
+                .end(function (err, res) {
+                    res.should.have.status(200);
+                    res.should.be.json;
+                    res.body.should.be.an('Object');
+                    res.body.should.contain.all.keys('_id', 'updatedAt', 'createdAt', 'name', 'apiVersion', 'admin', 'banned');
+                    res.body.banned.should.equal(true)
+                    done()
+                });
+        });
+        it('should far for non admin', function (done) {
+            chai.request(server)
+                .post(endpoint + '/' + aUser._id+ '/ban')
+                .set("Authorization", "Bearer " + token)
+                .end(function (err, res) {
+                    commonTestUtils.test_error(403, err, res, function () {
+                        done();
+                    })
+
+                });
+        });
+
+    });
 });

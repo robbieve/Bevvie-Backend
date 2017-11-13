@@ -19,6 +19,7 @@ let moment = require("moment");
 let config = require("config");
 let mailUtils = require("api/controllers/common/mailUtils");
 let pushUtils = require("api/controllers/common/pushUtils");
+let token = require("api/models/users/token");
 
 const errorConstants = require('api/common/errorConstants');
 
@@ -258,7 +259,7 @@ router.route('/:id/validate')
         })
     /**
      * @api {post} /users/id/validate Validate a user profile or images
-     * @apiName ModifyUser
+     * @apiName ValidateUserProfile
      * @apiVersion 0.11.0
      * @apiGroup Users
      * @apiUse AuthorizationTokenHeader
@@ -336,5 +337,52 @@ router.route('/:id/validate')
                 })
         })
 
+
+router.route('/:id/ban')
+    .all(passport.authenticate('bearer', {session: false}),
+        expressValidator,
+        function (request, response, next) {
+            // If not admin, fail
+            if (!request.user.admin) {
+                return response.status(403).json({
+                    localizedError: 'You are not authorized to delete users',
+                    rawError: 'user ' + request.user._id + ' is not admin'
+                });
+            }
+            route_utils.getOne(User, request, response, next)
+        })
+    /**
+     * @api {post} /users/id/ban Validate a user profile or images
+     * @apiName BanUser
+     * @apiVersion 0.11.0
+     * @apiGroup Users
+     * @apiUse AuthorizationTokenHeader
+     *
+     * @apiParam {Number} id id of the user
+     * @apiDescription This method will ban a user, delete its access token but not delete the user. Therefore you
+     * can unban the user changing the "banned" attribute of the user.
+     *
+     * @apiSuccess {String} name Name of the user
+     * @apiUse ErrorGroup
+     */
+    .post(jsonParser,
+        userValidator.postValidateValidator,
+        function (request, response, next) {
+            let sendPushType;
+            let newObject = request.body;
+            async.series([
+                    function (isDone) {
+                        newObject.banned = true;
+                        isDone();
+                    },
+                    function (isDone) {
+                        token.remove({user: request.params.id},isDone);
+                    }
+                ],
+                function (err) {
+                    if (err) return isDone(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
+                    route_utils.postUpdate(User, {'_id': request.params.id}, newObject, request, response, next);
+                })
+        })
 
 module.exports = router;

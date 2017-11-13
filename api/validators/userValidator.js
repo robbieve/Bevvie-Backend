@@ -33,3 +33,7 @@ module.exports.postValidateValidator = function (request, response, next) {
     commonFunctions.validate(request,response,next);
 };
 
+module.exports.postValidateValidator = function (request, response, next) {
+    request.checkParams('id', 'No valid id provided').isObjectId();
+    commonFunctions.validate(request,response,next);
+};

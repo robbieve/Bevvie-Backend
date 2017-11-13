@@ -267,7 +267,7 @@ router.route('/:id/messages')
      * @apiVersion 0.8.0
      * @apiGroup ChatMessages
      * @apiParam {String} id the chat's id
-     * @apiUse ChatParameters
+     * @apiUse MessageParameters
      *
      * @apiSuccess (201) {String} _id the chat's id
      * @apiUse ErrorGroup
