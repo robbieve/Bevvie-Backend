@@ -20,6 +20,7 @@ module.exports.errorNames = {
     venue_getGeoInvalidLatOrLongErr: "venue_getGeoInvalidLatOrLongErr",
     chat_chatNotYetAccepted: "chat_chatNotYetAccepted",
     chat_chatExhausted: "chat_chatExhausted",
+    chat_chatBlocked: "chat_chatBlocked",
 };
 
 module.exports.errorCodes = function (code) {
@@ -57,10 +58,10 @@ module.exports.errorCodes = function (code) {
         case module.exports.errorNames.venue_getGeoInvalidLatOrLongErr:
             return -201;
             break;
-            /**
-             * @apiDefine ErrorChatNotYetAccepted
-             * @apiError (Any Error) errorCode.-301 Receiver has not yet accepted the chat.
-             */
+        /**
+         * @apiDefine ErrorChatNotYetAccepted
+         * @apiError (Any Error) errorCode.-301 Receiver has not yet accepted the chat.
+         */
         case module.exports.errorNames.chat_chatNotYetAccepted:
             return -301;
             break;
@@ -71,6 +72,14 @@ module.exports.errorCodes = function (code) {
         case module.exports.errorNames.chat_chatExhausted:
             return -302;
             break;
+        /**
+         * @apiDefine ErrorChatBlocked
+         * @apiError (Any Error) errorCode.-303 Chat blocked
+         */
+        case module.exports.errorNames.chat_chatBlocked:
+            return -303;
+            break;
+
         default:
             return -1;
     }
@@ -113,6 +122,10 @@ module.exports.errors = {
         localizedError: "No more message available. Chat exhausted.",
         rawError: "No more message available. Chat exhausted: ",
     },
+    chat_chatBlocked: {
+        localizedError: "You cannot chat with that user.",
+        rawError: "User blocked: ",
+    }
 
 };
 

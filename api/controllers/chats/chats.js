@@ -5,11 +5,13 @@ let router = express.Router();
 let passport = require('passport');
 // parser
 const jsonParser = require('lib/parsers/jsonBodyParser');
+const async = require("async");
 
 // DB
 let Chat = require('api/models/chats/chat');
 let Message = require('api/models/chats/message');
 let User = require('api/models/users/user');
+let Block = require('api/models/users/block');
 let dbError = require('lib/loggers/db_error');
 let pushUtils = require("api/controllers/common/pushUtils");
 
@@ -54,21 +56,44 @@ router.route('/')
      * @apiUse ChatParameters
      * @apiSuccess (201) {String} _id the chat's id
      * @apiUse ErrorGroup
+     * @apiUse ErrorChatBlocked
      */
     .post(jsonParser,
         expressValidator,
         chatValidator.postValidator,
         function (request, response, next) {
             _prepost(request, response, next, function (newObject) {
-                route_utils.post(Chat, newObject, request, response, next, function (err, chat) {
-                    let notCreators = newObject.members.filter(function (element) {
-                        return element && element.user && element.user.toString() === request.user._id.toString() && !element.creator;
+                let notCreators = newObject.members.filter(function (element) {
+                    return element && element.user && !element.creator;
+                });
+                let creator = newObject.members.filter(function (element) {
+                    return element && element.user && element.creator;
+                });
+                if (!creator || creator.length===0){ notCreators = [];}
+                if (!notCreators || notCreators.length===0){ notCreators = []; }
+                async.each(notCreators,function (userDest,blockDone) {
+                    let aBlock = {
+                        userBlocks: userDest.user,
+                        userBlocked: creator[0].user,
+                        active: true
+                    };
+                    Block.findOne(aBlock,function (err, block) {
+                        if (err) {
+                            return response.status(500).json(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
+                        }
+                        if (block){
+                            err = errorConstants.responseWithError(block, errorConstants.errorNames.chat_chatBlocked);
+                        }
+                        blockDone(err);
                     });
-                    notCreators.forEach(function (chatUser) {
-                        let user = chatUser.user;
-                        pushUtils.sendCreateChatPush(user, chat);
+                },function (err) {
+                    if (err) return response.status(403).json(err);
+                    route_utils.post(Chat, newObject, request, response, next, function (err, chat) {
+                        notCreators.forEach(function (chatUser) {
+                            let user = chatUser.user;
+                            pushUtils.sendCreateChatPush(user, chat);
+                        });
                     });
-
                 });
             });
         })
@@ -84,7 +109,7 @@ router.route('/')
      *
      * @apiParam {Number} [limit] number of slices to get
      * @apiParam {Number} [offset] start of slices to get
-     * @apiParam {String="pending","accepted","rejected","exhausted","expired"} [status] status to match. Might be an array
+     * @apiParam {String="created","accepted","rejected","exhausted","expired"} [status] status to match. Might be an array
      * @apiParam {String} [user] id of a user in the chat
      * @apiParam {Object[]} [sort] sort struct array
      * @apiParam {String="createdAt"} sort.field=createdAt field to sort with
@@ -159,7 +184,7 @@ router.route('/:id')
     /**
      * @api {post} /chats/id Update chat
      * @apiName UpdateChat
-     * @apiVersion 0.8.0
+     * @apiVersion 0.12.0
      * @apiGroup Chats
      * @apiParam {String} id the chat's id
      * @apiUse ChatParameters
@@ -248,10 +273,33 @@ router.route('/:id/messages')
      * @apiUse ErrorGroup
      * @apiUse ErrorChatNotYetAccepted
      * @apiUse ErrorChatExhausted
+     * @apiUse ErrorChatBlocked
      */
     .post(jsonParser,
         expressValidator,
         chatValidator.postOneMessageValidator,
+        function (request,response, next){ // Cannot chat to blocked users
+            let notCreators = response.object.members.filter(function (element) {
+                return element && element.user && !element.creator;
+            });
+            if (!notCreators || notCreators.length===0){ return next(); }
+            async.each(notCreators,function (userDest,blockDone) {
+                let aBlock = {
+                    userBlocks: userDest.user,
+                    userBlocked: request.user._id,
+                    active: true
+                };
+                Block.findOne(aBlock,function (err, block) {
+                    if (err) {
+                        return response.status(500).json(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
+                    }
+                    if (block){
+                        return response.status(403).json(errorConstants.responseWithError(block, errorConstants.errorNames.chat_chatBlocked));
+                    }
+                    next();
+                });
+            });
+        },
         function (request, response, next) {
             let chat = response.object;
             let userInChat = chat.members.filter(function (element) {

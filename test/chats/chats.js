@@ -13,6 +13,7 @@ let fs = require('fs');
 let user = require('api/models/users/user');
 let chats = require('api/models/chats/chat');
 let messages = require('api/models/chats/message');
+let block = require('api/models/users/block');
 
 let errorConstants = require("api/common/errorConstants");
 
@@ -69,9 +70,12 @@ describe('Chats Group', () => {
     after(function (done) {
         user.remove({}, (err) => {
             chats.remove({}, (err) => {
-                messages.remove({}, (err) => {
-                    should.not.exist(err);
-                    done();
+                block.remove({}, (err) => {
+
+                    messages.remove({}, (err) => {
+                        should.not.exist(err);
+                        done();
+                    });
                 });
             });
         });
@@ -80,8 +84,10 @@ describe('Chats Group', () => {
         beforeEach((done) => { //Before each test we empty the database
             chats.remove({}, (err) => {
                 messages.remove({}, (err) => {
-                    should.not.exist(err);
-                    done();
+                    block.remove({}, (err) => {
+                        should.not.exist(err);
+                        done();
+                    });
                 });
             });
         });
@@ -120,16 +126,41 @@ describe('Chats Group', () => {
                     });
                 });
         });
+        it('should fail for blocked user UserId', (done) => {
+            chai.request(server)
+                .post("/api/v1/blocks")
+                .send({
+                    userBlocks: clientIdTwo,
+                    userBlocked: clientId
+                })
+                .set("Content-Type", "application/json")
+                .set("Authorization", "Bearer " + adminToken)
+                .end(function (err, res) {
+                    chai.request(server)
+                        .post(endpoint)
+                        .send(allChats.chatCreated)
+                        .set("Content-Type", "application/json")
+                        .set("Authorization", "Bearer " + adminToken)
+                        .end(function (err, res) {
+                            commonTestUtils.test_errorCode(403,errorConstants.errorCodes(errorConstants.errorNames.chat_chatBlocked), err, res, function () {
+                                done();
+                            });
+                        });
+
+                });
+        });
     });
     describe('GET', () => {
         before((done) => { //Before each test create the object
             chats.remove({}, (err) => {
-                messages.remove({}, (err) => {
-                    commonTestUtils.test_createChat(server, adminToken, allChats.chatCreated, function (realChat) {
-                        allChats.chatCreated = realChat;
-                        commonTestUtils.test_createChat(server, adminToken, allChats.chatAccepted, function (realChat) {
-                            allChats.chatAccepted = realChat;
-                            done();
+                block.remove({}, (err) => {
+                    messages.remove({}, (err) => {
+                        commonTestUtils.test_createChat(server, adminToken, allChats.chatCreated, function (realChat) {
+                            allChats.chatCreated = realChat;
+                            commonTestUtils.test_createChat(server, adminToken, allChats.chatAccepted, function (realChat) {
+                                allChats.chatAccepted = realChat;
+                                done();
+                            });
                         });
                     });
                 });
@@ -334,12 +365,14 @@ describe('Chats Group', () => {
         describe("POST",function () {
             beforeEach((done) => { //Before each test create the object
                 chats.remove({}, (err) => {
-                    messages.remove({}, (err) => {
-                        commonTestUtils.test_createChat(server, adminToken, allChats.chatCreated, function (realChat) {
-                            allChats.chatCreated = realChat;
-                            commonTestUtils.test_createChat(server, adminToken, allChats.chatAccepted, function (realChat) {
-                                allChats.chatAccepted = realChat;
-                                done();
+                    block.remove({}, (err)=> {
+                        messages.remove({}, (err) => {
+                            commonTestUtils.test_createChat(server, adminToken, allChats.chatCreated, function (realChat) {
+                                allChats.chatCreated = realChat;
+                                commonTestUtils.test_createChat(server, adminToken, allChats.chatAccepted, function (realChat) {
+                                    allChats.chatAccepted = realChat;
+                                    done();
+                                });
                             });
                         });
                     });
@@ -363,6 +396,34 @@ describe('Chats Group', () => {
                         done();
                     });
             });
+            it('should fail for blocked user UserId', (done) => {
+                chai.request(server)
+                    .post("/api/v1/blocks")
+                    .send({
+                        userBlocks: clientIdTwo,
+                        userBlocked: clientId
+                    })
+                    .set("Content-Type", "application/json")
+                    .set("Authorization", "Bearer " + adminToken)
+                    .end(function (err, res) {
+                        let chat = JSON.parse(JSON.stringify(allChats.chatAccepted));
+                        let message = {
+                            message: "This is a test message"
+                        };
+                        chai.request(server)
+                            .post("/api/v1/chats/"+chat._id+"/messages")
+                            .send(message)
+                            .set("Content-Type", "application/json")
+                            .set("Authorization", "Bearer " + clientToken)
+                            .end(function (err, res) {
+                                commonTestUtils.test_errorCode(403,errorConstants.errorCodes(errorConstants.errorNames.chat_chatBlocked), err, res, function () {
+                                    done();
+                                });
+                            });
+
+                    });
+            });
+
             it('should succeed for created and receiver posting message accepting chat', (done) => {
                 let chat = JSON.parse(JSON.stringify(allChats.chatAccepted));
                 let message = {

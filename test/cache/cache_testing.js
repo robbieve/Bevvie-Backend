@@ -24,6 +24,15 @@ let token = "";
 let userid = "";
 let adminToken = "";
 let adminUserId = "";
+
+let allChats = {
+    chatCreated: {},
+    chatAccepted: {},
+    chatRejected: {},
+    chatExpired: {},
+    chatExhausted: {},
+};
+
 describe('Cache Group', () => {
     // create users and clients
     before(function (done) {
@@ -38,29 +47,16 @@ describe('Cache Group', () => {
 
             user.remove({}, (err) => {
                 should.not.exist(err);
-                async.series(
-                    [
-                        function (isDone) {
-                            // admin user
-                            commonTestUtils.test_createUser(server, commonTestUtils.userConstants.admin, function (user) {
-                                adminToken = user.token;
-                                adminUserId = user.user;
-                                isDone()
-                            });
-                        },
-                        function (isDone) {
-                            // Potential client
-                            let temp = JSON.parse(JSON.stringify(commonTestUtils.userConstants.userOne));
-                            commonTestUtils.test_createUser(server, temp, function (res) {
-                                token = res.token;
-                                userid = res.user;
-                                isDone()
-                            });
-                        },
-
-                    ], function (err, results) {
-                        done()
+                commonTestUtils.testBuild_createUsersVenuesAndChats(server, null, function (res) {
+                    adminUserId = res.admin.user._id;
+                    adminToken = res.admin.token;
+                    userid = res.userOne.user._id;
+                    token = res.userOne.token;
+                    Object.keys(allChats).forEach(function (element) {
+                        allChats[element] = res[element];
                     });
+                    done();
+                });
             });
         });
     });
@@ -116,6 +112,24 @@ describe('Cache Group', () => {
                         });
                     });
             });
+            it('should not cache possibly expiring data', function (done) {
+                if (!config.cache.enabled) {
+                    return done()
+                }
+                chai.request(server)
+                    .get("/api/v1/chats/" + allChats.chatAccepted._id)
+                    .set("Authorization", "Bearer " + adminToken)
+                    .end(function (err, res) {
+                        should.not.exist(err);
+                        // Bevvie-Backend:test:Chat:{"$and":[{"_id":"5a099f30a7d1e82163deda45"},{}]}
+                        let aQuery = prefix + ':Chat:' + JSON.stringify({"$and": [{"_id": allChats.chatAccepted._id}, {}]});
+                        cache.get(aQuery, function (err, reply) {
+                            should.not.exist(err);
+                            should.not.exist(reply);
+                            done();
+                        });
+                    });
+            });
             it('should return _cached field', function (done) {
                 if (!config.cache.enabled) {
                     return done()
@@ -140,10 +154,10 @@ describe('Cache Group', () => {
                                         done();
                                     });
                                 });
-                            });
                         });
                     });
             });
+        });
     });
     describe('POST', () => {
         beforeEach((done) => { //After each test we empty the database
@@ -215,7 +229,7 @@ describe('Cache Group', () => {
                                     done();
                                 });
                             });
-                        },cacheDelay);
+                        }, cacheDelay);
                     });
             });
         })
