@@ -14,6 +14,7 @@ let User = require('api/models/users/user');
 let Block = require('api/models/users/block');
 let dbError = require('lib/loggers/db_error');
 let pushUtils = require("api/controllers/common/pushUtils");
+let winston = require("lib/loggers/logger").winston;
 
 // Validator
 let expressValidator = require('lib/validation/validator');
@@ -54,6 +55,7 @@ router.route('/')
      * @apiUse AuthorizationTokenHeader
      *
      * @apiUse ChatParameters
+     * @apiParam {String} message initial message of the chat
      * @apiSuccess (201) {String} _id the chat's id
      * @apiUse ErrorGroup
      * @apiUse ErrorChatBlocked
@@ -89,6 +91,19 @@ router.route('/')
                 },function (err) {
                     if (err) return response.status(403).json(err);
                     route_utils.post(Chat, newObject, request, response, next, function (err, chat) {
+                        let theCreators = newObject.members.filter(function (element) {
+                            return element && element.user && element.creator;
+                        })
+                        if (theCreators && theCreators[0] && theCreators[0].user){
+                            let message = new Message({
+                                chat: chat._id,
+                                user: theCreators[0].user,
+                                message: request.body.message ? request.body.message:""
+                            });
+                            message.save(function (err) {
+                                if (err) winston.error("CHATS: There was an error saving the first message "+JSON.stringify(err));
+                            })
+                        }
                         notCreators.forEach(function (chatUser) {
                             let user = chatUser.user;
                             pushUtils.sendCreateChatPush(user, chat);

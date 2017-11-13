@@ -414,23 +414,28 @@ exports.testBuild_createUsersVenuesAndChats = function (server, values, callback
 
                     values.chatCreated = {
                         status: constants.chats.chatStatusNames.created,
-                        members: members
+                        members: members,
+                        message: "Initial message",
                     };
                     values.chatAccepted = {
                         status: constants.chats.chatStatusNames.accepted,
-                        members: members
+                        members: members,
+                        message: "Initial message",
                     };
                     values.chatRejected = {
                         status: constants.chats.chatStatusNames.rejected,
-                        members: members
+                        members: members,
+                        message: "Initial message",
                     };
                     values.chatExpired = {
                         status: constants.chats.chatStatusNames.expired,
-                        members: members
+                        members: members,
+                        message: "Initial message",
                     };
                     values.chatExhausted = {
                         status: constants.chats.chatStatusNames.exhausted,
-                        members: members
+                        members: members,
+                        message: "Initial message",
                     };
                     isDone();
                 });
