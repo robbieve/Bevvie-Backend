@@ -37,3 +37,14 @@ module.exports.postValidateValidator = function (request, response, next) {
     request.checkParams('id', 'No valid id provided').isObjectId();
     commonFunctions.validate(request,response,next);
 };
+
+module.exports.postBanValidator = function (request, response, next) {
+    request.checkParams('id', 'No valid id provided').isObjectId();
+    commonFunctions.validate(request,response,next);
+};
+
+
+module.exports.postDeactivateValidator = function (request, response, next) {
+    request.checkParams('id', 'No valid id provided').isObjectId();
+    commonFunctions.validate(request,response,next);
+};

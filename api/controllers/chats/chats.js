@@ -14,6 +14,7 @@ let User = require('api/models/users/user');
 let Block = require('api/models/users/block');
 let dbError = require('lib/loggers/db_error');
 let pushUtils = require("api/controllers/common/pushUtils");
+let blockExecutionUtils = require("api/controllers/common/blockExecutionUtils");
 let winston = require("lib/loggers/logger").winston;
 
 // Validator
@@ -91,6 +92,7 @@ router.route('/')
                 },function (err) {
                     if (err) return response.status(403).json(err);
                     route_utils.post(Chat, newObject, request, response, next, function (err, chat) {
+                        blockExecutionUtils.programChatDeactivation(chat);
                         let theCreators = newObject.members.filter(function (element) {
                             return element && element.user && element.creator;
                         })

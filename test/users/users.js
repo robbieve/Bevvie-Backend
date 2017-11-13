@@ -15,6 +15,7 @@ let bootstrap = require('bootstrap/load_data');
 
 let image = require('api/models/blobs/images');
 let TokenModel = require('api/models/users/token');
+let DeviceModel = require('api/models/push/device');
 
 let endpoint = '/api/v1/users';
 let token = "";
@@ -206,7 +207,7 @@ describe('Users Group', () => {
             it('should succeed with name search', function (done) {
                 chai.request(server)
                     .get(endpoint)
-                    .query({'name': "user", "active":"all"})
+                    .query({'name': "user", "active": "all"})
                     .set("Authorization", "Bearer " + adminToken)
                     .end(function (err, res) {
                         commonTestUtils.test_pagination(err, res, function () {
@@ -546,9 +547,9 @@ describe('Users Group', () => {
                         // Potential client
                         const aFile = imageFile;
                         const aFileTwo = adminImageFile;
-                        commonTestUtils.test_createImage(server,token, aFile, function (objectId) {
+                        commonTestUtils.test_createImage(server, token, aFile, function (objectId) {
                             imageId = objectId;
-                            commonTestUtils.test_createImage(server,tokenTwo, aFileTwo, function (objectId) {
+                            commonTestUtils.test_createImage(server, tokenTwo, aFileTwo, function (objectId) {
                                 imageIdTwo = objectId;
                                 isDone();
                             });
@@ -566,7 +567,7 @@ describe('Users Group', () => {
                 about_validated: false
             };
             chai.request(server)
-                .post(endpoint + '/' + aUser._id+ '/validate')
+                .post(endpoint + '/' + aUser._id + '/validate')
                 .send(query)
                 .set("Authorization", "Bearer " + adminToken)
                 .end(function (err, res) {
@@ -585,7 +586,7 @@ describe('Users Group', () => {
                 about_validated: true
             };
             chai.request(server)
-                .post(endpoint + '/' + aUser._id+ '/validate')
+                .post(endpoint + '/' + aUser._id + '/validate')
                 .send(query)
                 .set("Authorization", "Bearer " + token)
                 .end(function (err, res) {
@@ -602,7 +603,7 @@ describe('Users Group', () => {
                 about_validated: true
             };
             chai.request(server)
-                .post(endpoint + '/' + aUser._id+ '/validate')
+                .post(endpoint + '/' + aUser._id + '/validate')
                 .send(query)
                 .set("Authorization", "Bearer " + adminToken)
                 .end(function (err, res) {
@@ -631,7 +632,7 @@ describe('Users Group', () => {
                 about_validated: true
             };
             chai.request(server)
-                .post(endpoint + '/' + aUser._id+ '/validate')
+                .post(endpoint + '/' + aUser._id + '/validate')
                 .send(query)
                 .set("Authorization", "Bearer " + adminToken)
                 .end(function (err, res) {
@@ -680,7 +681,7 @@ describe('Users Group', () => {
         });
         it('should succeed for admin', function (done) {
             chai.request(server)
-                .post(endpoint + '/' + aUser._id+ '/ban')
+                .post(endpoint + '/' + aUser._id + '/ban')
                 .set("Authorization", "Bearer " + adminToken)
                 .end(function (err, res) {
                     res.should.have.status(200);
@@ -691,9 +692,9 @@ describe('Users Group', () => {
                     done()
                 });
         });
-        it('should far for non admin', function (done) {
+        it('should fail for non admin', function (done) {
             chai.request(server)
-                .post(endpoint + '/' + aUser._id+ '/ban')
+                .post(endpoint + '/' + aUser._id + '/ban')
                 .set("Authorization", "Bearer " + token)
                 .end(function (err, res) {
                     commonTestUtils.test_error(403, err, res, function () {
@@ -704,7 +705,7 @@ describe('Users Group', () => {
         });
         it('should succeed for admin deleting token', function (done) {
             chai.request(server)
-                .post(endpoint + '/' + aUser._id+ '/ban')
+                .post(endpoint + '/' + aUser._id + '/ban')
                 .set("Authorization", "Bearer " + adminToken)
                 .end(function (err, res) {
                     res.should.have.status(200);
@@ -738,11 +739,15 @@ describe('Users Group', () => {
                     res.body.banned.should.equal(true)
                     chai.request(server)
                         .post("/api/v1/login")
-                        .send({'id':copiedUser._id,'accessKey': 'passw0rd', 'accessType': constants.users.accessTypeNames.password})
+                        .send({
+                            'id': copiedUser._id,
+                            'accessKey': 'passw0rd',
+                            'accessType': constants.users.accessTypeNames.password
+                        })
                         .set("Content-Type", "application/json")
                         .set("register-token", configAuth.baseToken)
                         .end(function (err, res) {
-                            commonTestUtils.test_errorCode(403,errorConstants.errorCodes(errorConstants.errorNames.user_banned), err, res, function () {
+                            commonTestUtils.test_errorCode(403, errorConstants.errorCodes(errorConstants.errorNames.user_banned), err, res, function () {
                                 done();
                             })
                         });
@@ -750,4 +755,115 @@ describe('Users Group', () => {
         });
 
     });
-});
+    describe('deactivate', function () {
+        beforeEach(function (done) {
+            async.series(
+                [
+                    function (isDone) {
+                        user.remove({}, isDone);
+                    },
+                    function (isDone) {
+                        TokenModel.remove({}, isDone);
+                    },
+                    function (isDone) {
+                        DeviceModel.remove({}, isDone);
+                    },
+
+                    function (isDone) {
+                        // admin user
+                        commonTestUtils.testBuild_createAdminUserAndClients(server, null, function (res) {
+                            adminToken = res.admin.token;
+                            adminUser = res.admin.user;
+                            token = res.userOne.token;
+                            aUser = res.userOne.user;
+                            tokenTwo = res.userTwo.token;
+                            aUserTwo = res.userTwo.user;
+                            isDone()
+                        });
+                    }
+                ], function (err) {
+                    should.not.exist(err);
+                    done();
+                });
+        });
+        it('should succeed for admin', function (done) {
+            chai.request(server)
+                .post(endpoint + '/' + aUser._id + '/deactivate')
+                .set("Authorization", "Bearer " + adminToken)
+                .end(function (err, res) {
+                    res.should.have.status(200);
+                    res.should.be.json;
+                    res.body.should.be.an('Object');
+                    res.body.should.contain.all.keys('_id', 'updatedAt', 'createdAt', 'name', 'apiVersion', 'admin', 'active');
+                    res.body.active.should.equal(false)
+                    done()
+                });
+        });
+        it('should succeed for non admin', function (done) {
+            chai.request(server)
+                .post(endpoint + '/' + aUser._id + '/deactivate')
+                .set("Authorization", "Bearer " + token)
+                .end(function (err, res) {
+                    res.should.have.status(200);
+                    res.should.be.json;
+                    res.body.should.be.an('Object');
+                    res.body.should.contain.all.keys('_id', 'updatedAt', 'createdAt', 'name', 'apiVersion', 'admin', 'active');
+                    res.body.active.should.equal(false)
+                    done()
+                });
+        });
+        it('should succeed for non admin deleting token', function (done) {
+            chai.request(server)
+                .post(endpoint + '/' + aUser._id + '/deactivate')
+                .set("Authorization", "Bearer " + token)
+                .end(function (err, res) {
+                    res.should.have.status(200);
+                    res.should.be.json;
+                    res.body.should.be.an('Object');
+                    res.body.should.contain.all.keys('_id', 'updatedAt', 'createdAt', 'name', 'apiVersion', 'admin', 'active');
+                    res.body.active.should.equal(false)
+                    chai.request(server)
+                        .get("/api/v1/users")
+                        .set("Content-Type", "application/json")
+                        .set("Authorization", "Bearer " + token)
+                        .end(function (err, res) {
+                            should.exist(err);
+                            res.should.have.status(401);
+                            done();
+                        });
+                });
+        });
+
+        it('should succeed for user allowing to reactivate through login', function (done) {
+            chai.request(server)
+                .post(endpoint + '/' + aUser._id + '/deactivate')
+                .set("Authorization", "Bearer " + token)
+                .end(function (err, res) {
+                    res.should.have.status(200);
+                    res.should.be.json;
+                    res.body.should.be.an('Object');
+                    res.body.should.contain.all.keys('_id', 'updatedAt', 'createdAt', 'name', 'apiVersion', 'admin', 'active');
+                    res.body.active.should.equal(false)
+                    chai.request(server)
+                        .post("/api/v1/login")
+                        .send({
+                            'id': aUser._id,
+                            'accessKey': 'passw0rd',
+                            'accessType': constants.users.accessTypeNames.password
+                        })
+                        .set("Content-Type", "application/json")
+                        .set("register-token", configAuth.baseToken)
+                        .end(function (err, res) {
+                            res.should.have.status(201);
+                            res.should.be.json;
+                            res.body.should.be.an('Object');
+                            res.body.should.contain.all.keys('user');
+                            res.body.user.active.should.equal(true);
+                            done();
+                        });
+                });
+        });
+
+    });
+})
+;

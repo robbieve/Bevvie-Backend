@@ -15,7 +15,7 @@ let moment = require("moment");
  * @apiParam (Chat) {Object[]} members.user user id.
  * @apiParam (Chat) {Bool} members.creator=false this user is the creator of the chat.
  * @apiParam (Chat) {String} [members.lastMessageSeen] id of the last message sent to the user, if any.
- * @apiParam (Chat) {String="created","accepted","rejected","exhausted","expired"} status=created status of the chat
+ * @apiParam (Chat) {String="created","accepted","rejected","exhausted","expired"} status=pending status of the chat
  * @apiParam (Chat) {Date} expiration expiration time
  */
 
@@ -36,8 +36,8 @@ let chatSchema = new Schema({
     },
     expiration: {
         type: Date,
-        required: true,
-        default: moment().add(18, 'hours')
+        // required: true,
+        // default: moment().add(18, 'hours')
     },
     active: {type: Boolean, default: true},
     apiVersion: {type: String, required: true, default: config.apiVersion},

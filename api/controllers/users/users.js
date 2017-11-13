@@ -20,6 +20,8 @@ let config = require("config");
 let mailUtils = require("api/controllers/common/mailUtils");
 let pushUtils = require("api/controllers/common/pushUtils");
 let token = require("api/models/users/token");
+let device = require("api/models/push/device");
+let checkin = require("api/models/checkins/checkin");
 
 const errorConstants = require('api/common/errorConstants');
 
@@ -352,7 +354,7 @@ router.route('/:id/ban')
             route_utils.getOne(User, request, response, next)
         })
     /**
-     * @api {post} /users/id/ban Validate a user profile or images
+     * @api {post} /users/id/ban Ban a user
      * @apiName BanUser
      * @apiVersion 0.11.0
      * @apiGroup Users
@@ -366,7 +368,7 @@ router.route('/:id/ban')
      * @apiUse ErrorGroup
      */
     .post(jsonParser,
-        userValidator.postValidateValidator,
+        userValidator.postBanValidator,
         function (request, response, next) {
             let sendPushType;
             let newObject = request.body;
@@ -377,6 +379,58 @@ router.route('/:id/ban')
                     },
                     function (isDone) {
                         token.remove({user: request.params.id},isDone);
+                    }
+                ],
+                function (err) {
+                    if (err) return isDone(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
+                    route_utils.postUpdate(User, {'_id': request.params.id}, newObject, request, response, next);
+                })
+        })
+
+router.route('/:id/deactivate')
+    .all(passport.authenticate('bearer', {session: false}),
+        expressValidator,
+        function (request, response, next) {
+            // If not admin or self, fail
+            if (!request.user.admin && request.user._id.toString() !== request.params.id.toString()) {
+                return response.status(403).json({
+                    localizedError: 'You are not authorized to deactivate users',
+                    rawError: 'user ' + request.user._id + ' is not admin'
+                });
+            }
+            route_utils.getOne(User, request, response, next)
+        })
+    /**
+     * @api {post} /users/id/deactivate Deactivate a user.
+     * @apiName DeactivateUser
+     * @apiVersion 0.14.0
+     * @apiGroup Users
+     * @apiUse AuthorizationTokenHeader
+     *
+     * @apiParam {Number} id id of the user
+     * @apiDescription This method will deactivate the user, delete auth tokens and devices. A user can activate the account again using a login
+     *
+     * @apiSuccess {String} name Name of the user
+     * @apiUse ErrorGroup
+     */
+    .post(jsonParser,
+        userValidator.postDeactivateValidator,
+        function (request, response, next) {
+            let sendPushType;
+            let newObject = request.body;
+            async.series([
+                    function (isDone) {
+                        newObject.active = false;
+                        isDone();
+                    },
+                    function (isDone) {
+                        token.remove({user: request.params.id},isDone);
+                    },
+                    function (isDone) {
+                        device.remove({user: request.params.id},isDone);
+                    },
+                    function (isDone) {
+                        checkin.remove({user: request.params.id},isDone);
                     }
                 ],
                 function (err) {

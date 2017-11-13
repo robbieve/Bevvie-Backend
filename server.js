@@ -119,6 +119,7 @@ let startServer = function startServer() {
     // Add mail queue
     require('lib/queue/queues/mailQueue')(kue);
     require('lib/queue/queues/pushQueue')(kue);
+    require('api/controllers/common/blockExecutionUtils').deactivationJobType(kue);
 
     if (config.has('server.port')) {
         server.listen(config.server.port, config.server.host, function () {

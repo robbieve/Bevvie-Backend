@@ -122,6 +122,19 @@ router.route('/')
             }
 
         },
+        function (request,response,next){
+            let newUser = request.user;
+            if (newUser.active===true){
+                next();
+            }
+            else{
+                newUser.active = true;
+                newUser.save(function (err) {
+                    if (err) return response.status(500).json(errorConstants.responseWithError(newUser,errorConstants.errorNames.dbGenericError));
+                    next();
+                })
+            }
+        },
         function (request, response) {
             let newUser = request.user;
             if (newUser.banned){
