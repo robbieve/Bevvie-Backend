@@ -70,7 +70,7 @@ describe('Login Group', () => {
             it('should succeed with token argument', (done) => {
                 chai.request(server)
                     .post(endpoint)
-                    .send({'id':adminUserId,'password': 'passw0rd', 'accessType': constants.users.accessTypeNames.password})
+                    .send({'id':adminUserId,'accessKey': 'passw0rd', 'accessType': constants.users.accessTypeNames.password})
                     .set("Content-Type", "application/json")
                     .set("register-token", configAuth.baseToken)
                     .end(function (err, res) {
@@ -86,7 +86,7 @@ describe('Login Group', () => {
             it('should succeed with admin login argument', (done) => {
                 chai.request(server)
                     .post(endpoint)
-                    .send({'adminLogin':true,'password': 'passw0rd', 'accessType': constants.users.accessTypeNames.password})
+                    .send({'adminLogin':true,'accessKey': 'passw0rd', 'accessType': constants.users.accessTypeNames.password})
                     .set("Content-Type", "application/json")
                     .set("register-token", configAuth.baseToken)
                     .end(function (err, res) {
@@ -102,7 +102,7 @@ describe('Login Group', () => {
             it('should succeed with other user argument', (done) => {
                 chai.request(server)
                     .post(endpoint)
-                    .send({'id':userId,'password': 'passw0rd', 'accessType': constants.users.accessTypeNames.password})
+                    .send({'id':userId,'accessKey': 'passw0rd', 'accessType': constants.users.accessTypeNames.password})
                     .set("Content-Type", "application/json")
                     .set("register-token", configAuth.baseToken)
                     .end(function (err, res) {
