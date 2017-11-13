@@ -11,6 +11,7 @@ let passport = require('passport');
 let configAuth = require('config').auth;
 // Require token
 let Token = require('api/models/users/token');
+let User = require('api/models/users/user');
 let dbError = require('lib/loggers/db_error');
 let winston = require("lib/loggers/logger").winston;
 let constants = require("api/common/constants");
@@ -34,6 +35,7 @@ router.route('/')
      * @apiDescription This method can login a user provided an accessKey is provided.
      *
      * @apiParam {String} [id] id of the user
+     * @apiParam {Boolean} [adminLogin] whether it is an admin user
      * @apiParam {String} accessKey accessToken of the service
      * @apiParam {String="facebook","firebase","password"} accessType type of auth
      *
@@ -65,6 +67,19 @@ router.route('/')
                     rawError: 'error: ' + err
                 });
             });
+        },
+        function (request,response,next) {
+            if (request.body.adminLogin){
+                User.findOne({admin: true},function (err, user) {
+                    if (err) return response.status(500).json(errorConstants.responseWithError(err,errorConstants.errorNames.dbGenericError));
+                    if (!user) return response.status(404).json({'localizedError': 'Not found', 'rawError': 'Not found admin'});
+                    request.body.id = user._id.toString();
+                    next();
+                });
+            }
+            else{
+                next();
+            }
         },
         function (request, response, next) { // User authentication
             let responseCallback = function (err, user, userError) {

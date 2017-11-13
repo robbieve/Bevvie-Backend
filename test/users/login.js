@@ -83,6 +83,22 @@ describe('Login Group', () => {
                         done();
                     });
             });
+            it('should succeed with admin login argument', (done) => {
+                chai.request(server)
+                    .post(endpoint)
+                    .send({'adminLogin':true,'password': 'passw0rd', 'accessType': constants.users.accessTypeNames.password})
+                    .set("Content-Type", "application/json")
+                    .set("register-token", configAuth.baseToken)
+                    .end(function (err, res) {
+                        res.should.have.status(201);
+                        res.should.be.json;
+                        res.body.should.be.an('object');
+                        res.body.should.have.property('token');
+                        res.body.should.have.property('user');
+                        res.body.should.not.have.deep.property('user.password');
+                        done();
+                    });
+            });
             it('should succeed with other user argument', (done) => {
                 chai.request(server)
                     .post(endpoint)

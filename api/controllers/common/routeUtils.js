@@ -30,7 +30,7 @@ utils.post = function (Schema, newObject, request, response, next, callback) {
                         if (err) {
                             return;
                         }
-                        redis.setCachedResult(query, Schema.modelName, newDBObject);
+                        redis.setCachedResult(query, Schema.modelName, newDBObject, newDBObject["expiration"]);
                     });
                 }
             })
@@ -79,7 +79,7 @@ utils.postUpdate = function (Schema, query, newObject, request, response, next) 
                                         if (err) {
                                             return;
                                         }
-                                        redis.setCachedResult(query, Schema.modelName, newDBObject);
+                                        redis.setCachedResult(query, Schema.modelName, newDBObject, newDBObject["expiration"]);
                                     });
                                 }
                             })
@@ -147,7 +147,9 @@ utils.getAll = function (Schema, query, options, request, response, next, restri
                     Schema.paginate(query, options, function (err, objects) {
                         if (err) return dbError(err, request, response, next);
                         response.json(objects);
-                        redis.setCachedResult(cacheQuery, Schema.modelName + "-list", objects)
+                        if (objects && objects.length>0) {
+                            redis.setCachedResult(cacheQuery, Schema.modelName + "-list", objects, objects[0]["expiration"])
+                        }
                     });
                 }
             })
@@ -207,7 +209,7 @@ utils.getOneQuery = function (Schema, query, request, response, next) {
                                 redis.deleteCachedResult(query, Schema.modelName)
                             }
                             else {
-                                redis.setCachedResult(query, Schema.modelName, object)
+                                redis.setCachedResult(query, Schema.modelName, object, object["expiration"])
                             }
                         }
                     });
