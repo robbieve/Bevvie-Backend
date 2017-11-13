@@ -50,7 +50,7 @@
     },
     "venue2":{
       "name": "The Bolos Pub",
-      "image": "->images.venue1",
+      "image": "->images.venue2",
       "location": {
         "coordinates": [-0.351655,39.4652121]
       },
@@ -74,7 +74,7 @@
     },
     "venue3":{
       "name": "The Faraway Pub",
-      "image": "->images.venue1",
+      "image": "->images.venue3",
       "location": {
         "coordinates": [20.3515847,0]
       },
@@ -98,14 +98,14 @@
     },
     "venue4":{
       "name": "The Argentina Croissant Pub",
-      "image": "->images.venue1",
+      "image": "->images.venue4",
       "location": {
         "coordinates": [-0.3509577,39.4657256]
       }
     },
     "venue5":{
       "name": "The Bocatas Chinos Bar",
-      "image": "->images.venue1",
+      "image": "->images.venue5",
       "location": {
         "coordinates": [-0.3509771,39.4677781]
       }
@@ -119,28 +119,28 @@
     },
     "venue7":{
       "name": "The Queens Arms",
-      "image": "->images.venue1",
+      "image": "->images.venue2",
       "location": {
         "coordinates": [-0.1899406,51.5350244]
       }
     },
     "venue8":{
       "name": "The Warrington",
-      "image": "->images.venue1",
+      "image": "->images.venue3",
       "location": {
         "coordinates": [-0.1831751,51.5272232]
       }
     },
     "venue9":{
       "name": "Oatley Hotel",
-      "image": "->images.venue1",
+      "image": "->images.venue4",
       "location": {
         "coordinates": [-0.1685344,51.4847831]
       }
     },
     "venue10":{
       "name": "i Darts ZEN",
-      "image": "->images.venue1",
+      "image": "->images.venue5",
       "location": {
         "coordinates": [151.2077617,-33.875723]
       }
