@@ -32,7 +32,7 @@ let allChats = {
     chatExpired: {},
     chatExhausted: {},
 };
-
+let venueDevelapps;
 describe('Cache Group', () => {
     // create users and clients
     before(function (done) {
@@ -52,6 +52,7 @@ describe('Cache Group', () => {
                     adminToken = res.admin.token;
                     userid = res.userOne.user._id;
                     token = res.userOne.token;
+                    venueDevelapps = res.venueDevelapps;
                     Object.keys(allChats).forEach(function (element) {
                         allChats[element] = res[element];
                     });
@@ -116,13 +117,18 @@ describe('Cache Group', () => {
                 if (!config.cache.enabled) {
                     return done()
                 }
+                let develappsCheckin = {
+                    user: userid,
+                    venue: venueDevelapps._id
+                };
                 chai.request(server)
-                    .get("/api/v1/chats/" + allChats.chatAccepted._id)
+                    .post("/api/v1/checkins")
+                    .send(develappsCheckin)
                     .set("Authorization", "Bearer " + adminToken)
                     .end(function (err, res) {
                         should.not.exist(err);
-                        // Bevvie-Backend:test:Chat:{"$and":[{"_id":"5a099f30a7d1e82163deda45"},{}]}
-                        let aQuery = prefix + ':Chat:' + JSON.stringify({"$and": [{"_id": allChats.chatAccepted._id}, {}]});
+                        // Bevvie-Backend:test:Checkin:{"$and":[{"_id":"5a099f30a7d1e82163deda45"},{}]}
+                        let aQuery = prefix + ':Checkin:' + JSON.stringify({"$and": [{"_id": res._id}, {}]});
                         cache.get(aQuery, function (err, reply) {
                             should.not.exist(err);
                             should.not.exist(reply);
