@@ -439,69 +439,6 @@ router.route('/:id/messages')
                     pushUtils.sendCreateMessagePush(DBMessage);
                     response.status(201).json(DBMessage);
                 })
-
-                /*Message.find({chat: chat._id}, function (err, messages) {
-                    if (err) return response.status(500).json(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
-                    let ownMessages = messages.filter(function (message) {
-                        return message.user._id.toString() === request.user._id.toString();
-                    })
-                    if (ownMessages.length >= constants.chats.maxMessages) {
-                        return response.status(400).json(errorConstants.responseWithError(chat, errorConstants.errorNames.chat_chatExhausted));
-                    }
-                    else {
-                        let newDBObject = Message.mapObject(null, message);
-                        Message.validateObject(newDBObject, function (err) {
-                            if (err) {
-                                return response.status(400).json(err);
-                            }
-                            else {
-                                newDBObject.save(function (err) {
-                                    if (err) {
-                                        if (callback) callback(err);
-                                        return dbError(err, request, response, next)
-                                    }
-                                    else {
-                                        let aMessage = newDBObject;
-                                        pushUtils.sendCreateMessagePush(aMessage);
-                                        let chatUser = chat.members.filter(function (member) {
-                                            return member.user._id.toString() === aMessage.user.toString();
-                                        })[0];
-
-                                        chatUser.lastMessageSeen = aMessage._id;
-                                        if (chat.status===constants.chats.chatStatusNames.created) {
-                                            chat.status = constants.chats.chatStatusNames.accepted;
-                                        }
-                                        if (messages.length >= (2 * constants.chats.maxMessages) - 1) {
-                                            chat.status = constants.chats.chatStatusNames.exhausted;
-                                        }
-
-                                        chat.save(function (err, chat) {
-                                            if (err) return response.status(500).json(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
-                                            redis.deleteCachedResult({_id: chat._id}, Chat.modelName);
-                                            response.status(201).json(newDBObject);
-                                            let query = {_id: newDBObject.id};
-
-                                            // Delete any listings of this kind of object
-                                            redis.deleteCachedResult(query, Message.modelName, function (err) {
-                                                if (err) {
-                                                    return;
-                                                }
-                                                if (!newDBObject["expiration"]) {
-                                                    redis.setCachedResult(query, Message.modelName, newDBObject);
-                                                }
-                                            });
-
-                                        });
-
-                                    }
-                                })
-                            }
-                        })
-
-
-
-                    }
-                });*/
             }
         });
 
