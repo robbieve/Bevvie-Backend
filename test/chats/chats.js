@@ -425,7 +425,37 @@ describe('Chats Group', () => {
 
                     });
             });
-
+            it('should succeed with last seen', (done) => {
+                let chat = JSON.parse(JSON.stringify(allChats.chatAccepted));
+                let message = {
+                    message: "This is a test message"
+                };
+                chai.request(server)
+                    .post("/api/v1/chats/" + chat._id + "/messages")
+                    .send(message)
+                    .set("Content-Type", "application/json")
+                    .set("Authorization", "Bearer " + clientToken)
+                    .end(function (err, res) {
+                        res.should.have.status(201);
+                        res.should.be.json;
+                        res.body.should.be.an('object');
+                        res.body.should.contain.all.keys('_id', 'message', 'chat');
+                        let messageId = res.body._id;
+                        chai.request(server)
+                            .get("/api/v1/chats/" + chat._id)
+                            .set("Content-Type", "application/json")
+                            .set("Authorization", "Bearer " + clientToken)
+                            .end(function (err, res) {
+                                res.should.have.status(200);
+                                res.should.be.json;
+                                res.body.should.be.an('object');
+                                res.body.should.contain.all.keys('_id', 'status');
+                                res.body.status.should.equal(constants.chats.chatStatusNames.accepted);
+                                res.body.members[0].lastMessageSeen.should.equal(messageId);
+                                done();
+                            });
+                    });
+            });
             it('should succeed for created and receiver posting message accepting chat', (done) => {
                 let chat = JSON.parse(JSON.stringify(allChats.chatCreated));
                 let message = {
@@ -443,7 +473,6 @@ describe('Chats Group', () => {
                         res.body.should.contain.all.keys('_id', 'message', 'chat');
                         chai.request(server)
                             .get("/api/v1/chats/" + chat._id)
-                            .send(message)
                             .set("Content-Type", "application/json")
                             .set("Authorization", "Bearer " + clientTokenTwo)
                             .end(function (err, res) {

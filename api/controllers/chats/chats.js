@@ -367,37 +367,7 @@ router.route('/:id/messages')
                         });
                     });
                 })
-            }
-            else if (
-                chat.status === constants.chats.chatStatusNames.accepted
-            ) { // If this is creator's third message, Chat's state will change to EXHAUSTED and, 18 hours later, it will change to EXPIRED.
-                Message.find({chat: chat._id}, function (err, messages) {
-                    if (err) return response.status(500).json(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
-                    let ownMessages = messages.filter(function (message) {
-                        return message.user._id.toString() === request.user._id.toString();
-                    })
-                    if (ownMessages.length >= constants.chats.maxMessages) {
-                        return response.status(400).json(errorConstants.responseWithError(chat, errorConstants.errorNames.chat_chatExhausted));
-                    }
-                    else {
-                        let saveMessage = function () {
-                            route_utils.post(Message, message, request, response, next, function (err, message) {
-                                pushUtils.sendCreateMessagePush(message);
-                            });
-                        }
-                        if (messages.length >= (2 * constants.chats.maxMessages) - 1) {
-                            chat.status = constants.chats.chatStatusNames.exhausted;
-                            chat.save(function (err, chat) {
-                                if (err) return response.status(500).json(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
-                                redis.deleteCachedResult({_id: chat._id}, Chat.modelName);
-                                saveMessage();
-                            });
-                        }
-                        else {
-                            saveMessage();
-                        }
-                    }
-                });
+
             }
             else if (
                 chat.status === constants.chats.chatStatusNames.exhausted ||
@@ -407,10 +377,30 @@ router.route('/:id/messages')
                 return response.status(400).json(errorConstants.responseWithError(chat, errorConstants.errorNames.chat_chatExhausted));
             }
             else {
-                redis.deleteCachedResult({_id: chat._id}, Chat.modelName, function (err) {
-                    route_utils.post(Message, message, request, response, next, function (err, message) {
-                        pushUtils.sendCreateMessagePush(message);
-                    });
+                // If this is creator's third message, Chat's state will change to EXHAUSTED and, 18 hours later, it will change to EXPIRED.
+                Message.find({chat: chat._id}, function (err, messages) {
+                    if (err) return response.status(500).json(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
+                    let ownMessages = messages.filter(function (message) {
+                        return message.user._id.toString() === request.user._id.toString();
+                    })
+                    if (ownMessages.length >= constants.chats.maxMessages) {
+                        return response.status(400).json(errorConstants.responseWithError(chat, errorConstants.errorNames.chat_chatExhausted));
+                    }
+                    else {
+                        route_utils.post(Message, message, request, response, next, function (err, message) {
+                            pushUtils.sendCreateMessagePush(message);
+                            let chatUser = chat.chatCreator();
+                            chatUser.lastMessageSeen = message._id;
+                            if (messages.length >= (2 * constants.chats.maxMessages) - 1) {
+                                chat.status = constants.chats.chatStatusNames.exhausted;
+                            }
+                            chat.save(function (err, chat) {
+                                if (err) return response.status(500).json(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
+                                redis.deleteCachedResult({_id: chat._id}, Chat.modelName);
+                            });
+
+                        });
+                    }
                 });
             }
         });
