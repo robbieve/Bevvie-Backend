@@ -47,7 +47,7 @@ config = {
     },
     'cache': {
         expireTime: 60 * 60 * 24,
-        enabled: true,
+        enabled: false,
         save_statistics: true,
     },
     'kue': {

@@ -425,7 +425,7 @@ describe('Chats Group', () => {
             });
 
             it('should succeed for created and receiver posting message accepting chat', (done) => {
-                let chat = JSON.parse(JSON.stringify(allChats.chatAccepted));
+                let chat = JSON.parse(JSON.stringify(allChats.chatCreated));
                 let message = {
                     message: "This is a test message"
                 };
