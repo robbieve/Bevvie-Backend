@@ -142,7 +142,7 @@ describe('Chats Group', () => {
                         .set("Content-Type", "application/json")
                         .set("Authorization", "Bearer " + adminToken)
                         .end(function (err, res) {
-                            commonTestUtils.test_errorCode(403,errorConstants.errorCodes(errorConstants.errorNames.chat_chatBlocked), err, res, function () {
+                            commonTestUtils.test_errorCode(403, errorConstants.errorCodes(errorConstants.errorNames.chat_chatBlocked), err, res, function () {
                                 done();
                             });
                         });
@@ -235,11 +235,13 @@ describe('Chats Group', () => {
             it('should succeed with statuses', function (done) {
                 chai.request(server)
                     .get(endpoint)
-                    .query({'status': [
-                        constants.chats.chatStatusNames.created,
-                        constants.chats.chatStatusNames.accepted,
-                        constants.chats.chatStatusNames.exhausted,
-                    ]})
+                    .query({
+                        'status': [
+                            constants.chats.chatStatusNames.created,
+                            constants.chats.chatStatusNames.accepted,
+                            constants.chats.chatStatusNames.exhausted,
+                        ]
+                    })
                     .set("Authorization", "Bearer " + adminToken)
                     .end(function (err, res) {
                         commonTestUtils.test_pagination(err, res, function () {
@@ -362,10 +364,10 @@ describe('Chats Group', () => {
 
     });
     describe('Messages', function () {
-        describe("POST",function () {
+        describe("POST", function () {
             beforeEach((done) => { //Before each test create the object
                 chats.remove({}, (err) => {
-                    block.remove({}, (err)=> {
+                    block.remove({}, (err) => {
                         messages.remove({}, (err) => {
                             commonTestUtils.test_createChat(server, adminToken, allChats.chatCreated, function (realChat) {
                                 allChats.chatCreated = realChat;
@@ -384,7 +386,7 @@ describe('Chats Group', () => {
                     message: "This is a test message"
                 };
                 chai.request(server)
-                    .post("/api/v1/chats/"+chat._id+"/messages")
+                    .post("/api/v1/chats/" + chat._id + "/messages")
                     .send(message)
                     .set("Content-Type", "application/json")
                     .set("Authorization", "Bearer " + clientToken)
@@ -411,12 +413,12 @@ describe('Chats Group', () => {
                             message: "This is a test message"
                         };
                         chai.request(server)
-                            .post("/api/v1/chats/"+chat._id+"/messages")
+                            .post("/api/v1/chats/" + chat._id + "/messages")
                             .send(message)
                             .set("Content-Type", "application/json")
                             .set("Authorization", "Bearer " + clientToken)
                             .end(function (err, res) {
-                                commonTestUtils.test_errorCode(403,errorConstants.errorCodes(errorConstants.errorNames.chat_chatBlocked), err, res, function () {
+                                commonTestUtils.test_errorCode(403, errorConstants.errorCodes(errorConstants.errorNames.chat_chatBlocked), err, res, function () {
                                     done();
                                 });
                             });
@@ -430,7 +432,7 @@ describe('Chats Group', () => {
                     message: "This is a test message"
                 };
                 chai.request(server)
-                    .post("/api/v1/chats/"+chat._id+"/messages")
+                    .post("/api/v1/chats/" + chat._id + "/messages")
                     .send(message)
                     .set("Content-Type", "application/json")
                     .set("Authorization", "Bearer " + clientTokenTwo)
@@ -440,7 +442,7 @@ describe('Chats Group', () => {
                         res.body.should.be.an('object');
                         res.body.should.contain.all.keys('_id', 'message', 'chat');
                         chai.request(server)
-                            .get("/api/v1/chats/"+chat._id)
+                            .get("/api/v1/chats/" + chat._id)
                             .send(message)
                             .set("Content-Type", "application/json")
                             .set("Authorization", "Bearer " + clientTokenTwo)
@@ -455,15 +457,15 @@ describe('Chats Group', () => {
 
                     });
             });
-            it('should succeed for third message and chat exhausted', (done) => {
+            it('should fail for fourth message ', (done) => {
                 let chat = JSON.parse(JSON.stringify(allChats.chatAccepted));
                 let message = {
                     message: "This is a test message"
                 };
-                async.eachSeries([message,message,message],
+                async.eachSeries([message, message, message],
                     function (aMessage, doneMessage) {
                         chai.request(server)
-                            .post("/api/v1/chats/"+chat._id+"/messages")
+                            .post("/api/v1/chats/" + chat._id + "/messages")
                             .send(aMessage)
                             .set("Content-Type", "application/json")
                             .set("Authorization", "Bearer " + clientToken)
@@ -474,12 +476,57 @@ describe('Chats Group', () => {
                                 res.body.should.contain.all.keys('_id', 'message', 'chat');
                                 doneMessage()
                             });
+                    },
+                    function (err) {
+                        should.not.exist(err);
+                        chai.request(server)
+                            .post("/api/v1/chats/" + chat._id + "/messages")
+                            .send(message)
+                            .set("Content-Type", "application/json")
+                            .set("Authorization", "Bearer " + clientToken)
+                            .end(function (err, res) {
+                                commonTestUtils.test_errorCode(400, errorConstants.errorCodes(errorConstants.errorNames.chat_chatExhausted), err, res, function () {
+                                    done();
+                                });
+                            });
+                    });
+            });
+            it('should succeed for third message and chat exhausted', (done) => {
+                let chat = JSON.parse(JSON.stringify(allChats.chatAccepted));
+                let message = {
+                    message: "This is a test message"
+                };
+                async.eachSeries([message, message, message],
+                    function (aMessage, doneMessage) {
+                        chai.request(server)
+                            .post("/api/v1/chats/" + chat._id + "/messages")
+                            .send(aMessage)
+                            .set("Content-Type", "application/json")
+                            .set("Authorization", "Bearer " + clientToken)
+                            .end(function (err, res) {
+                                res.should.have.status(201);
+                                res.should.be.json;
+                                res.body.should.be.an('object');
+                                res.body.should.contain.all.keys('_id', 'message', 'chat');
+                                chai.request(server)
+                                    .post("/api/v1/chats/" + chat._id + "/messages")
+                                    .send(aMessage)
+                                    .set("Content-Type", "application/json")
+                                    .set("Authorization", "Bearer " + clientTokenTwo)
+                                    .end(function (err, res) {
+                                        res.should.have.status(201);
+                                        res.should.be.json;
+                                        res.body.should.be.an('object');
+                                        res.body.should.contain.all.keys('_id', 'message', 'chat');
+                                        doneMessage()
+                                    });
+                            });
 
                     },
                     function (err) {
                         should.not.exist(err);
                         chai.request(server)
-                            .get("/api/v1/chats/"+chat._id)
+                            .get("/api/v1/chats/" + chat._id)
                             .send(message)
                             .set("Content-Type", "application/json")
                             .set("Authorization", "Bearer " + clientToken)
@@ -499,7 +546,7 @@ describe('Chats Group', () => {
                     message: "This is a test message"
                 };
                 chai.request(server)
-                    .post("/api/v1/chats/"+chat._id+"/messages")
+                    .post("/api/v1/chats/" + chat._id + "/messages")
                     .send(message)
                     .set("Content-Type", "application/json")
                     .set("Authorization", "Bearer " + clientToken)
@@ -516,7 +563,7 @@ describe('Chats Group', () => {
                     user: "badId"
                 }];
                 chai.request(server)
-                    .post("/api/v1/chats/"+chat._id+"/messages")
+                    .post("/api/v1/chats/" + chat._id + "/messages")
                     .send(chat)
                     .set("Content-Type", "application/json")
                     .set("Authorization", "Bearer " + adminToken)
@@ -527,7 +574,7 @@ describe('Chats Group', () => {
                     });
             });
         });
-        describe("GET",function () {
+        describe("GET", function () {
             let message;
             beforeEach((done) => { //Before each test create the object
                 chats.remove({}, (err) => {
@@ -548,7 +595,7 @@ describe('Chats Group', () => {
             });
             it('should fail with no auth header', (done) => {
                 chai.request(server)
-                    .get("/api/v1/chats/"+message.chat+"/messages")
+                    .get("/api/v1/chats/" + message.chat + "/messages")
                     .set("Content-Type", "application/json")
                     .end(function (err, res) {
                         res.should.have.status(401);
@@ -557,7 +604,7 @@ describe('Chats Group', () => {
             });
             it('should succeed with client token', (done) => {
                 chai.request(server)
-                    .get("/api/v1/chats/"+message.chat+"/messages")
+                    .get("/api/v1/chats/" + message.chat + "/messages")
                     .set("Content-Type", "application/json")
                     .set("Authorization", "Bearer " + clientToken)
                     .end(function (err, res) {
@@ -570,7 +617,7 @@ describe('Chats Group', () => {
             });
             it('should succeed with admin token', (done) => {
                 chai.request(server)
-                    .get("/api/v1/chats/"+message.chat+"/messages")
+                    .get("/api/v1/chats/" + message.chat + "/messages")
                     .set("Content-Type", "application/json")
                     .set("Authorization", "Bearer " + adminToken)
                     .end(function (err, res) {
@@ -584,8 +631,8 @@ describe('Chats Group', () => {
 
             it('should succeed with date', function (done) {
                 chai.request(server)
-                    .get("/api/v1/chats/"+message.chat+"/messages")
-                    .query({'fromDate': moment().add(-1,"minute").toISOString()})
+                    .get("/api/v1/chats/" + message.chat + "/messages")
+                    .query({'fromDate': moment().add(-1, "minute").toISOString()})
                     .set("Authorization", "Bearer " + adminToken)
                     .end(function (err, res) {
                         commonTestUtils.test_pagination(err, res, function () {
@@ -599,7 +646,7 @@ describe('Chats Group', () => {
         })
     })
     describe('Reject', function () {
-        describe("POST",function () {
+        describe("POST", function () {
             beforeEach((done) => { //Before each test create the object
                 chats.remove({}, (err) => {
                     messages.remove({}, (err) => {
@@ -616,7 +663,7 @@ describe('Chats Group', () => {
             it('should succeed for good values', (done) => {
                 let chat = JSON.parse(JSON.stringify(allChats.chatAccepted));
                 chai.request(server)
-                    .post("/api/v1/chats/"+chat._id+"/reject")
+                    .post("/api/v1/chats/" + chat._id + "/reject")
                     .set("Content-Type", "application/json")
                     .set("Authorization", "Bearer " + clientTokenTwo)
                     .end(function (err, res) {
@@ -631,7 +678,7 @@ describe('Chats Group', () => {
             it('should fail for created chat and creator calling', (done) => {
                 let chat = JSON.parse(JSON.stringify(allChats.chatAccepted));
                 chai.request(server)
-                    .post("/api/v1/chats/"+chat._id+"/reject")
+                    .post("/api/v1/chats/" + chat._id + "/reject")
                     .set("Content-Type", "application/json")
                     .set("Authorization", "Bearer " + clientToken)
                     .end(function (err, res) {

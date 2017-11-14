@@ -72,38 +72,42 @@ router.route('/')
                 let creator = newObject.members.filter(function (element) {
                     return element && element.user && element.creator;
                 });
-                if (!creator || creator.length===0){ notCreators = [];}
-                if (!notCreators || notCreators.length===0){ notCreators = []; }
-                async.each(notCreators,function (userDest,blockDone) {
+                if (!creator || creator.length === 0) {
+                    notCreators = [];
+                }
+                if (!notCreators || notCreators.length === 0) {
+                    notCreators = [];
+                }
+                async.each(notCreators, function (userDest, blockDone) {
                     let aBlock = {
                         userBlocks: userDest.user,
                         userBlocked: creator[0].user,
                         active: true
                     };
-                    Block.findOne(aBlock,function (err, block) {
+                    Block.findOne(aBlock, function (err, block) {
                         if (err) {
                             return response.status(500).json(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
                         }
-                        if (block){
+                        if (block) {
                             err = errorConstants.responseWithError(block, errorConstants.errorNames.chat_chatBlocked);
                         }
                         blockDone(err);
                     });
-                },function (err) {
+                }, function (err) {
                     if (err) return response.status(403).json(err);
                     route_utils.post(Chat, newObject, request, response, next, function (err, chat) {
                         blockExecutionUtils.programChatDeactivation(chat);
                         let theCreators = newObject.members.filter(function (element) {
                             return element && element.user && element.creator;
                         })
-                        if (theCreators && theCreators[0] && theCreators[0].user){
+                        if (theCreators && theCreators[0] && theCreators[0].user) {
                             let message = new Message({
                                 chat: chat._id,
                                 user: theCreators[0].user,
-                                message: request.body.message ? request.body.message:""
+                                message: request.body.message ? request.body.message : ""
                             });
                             message.save(function (err) {
-                                if (err) winston.error("CHATS: There was an error saving the first message "+JSON.stringify(err));
+                                if (err) winston.error("CHATS: There was an error saving the first message " + JSON.stringify(err));
                             })
                         }
                         notCreators.forEach(function (chatUser) {
@@ -295,26 +299,35 @@ router.route('/:id/messages')
     .post(jsonParser,
         expressValidator,
         chatValidator.postOneMessageValidator,
-        function (request,response, next){ // Cannot chat to blocked users
+        function (request, response, next) { // Cannot chat to blocked users
             let notCreators = response.object.members.filter(function (element) {
                 return element && element.user && !element.creator;
             });
-            if (!notCreators || notCreators.length===0){ return next(); }
-            async.each(notCreators,function (userDest,blockDone) {
+            if (!notCreators || notCreators.length === 0) {
+                return next();
+            }
+            async.each(notCreators, function (userDest, blockDone) {
                 let aBlock = {
                     userBlocks: userDest.user,
                     userBlocked: request.user._id,
                     active: true
                 };
-                Block.findOne(aBlock,function (err, block) {
+                Block.findOne(aBlock, function (err, block) {
                     if (err) {
                         return response.status(500).json(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
                     }
-                    if (block){
+                    if (block) {
                         return response.status(403).json(errorConstants.responseWithError(block, errorConstants.errorNames.chat_chatBlocked));
                     }
                     next();
                 });
+            });
+        },
+        function (request, response, next) {
+            Chat.findOne({_id: response.object._id}, function (err, chat) {
+                if (err) return response.status(500).json(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
+                response.object = chat;
+                next();
             });
         },
         function (request, response, next) {
@@ -356,23 +369,35 @@ router.route('/:id/messages')
                 })
             }
             else if (
-                chat.status === constants.chats.chatStatusNames.accepted &&
-                chat.chatCreator().user._id.toString() === request.user._id.toString()
+                chat.status === constants.chats.chatStatusNames.accepted
             ) { // If this is creator's third message, Chat's state will change to EXHAUSTED and, 18 hours later, it will change to EXPIRED.
-                Message.count({chat: chat._id}, function (err, count) {
+                Message.find({chat: chat._id}, function (err, messages) {
                     if (err) return response.status(500).json(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
-                    if (count >= constants.chats.maxMessages - 1) {
-                        chat.status = constants.chats.chatStatusNames.exhausted;
+                    let ownMessages = messages.filter(function (message) {
+                        return message.user._id.toString() === request.user._id.toString();
+                    })
+                    if (ownMessages.length >= constants.chats.maxMessages) {
+                        return response.status(400).json(errorConstants.responseWithError(chat, errorConstants.errorNames.chat_chatExhausted));
                     }
-                    chat.save(function (err, chat) {
-                        if (err) return response.status(500).json(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
-                        redis.deleteCachedResult({_id: chat._id}, Chat.modelName, function (err) {
+                    else {
+                        let saveMessage = function () {
                             route_utils.post(Message, message, request, response, next, function (err, message) {
                                 pushUtils.sendCreateMessagePush(message);
                             });
-                        });
-                    })
-                })
+                        }
+                        if (messages.length >= (2 * constants.chats.maxMessages) - 1) {
+                            chat.status = constants.chats.chatStatusNames.exhausted;
+                            chat.save(function (err, chat) {
+                                if (err) return response.status(500).json(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
+                                redis.deleteCachedResult({_id: chat._id}, Chat.modelName);
+                                saveMessage();
+                            });
+                        }
+                        else {
+                            saveMessage();
+                        }
+                    }
+                });
             }
             else if (
                 chat.status === constants.chats.chatStatusNames.exhausted ||
@@ -424,7 +449,7 @@ router.route('/:id/reject')
             }
             chat.status = constants.chats.chatStatusNames.rejected
             route_utils.post(Chat, chat, request, response, next, function (err, aChat) {
-                pushUtils.sendRejectedChat(aChat,request.user);
+                pushUtils.sendRejectedChat(aChat, request.user);
             });
         });
 

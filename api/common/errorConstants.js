@@ -131,8 +131,8 @@ module.exports.errors = {
         rawError: "User has not accepted to chat yet: ",
     },
     chat_chatExhausted: {
-        localizedError: "No more message available. Chat exhausted.",
-        rawError: "No more message available. Chat exhausted: ",
+        localizedError: "No more messages available. Chat exhausted.",
+        rawError: "No more messages available. Chat exhausted: ",
     },
     chat_chatBlocked: {
         localizedError: "You cannot chat with that user.",
