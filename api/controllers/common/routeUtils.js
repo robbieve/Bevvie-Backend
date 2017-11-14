@@ -364,7 +364,7 @@ utils.sortQuery = function (requestSort,transform,sort = []) {
     });
     if (sort.length===0){
         if (transform["_default"]){
-            return transform["_default"];
+            return [transform["_default"]];
         }
     }
     return sort;

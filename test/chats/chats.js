@@ -695,7 +695,26 @@ describe('Chats Group', () => {
                         });
                     });
             });
-
+            it('should succeed with sort & limit', function (done) {
+                chai.request(server)
+                    .get("/api/v1/chats/" + message.chat + "/messages")
+                    .query({
+                        "sort": {
+                            "field": "createdAt",
+                            "order": constants.sortOrderNames.desc
+                        },
+                        limit: 1
+                    })
+                    .set("Authorization", "Bearer " + adminToken)
+                    .end(function (err, res) {
+                        commonTestUtils.test_pagination(err, res, function () {
+                            res.body.docs.should.be.an('Array');
+                            res.body.docs.should.have.lengthOf(1);
+                            res.body.docs[0]._id.should.equal(message._id);
+                            done();
+                        });
+                    });
+            });
         })
     })
     describe('Reject', function () {

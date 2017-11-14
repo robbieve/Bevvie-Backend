@@ -268,15 +268,42 @@ router.route('/:id/messages')
      *
      * @apiParam {Number} id id of the chat
      * @apiParam {Date} [fromDate] messages from date
+     * @apiParam {Object[]} [sort] sort struct array
+     * @apiParam {String="createdAt"} sort.field=createdAt field to sort with
+     * @apiParam {String="asc","desc"} sort.order=asc whether to sort ascending or descending
+     * @apiParam {String="true","false","all"} active=true match active chats or not
      * @apiSuccess {String}   _id   Id of the chat.
      * @apiUse ErrorGroup
      */
     .get(function (request, response, next) {
-        let options = {sort: [["createdAt", -1]]};
-        let query = {chat: request.params.id};
+        // FILTER
+        let transform = {
+            other: {
+                active: {
+                    _default: true,
+                    _values: {
+                        "false": false,
+                        "all": "_delete",
+                    }
+                },
+            }
+        };
+
+        // SORT
+        let sortTransform = {
+            _default: ["createdAt", 1],
+            createdAt: "createdAt",
+        };
+
+        let query = route_utils.filterQuery(request.query, transform);
+        query["chat"] = request.params.id;
         if (request.query.fromDate) {
             query["createdAt"] = {$gte: request.query.fromDate};
         }
+
+        let options = {sort: []};
+        options.sort = route_utils.sortQuery(request.query.sort, sortTransform, options.sort);
+
         route_utils.getAll(Message,
             query,
             options,
@@ -354,21 +381,6 @@ router.route('/:id/messages')
             ) { // If Chat's state is CREATED and requester's user is Chat's creator, an error will be returned.
                 return response.status(400).json(errorConstants.responseWithError(request.user, errorConstants.errorNames.chat_chatNotYetAccepted));
             }
-           /* else if (
-                chat.status === constants.chats.chatStatusNames.created &&
-                chat.chatCreator().user._id.toString() !== request.user._id.toString()
-            ) { // If Chat's state is CREATED and requester's user isn't Chat's creator, Chat's state will change to ACCEPTED.
-                chat.status = constants.chats.chatStatusNames.accepted;
-                chat.save(function (err, chat) {
-                    if (err) return response.status(500).json(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
-                    redis.deleteCachedResult({_id: chat._id}, Chat.modelName, function (err) {
-                        route_utils.post(Message, message, request, response, next, function (err, message) {
-                            pushUtils.sendCreateMessagePush(message);
-                        });
-                    });
-                })
-
-            }*/
             else if (
                 chat.status === constants.chats.chatStatusNames.exhausted ||
                 chat.status === constants.chats.chatStatusNames.rejected ||
@@ -451,7 +463,7 @@ router.route('/:id/reject')
         })
 
     /**
-     * @api {post} /chats/id/reject Rejects a message
+     * @api {post} /chats/id/reject Rejects a chat
      * @apiName RejectChat
      * @apiVersion 0.9.0
      * @apiGroup Chats
