@@ -354,6 +354,21 @@ router.route('/:id/messages')
             ) { // If Chat's state is CREATED and requester's user is Chat's creator, an error will be returned.
                 return response.status(400).json(errorConstants.responseWithError(request.user, errorConstants.errorNames.chat_chatNotYetAccepted));
             }
+           /* else if (
+                chat.status === constants.chats.chatStatusNames.created &&
+                chat.chatCreator().user._id.toString() !== request.user._id.toString()
+            ) { // If Chat's state is CREATED and requester's user isn't Chat's creator, Chat's state will change to ACCEPTED.
+                chat.status = constants.chats.chatStatusNames.accepted;
+                chat.save(function (err, chat) {
+                    if (err) return response.status(500).json(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
+                    redis.deleteCachedResult({_id: chat._id}, Chat.modelName, function (err) {
+                        route_utils.post(Message, message, request, response, next, function (err, message) {
+                            pushUtils.sendCreateMessagePush(message);
+                        });
+                    });
+                })
+
+            }*/
             else if (
                 chat.status === constants.chats.chatStatusNames.exhausted ||
                 chat.status === constants.chats.chatStatusNames.rejected ||
@@ -363,7 +378,69 @@ router.route('/:id/messages')
             }
             else {
                 // If this is creator's third message, Chat's state will change to EXHAUSTED and, 18 hours later, it will change to EXPIRED.
-                Message.find({chat: chat._id}, function (err, messages) {
+                let ownMessages,messagesList,DBMessage;
+                async.series([
+                    function (doneMes) {
+                        Message.find({chat: chat._id}, function (err, messages) {
+                            if (err) return response.status(500).json(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
+                            ownMessages = messages.filter(function (message) {
+                                return message.user._id.toString() === request.user._id.toString();
+                            })
+                            if (ownMessages.length >= constants.chats.maxMessages) {
+                                return response.status(400).json(errorConstants.responseWithError(chat, errorConstants.errorNames.chat_chatExhausted));
+                            }
+                            messagesList = messages;
+                            doneMes();
+                        });
+                    },
+                    function (doneMes){
+                        DBMessage = Message.mapObject(null, message);
+                        Message.validateObject(DBMessage, function (err) {
+                            if (err) {
+                                return response.status(400).json(err);
+                            }
+                            doneMes();
+                        });
+                    },
+                    function (doneMes){
+                        DBMessage.save(function (err) {
+                            if (err) {
+                                if (err) return response.status(500).json(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
+                            }
+                            doneMes();
+                        });
+                    },
+                    function (doneMes){
+                        let chatUser = chat.members.filter(function (member) {
+                            return member.user._id.toString() === DBMessage.user.toString();
+                        })[0];
+                        if (chatUser){
+                            chatUser.lastMessageSeen = DBMessage._id;
+                        }
+
+                        if (chat.status===constants.chats.chatStatusNames.created) {
+                            chat.status = constants.chats.chatStatusNames.accepted;
+                        }
+                        if (messagesList.length >= (2 * constants.chats.maxMessages) - 1) {
+                            chat.status = constants.chats.chatStatusNames.exhausted;
+                        }
+
+                        chat.save(function (err, chat) {
+                            if (err) return response.status(500).json(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
+                            redis.deleteCachedResult({_id: chat._id}, Chat.modelName);
+                            let query = {_id: DBMessage.id};
+                            // Delete any listings of this kind of object
+                            redis.deleteCachedResult(query, Message.modelName);
+                            doneMes();
+                        });
+                    },
+
+                ],function (err) {
+                    pushUtils.sendCreateMessagePush(DBMessage);
+                    response.status(201).json(DBMessage);
+                })
+
+                /*Message.find({chat: chat._id}, function (err, messages) {
                     if (err) return response.status(500).json(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
                     let ownMessages = messages.filter(function (message) {
                         return message.user._id.toString() === request.user._id.toString();
@@ -372,26 +449,59 @@ router.route('/:id/messages')
                         return response.status(400).json(errorConstants.responseWithError(chat, errorConstants.errorNames.chat_chatExhausted));
                     }
                     else {
-                        route_utils.post(Message, message, request, response, next, function (err, message) {
-                            pushUtils.sendCreateMessagePush(message);
-                            let chatUser = chat.members.filter(function (member) {
-                                return member.user._id.toString() === message.user.toString();
-                            })[0];
-                            chatUser.lastMessageSeen = message._id;
-                            if (messages.length >= (2 * constants.chats.maxMessages) - 1) {
-                                chat.status = constants.chats.chatStatusNames.exhausted;
+                        let newDBObject = Message.mapObject(null, message);
+                        Message.validateObject(newDBObject, function (err) {
+                            if (err) {
+                                return response.status(400).json(err);
                             }
-                            else{
-                                chat.status = constants.chats.chatStatusNames.accepted;
-                            }
-                            chat.save(function (err, chat) {
-                                if (err) return response.status(500).json(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
-                                redis.deleteCachedResult({_id: chat._id}, Chat.modelName);
-                            });
+                            else {
+                                newDBObject.save(function (err) {
+                                    if (err) {
+                                        if (callback) callback(err);
+                                        return dbError(err, request, response, next)
+                                    }
+                                    else {
+                                        let aMessage = newDBObject;
+                                        pushUtils.sendCreateMessagePush(aMessage);
+                                        let chatUser = chat.members.filter(function (member) {
+                                            return member.user._id.toString() === aMessage.user.toString();
+                                        })[0];
 
-                        });
+                                        chatUser.lastMessageSeen = aMessage._id;
+                                        if (chat.status===constants.chats.chatStatusNames.created) {
+                                            chat.status = constants.chats.chatStatusNames.accepted;
+                                        }
+                                        if (messages.length >= (2 * constants.chats.maxMessages) - 1) {
+                                            chat.status = constants.chats.chatStatusNames.exhausted;
+                                        }
+
+                                        chat.save(function (err, chat) {
+                                            if (err) return response.status(500).json(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
+                                            redis.deleteCachedResult({_id: chat._id}, Chat.modelName);
+                                            response.status(201).json(newDBObject);
+                                            let query = {_id: newDBObject.id};
+
+                                            // Delete any listings of this kind of object
+                                            redis.deleteCachedResult(query, Message.modelName, function (err) {
+                                                if (err) {
+                                                    return;
+                                                }
+                                                if (!newDBObject["expiration"]) {
+                                                    redis.setCachedResult(query, Message.modelName, newDBObject);
+                                                }
+                                            });
+
+                                        });
+
+                                    }
+                                })
+                            }
+                        })
+
+
+
                     }
-                });
+                });*/
             }
         });
 

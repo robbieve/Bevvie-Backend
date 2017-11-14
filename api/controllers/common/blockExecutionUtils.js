@@ -61,7 +61,7 @@ module.exports.deactivationJobType = function (kue) {
     }
 };
 
-module.exports.programChatDeactivation = function (chat, delay = 18* 60 * 60 * 1000 ,callback = function () {}) {
+module.exports.programChatDeactivation = function (chat, delay = config.chatMaxTime ,callback = function () {}) {
     let job = kue.createJob("deactivateChat", {
         chat: chat
     });
