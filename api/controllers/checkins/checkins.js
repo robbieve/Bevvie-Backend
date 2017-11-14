@@ -35,7 +35,9 @@ function _prepost(request, response, next, callback) {
     User.findOne({_id: newObject.user},function (err,theUser) {
         if (err) return response.status(500).json(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
         if (!theUser) return response.status(404).json(errorConstants.responseWithError(request.user.id,errorConstants.errorNames.notFound));
-        newObject.user_age = theUser.age ? theUser.age : constants.users.maxAge ;
+        newObject.user_age = theUser.birthday?
+             moment().diff(theUser.birthday, 'years',false):
+            constants.users.maxAge ;
         Venue.findOne({_id: newObject.venue},function (err,theVenue) {
                 newObject.expiration = moment().add(theVenue.maxTimePerCheck(),"seconds");
                 callback(newObject);

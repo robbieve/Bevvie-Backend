@@ -1,4 +1,7 @@
 {
+  "_dependencies": {
+    "moment": "moment"
+  },
   "users": {
     "_model": "User",
     "user1": {
@@ -7,7 +10,7 @@
       "name": "user1",
       "images":["->images.user1"],
       "admin": false,
-      "age": 20
+      "birthday": "=moment().add(-20,'year')"
     },
     "user2": {
       "accessType": "password",
@@ -15,7 +18,7 @@
       "name": "user2",
       "images":["->images.user2"],
       "admin": false,
-      "age": 30
+      "birthday": "=moment().add(-30,'year')"
     },
     "user3": {
       "accessType": "password",
@@ -23,7 +26,7 @@
       "name": "user3",
       "images":["->images.user3"],
       "admin": false,
-      "age": 40
+      "birthday": "=moment().add(-40,'year')"
     },
     "user4": {
       "accessType": "password",
@@ -31,7 +34,7 @@
       "name": "user4",
       "images":["->images.user4"],
       "admin": false,
-      "age": 50
+      "birthday": "=moment().add(-50,'year')"
     },
     "user5": {
       "accessType": "password",
@@ -39,7 +42,7 @@
       "name": "user5",
       "images":["->images.user5"],
       "admin": false,
-      "age": 60
+      "birthday": "=moment().add(-60,'year')"
     },
     "user6": {
       "accessType": "password",
@@ -47,7 +50,7 @@
       "name": "user6",
       "images":["->images.user6"],
       "admin": false,
-      "age": 70
+      "birthday": "=moment().add(-70,'year')"
     },
     "user7": {
       "accessType": "password",
@@ -55,7 +58,7 @@
       "name": "user blocked",
       "images":["->images.user7"],
       "admin": false,
-      "age": 30
+      "birthday": "=moment().add(-30,'year')"
     },
     "user10": {
       "accessType": "password",
@@ -63,7 +66,7 @@
       "images":["->images.user1"],
       "name": "user10",
       "admin": false,
-      "age": 20
+      "birthday": "=moment().add(-20,'year')"
     },
     "user11": {
       "accessType": "password",
@@ -71,7 +74,7 @@
       "images":["->images.user2"],
       "name": "user11",
       "admin": false,
-      "age": 20
+      "birthday": "=moment().add(-20,'year')"
     },
     "user12": {
       "accessType": "password",
@@ -79,7 +82,7 @@
       "images":["->images.user4"],
       "name": "user12",
       "admin": false,
-      "age": 30
+      "birthday": "=moment().add(-30,'year')"
     },
     "user13": {
       "accessType": "password",
@@ -87,7 +90,7 @@
       "name": "user13",
       "images":["->images.user3"],
       "admin": false,
-      "age": 40
+      "birthday": "=moment().add(-40,'year')"
     },
     "user14": {
       "accessType": "password",
@@ -95,7 +98,7 @@
       "name": "user14",
       "images":["->images.user7"],
       "admin": false,
-      "age": 50
+      "birthday": "=moment().add(-50,'year')"
     },
     "user15": {
       "accessType": "password",
@@ -103,7 +106,7 @@
       "name": "user15",
       "images":["->images.user4"],
       "admin": false,
-      "age": 60
+      "birthday": "=moment().add(-60,'year')"
     },
     "user16": {
       "accessType": "password",
@@ -111,7 +114,7 @@
       "name": "user16",
       "images":["->images.user6"],
       "admin": false,
-      "age": 70
+      "birthday": "=moment().add(-70,'year')"
     },
     "user17": {
       "accessType": "password",
@@ -119,7 +122,7 @@
       "name": "user17",
       "images":["->images.user7"],
       "admin": false,
-      "age": 40
+      "birthday": "=moment().add(-40,'year')"
     },
     "user18": {
       "accessType": "password",
@@ -127,7 +130,7 @@
       "name": "user18",
       "images":["->images.user3"],
       "admin": false,
-      "age": 50
+      "birthday": "=moment().add(-50,'year')"
     },
     "user19": {
       "accessType": "password",
@@ -135,7 +138,7 @@
       "name": "user19",
       "images":["->images.user2"],
       "admin": false,
-      "age": 60
+      "birthday": "=moment().add(-60,'year')"
     },
     "user20": {
       "accessType": "password",
@@ -143,14 +146,14 @@
       "name": "user20",
       "images":["->images.user1"],
       "admin": false,
-      "age": 70
+      "birthday": "=moment().add(-70,'year')"
     },
     "user21": {
       "accessType": "password",
       "password": "Develapps16",
       "name": "user21",
       "admin": false,
-      "age": 70
+      "birthday": "=moment().add(-70,'year')"
     }
   }
 }

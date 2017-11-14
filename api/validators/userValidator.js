@@ -21,11 +21,14 @@ module.exports.postUpdateValidator = function (request, response, next) {
     request.checkParams('id', 'No valid id provided').isObjectId();
     request.checkBody('admin', 'No valid admin value provided').optional().isBoolean();
     request.checkBody('image', 'No valid image provided').optional().isObjectId();
+    request.checkBody('birthday', 'No valid image provided').optional().isISO8601();
+    request.checkBody('country', 'No valid country field provided').optional().isIn(constants.allCountries);
+    request.checkBody('languages', 'No valid languages field provided').optional().isArrayAndIsIn(constants.allLanguages);
+
     commonFunctions.validate(request,response,next);
 };
 
 module.exports.postValidateValidator = function (request, response, next) {
-
     request.checkParams('id', 'No valid id provided').isObjectId();
     request.checkBody('validated_images', 'No valid validated_images value provided').isArrayOfObjectId();
     request.checkBody('rejected_images', 'No valid rejected_images provided').isArrayOfObjectId();

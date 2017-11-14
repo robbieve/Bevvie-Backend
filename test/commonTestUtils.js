@@ -189,7 +189,7 @@ exports.test_errorCode = function (expectedCode, expectedErrorCode, err, res, ca
 exports.userConstants = {
     "admin": {
         'name': 'admin',
-        "age": 22,
+        "birthday": moment("19951031", "YYYYMMDD"),
         'country': "ES",
         "languages": ["es", "en"],
         "accessType": constants.users.accessTypeNames.password,
@@ -198,7 +198,7 @@ exports.userConstants = {
     },
     "userOne": {
         'name': 'userOne',
-        "age": 20,
+        "birthday": moment("19971031", "YYYYMMDD"),
         'country': "GB",
         "languages": ["en"],
         "accessType": constants.users.accessTypeNames.password,
@@ -206,7 +206,7 @@ exports.userConstants = {
     },
     "userTwo": {
         'name': 'userTwo',
-        "age": 40,
+        "birthday": moment("19771031", "YYYYMMDD"),
         'country': "ES",
         "languages": ["es"],
         "accessType": constants.users.accessTypeNames.password,

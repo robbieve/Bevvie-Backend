@@ -202,7 +202,7 @@ router.route('/:id')
     /**
      * @api {post} /users/id Modify user
      * @apiName ModifyUser
-     * @apiVersion 0.2.0
+     * @apiVersion 0.15.0
      * @apiGroup Users
      * @apiUse AuthorizationTokenHeader
      *

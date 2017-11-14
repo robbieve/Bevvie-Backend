@@ -35,6 +35,25 @@ let redis = require("lib/redis/redis");
 let config = require("config");
 let winston = require('lib/loggers/logger').winston;
 
+
+let testDictionary = {
+    User: {
+        good: commonTestUtils.userConstants.userOne,
+        goodVariants: {
+            accessType: [constants.users.accessTypeNames.firebase,constants.users.accessTypeNames.facebook],
+            country: ["US","GB"],
+            languages: [["en","es"],[]],
+            birthday: [moment("20101010","YYYYMMDD")],
+        },
+        bad: {
+            accessType: ["badAccess"],
+            country: ["falseCountry"],
+            languages: [["notAlanguage"],["esp"]],
+            birthday: ["35"],
+        }
+    }
+};
+
 describe('Users Group', () => {
     before(function (done) {
         async.series([
@@ -359,6 +378,7 @@ describe('Users Group', () => {
                         commonTestUtils.test_createUser(server, commonTestUtils.userConstants.admin, function (res) {
                             adminToken = res.token;
                             adminUser = res.user;
+
                             isDone()
                         });
                     },
@@ -368,6 +388,7 @@ describe('Users Group', () => {
                         commonTestUtils.test_createUser(server, temp, function (res) {
                             token = res.token;
                             aUser = res.user;
+                            testDictionary.User.good=res.user;
                             isDone()
                         });
                     },
@@ -438,6 +459,54 @@ describe('Users Group', () => {
                         done();
                     })
                 });
+        });
+        Object.keys(testDictionary).forEach(function (variants) {
+            let goodArguments = testDictionary[variants]["good"];
+            let goodArgumentsVariants = testDictionary[variants]["goodVariants"];
+            let badArguments = testDictionary[variants]["bad"];
+            describe('user/id with ' + variants + ' arguments', () => {
+                Object.keys(goodArgumentsVariants).forEach(function (goodKey) {
+                    let goodValues = goodArgumentsVariants[goodKey];
+                    goodValues.forEach(function (goodValue) {
+                        let temp = JSON.parse(JSON.stringify(goodArguments));
+                        temp[goodKey] = goodValue;
+                        it('should succeed for good ' + goodKey + ' value ' + JSON.stringify(goodValue), (done) => {
+                            chai.request(server)
+                                .post(endpoint + '/' + testDictionary.User.good._id)
+                                .send(temp)
+                                .set("Content-Type", "application/json")
+                                .set("Authorization", "Bearer " + adminToken)
+                                .end(function (err, res) {
+                                    res.should.have.status(200);
+                                    res.should.be.json;
+                                    res.body.should.be.an('object');
+                                    res.body.should.have.property('_id');
+                                    res.body.should.have.property('name');
+                                    done();
+                                });
+                        });
+                    });
+                });
+                Object.keys(badArguments).forEach(function (badKey) {
+                    let badValues = badArguments[badKey];
+                    badValues.forEach(function (badValue) {
+                        let temp = JSON.parse(JSON.stringify(goodArguments));
+                        temp[badKey] = badValue;
+                        it('should fail for bad ' + badKey + ' value ' + JSON.stringify(badValue), (done) => {
+                            chai.request(server)
+                                .post(endpoint + '/' + testDictionary.User.good._id)
+                                .send(temp)
+                                .set("Content-Type", "application/json")
+                                .set("Authorization", "Bearer " + adminToken)
+                                .end(function (err, res) {
+                                    commonTestUtils.test_error(400, err, res, function () {
+                                        done();
+                                    });
+                                });
+                        });
+                    });
+                });
+            });
         });
     });
     describe('DELETE', function () {

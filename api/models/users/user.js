@@ -15,7 +15,7 @@ let mongooseValidators = require('lib/validation/mongooseValidators');
  * @apiParam (User Model) {String} [accessKey] token of the auth service
  * @apiParam (User Model) {String="facebook","firebase","password"} [accessType=password] type of auth
  * @apiParam (User Model) {String} name
- * @apiParam (User Model) {Number} [age]
+ * @apiParam (User Model) {Date} [birthday]
  * @apiParam (User Model) {String} [country] ISO String
  * @apiParam (User Model) {String} [about] About bio
  * @apiParam (User Model) {String[]} languages array (ISO) of languages spoken
@@ -55,7 +55,7 @@ let userSchema = new Schema({
         required: true,
     },
     name: {type: String, required: true, trim: true},
-    age: {type: Number },
+    birthday: {type: Date},
     country: {
         type: String,
         enum: {
