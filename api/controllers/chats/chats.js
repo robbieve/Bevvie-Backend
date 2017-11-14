@@ -355,21 +355,6 @@ router.route('/:id/messages')
                 return response.status(400).json(errorConstants.responseWithError(request.user, errorConstants.errorNames.chat_chatNotYetAccepted));
             }
             else if (
-                chat.status === constants.chats.chatStatusNames.created &&
-                chat.chatCreator().user._id.toString() !== request.user._id.toString()
-            ) { // If Chat's state is CREATED and requester's user isn't Chat's creator, Chat's state will change to ACCEPTED.
-                chat.status = constants.chats.chatStatusNames.accepted;
-                chat.save(function (err, chat) {
-                    if (err) return response.status(500).json(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
-                    redis.deleteCachedResult({_id: chat._id}, Chat.modelName, function (err) {
-                        route_utils.post(Message, message, request, response, next, function (err, message) {
-                            pushUtils.sendCreateMessagePush(message);
-                        });
-                    });
-                })
-
-            }
-            else if (
                 chat.status === constants.chats.chatStatusNames.exhausted ||
                 chat.status === constants.chats.chatStatusNames.rejected ||
                 chat.status === constants.chats.chatStatusNames.expired
@@ -389,10 +374,15 @@ router.route('/:id/messages')
                     else {
                         route_utils.post(Message, message, request, response, next, function (err, message) {
                             pushUtils.sendCreateMessagePush(message);
-                            let chatUser = chat.chatCreator();
+                            let chatUser = chat.members.filter(function (member) {
+                                return member.user._id.toString() === message.user.toString();
+                            })[0];
                             chatUser.lastMessageSeen = message._id;
                             if (messages.length >= (2 * constants.chats.maxMessages) - 1) {
                                 chat.status = constants.chats.chatStatusNames.exhausted;
+                            }
+                            else{
+                                chat.status = constants.chats.chatStatusNames.accepted;
                             }
                             chat.save(function (err, chat) {
                                 if (err) return response.status(500).json(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
