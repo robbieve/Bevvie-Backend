@@ -208,11 +208,11 @@ describe('Venues Group', () => {
                         done();
                     });
             });
-            it('should succeed with client token', (done) => {
+            it('should succeed with auth token', (done) => {
                 chai.request(server)
                     .get(endpoint)
                     .set("Content-Type", "application/json")
-                    .set("Authorization", "Bearer " + clientToken)
+                    .set("register-token", configAuth.baseToken)
                     .end(function (err, res) {
                         commonTestUtils.test_pagination(err, res, function () {
                             res.body.docs.should.be.an('Array');
@@ -221,24 +221,11 @@ describe('Venues Group', () => {
                         });
                     });
             });
-            it('should succeed with admin token', (done) => {
+            it('should succeed with images', (done) => {
                 chai.request(server)
                     .get(endpoint)
                     .set("Content-Type", "application/json")
-                    .set("Authorization", "Bearer " + adminToken)
-                    .end(function (err, res) {
-                        commonTestUtils.test_pagination(err, res, function () {
-                            res.body.docs.should.be.an('Array');
-                            res.body.docs.should.have.lengthOf(2);
-                            done();
-                        });
-                    });
-            });
-            it('should succeed with images data token', (done) => {
-                chai.request(server)
-                    .get(endpoint)
-                    .set("Content-Type", "application/json")
-                    .set("Authorization", "Bearer " + adminToken)
+                    .set("register-token", configAuth.baseToken)
                     .end(function (err, res) {
                         commonTestUtils.test_pagination(err, res, function () {
                             res.body.docs.should.be.an('Array');
@@ -252,7 +239,7 @@ describe('Venues Group', () => {
                 chai.request(server)
                     .get(endpoint)
                     .query({'active': false})
-                    .set("Authorization", "Bearer " + adminToken)
+                    .set("register-token", configAuth.baseToken)
                     .end(function (err, res) {
                         commonTestUtils.test_pagination(err, res, function () {
                             res.body.docs.should.be.an('Array');
@@ -265,7 +252,7 @@ describe('Venues Group', () => {
                 chai.request(server)
                     .get(endpoint)
                     .query({'active': "all"})
-                    .set("Authorization", "Bearer " + adminToken)
+                    .set("register-token", configAuth.baseToken)
                     .end(function (err, res) {
                         commonTestUtils.test_pagination(err, res, function () {
                             res.body.docs.should.be.an('Array');
@@ -278,7 +265,7 @@ describe('Venues Group', () => {
                 chai.request(server)
                     .get(endpoint)
                     .query({'name': 'easant'})
-                    .set("Authorization", "Bearer " + adminToken)
+                    .set("register-token", configAuth.baseToken)
                     .end(function (err, res) {
                         commonTestUtils.test_pagination(err, res, function () {
                             res.body.docs.should.be.an('Array');
@@ -294,7 +281,7 @@ describe('Venues Group', () => {
                         chai.request(server)
                             .get(endpoint)
                             .query({'geo': {long: 0, lat: 40, dist: 300000}})
-                            .set("Authorization", "Bearer " + adminToken)
+                            .set("register-token", configAuth.baseToken)
                             .end(function (err, res) {
                                 should.not.exist(err);
                                 res.body.docs.should.be.an('Array');
@@ -310,7 +297,7 @@ describe('Venues Group', () => {
                         chai.request(server)
                             .get(endpoint)
                             .set("Content-Type", "application/json")
-                            .set("Authorization", "Bearer " + adminToken)
+                            .set("register-token", configAuth.baseToken)
                             .query({'geo': {long: 0, lat: 40, dist: 300000}})
                             .end(function (err, res) {
                                 should.not.exist(err);
@@ -334,7 +321,7 @@ describe('Venues Group', () => {
                             chai.request(server)
                                 .get(endpoint)
                                 .query({'geo': {long: 0, lat: 40, dist: 300000}})
-                                .set("Authorization", "Bearer " + adminToken)
+                                .set("register-token", configAuth.baseToken)
                                 .end(function (err, res) {
                                     should.not.exist(err);
                                     res.body.docs.should.be.an('Array');
@@ -353,7 +340,7 @@ describe('Venues Group', () => {
                         chai.request(server)
                             .get(endpoint)
                             .query({'geo': {long: 0, lat: 40, dist: 66800}})
-                            .set("Authorization", "Bearer " + adminToken)
+                            .set("register-token", configAuth.baseToken)
                             .end(function (err, res) {
                                 should.not.exist(err);
                                 res.body.docs.should.be.an('Array');

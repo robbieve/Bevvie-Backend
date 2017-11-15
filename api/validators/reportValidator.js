@@ -15,7 +15,7 @@ module.exports.getValidator = function (request, response, next) {
     request.checkQuery('userReports', 'No valid userReports provided').optional().isObjectId();
     request.checkQuery('userReported', 'No valid userReported provided').optional().isObjectId();
     request.checkQuery('limit', 'No valid limit provided').optional().isNumeric();
-    request.checkQuery('offset', 'No valid limit provided').optional().isNumeric();
+    request.checkQuery('offset', 'No valid offset provided').optional().isNumeric();
     request.checkQuery('active', 'No valid active provided').optional().isAlpha();
     commonFunctions.validate(request,response,next);};
 

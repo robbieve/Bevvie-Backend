@@ -61,13 +61,13 @@ router.route('/')
      * @apiUse CheckinParameters
      * @apiSuccess (201) {String} _id the checkin's id
      * @apiUse ErrorGroup
+     * @apiUse PaginationGroup
      */
     .post(jsonParser,
         expressValidator,
         checkinValidator.postValidator,
         function (request, response, next) {
             _prepost(request, response, next, function (newObject) {
-
                 Checkin.remove({user: request.user._id},function (err) {
                     if (err) return response.status(500).json(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
                     route_utils.post(Checkin, newObject, request, response, next);
@@ -84,8 +84,6 @@ router.route('/')
      *
      * @apiHeader  {String} Accept-Language=es Accepted language.
      *
-     * @apiParam {Number} [limit] number of slices to get
-     * @apiParam {Number} [offset] start of slices to get
      * @apiParam {String} [venue] id of the venue to match on checkin name
      * @apiParam {String} [user] id of the user to match on checkin name
      * @apiParam {String} [maxAge] max age of the users
@@ -99,6 +97,7 @@ router.route('/')
      * @apiSuccess {String}   docs._id   Id of the checkin.
      * @apiSuccess {String}   docs.versionNumber   versionNumber of the checkin.
      * @apiUse ErrorGroup
+     * @apiUse PaginationGroup
      */
     .get(expressValidator,
         checkinValidator.getValidator,

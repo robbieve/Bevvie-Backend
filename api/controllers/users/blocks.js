@@ -59,8 +59,6 @@ router.route('/')
      *
      * @apiHeader  {String} Accept-Language=es Accepted language.
      *
-     * @apiParam {Number} [limit] number of slices to get
-     * @apiParam {Number} [offset] start of slices to get
      * @apiParam {String} [userBlocks] id of the user who blocks to match
      * @apiParam {String} [userBlocked] id of the user who is blocked to match
      * @apiParam {Object[]} [sort] sort struct array
@@ -72,6 +70,7 @@ router.route('/')
      * @apiSuccess {String}   docs._id   Id of the block.
      * @apiSuccess {String}   docs.versionNumber   versionNumber of the block.
      * @apiUse ErrorGroup
+     * @apiUse PaginationGroup
      */
     .get(expressValidator,
         blockValidator.getValidator,

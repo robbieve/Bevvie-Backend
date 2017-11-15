@@ -128,8 +128,6 @@ router.route('/')
      *
      * @apiHeader  {String} Accept-Language=es Accepted language.
      *
-     * @apiParam {Number} [limit] number of slices to get
-     * @apiParam {Number} [offset] start of slices to get
      * @apiParam {String="created","accepted","rejected","exhausted","expired"} [status] status to match. Might be an array
      * @apiParam {String} [user] id of a user in the chat
      * @apiParam {Object[]} [sort] sort struct array
@@ -141,6 +139,7 @@ router.route('/')
      * @apiSuccess {String}   docs._id   Id of the chat.
      * @apiSuccess {String}   docs.versionNumber   versionNumber of the chat.
      * @apiUse ErrorGroup
+     * @apiUse PaginationGroup
      */
     .get(expressValidator,
         chatValidator.getValidator,

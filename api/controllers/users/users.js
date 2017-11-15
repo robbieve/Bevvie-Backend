@@ -44,8 +44,6 @@ router.route('/')
      * @apiHeader  {String} Accept-Language=es Accepted language.
      * @apiUse AuthorizationTokenHeader
      *
-     * @apiParam {Number} limit number of slices to get
-     * @apiParam {Number} offset start of slices to get
      * @apiParam {String} name name search on user
      * @apiParam {String} text text search on user
      * @apiParam {String="true","false","pending"} [validated] filter by validated.
@@ -59,6 +57,7 @@ router.route('/')
      * @apiSuccess {Object[]} data       List of users.
      * @apiSuccess {String}   data._id   Id of the users.
      * @apiUse ErrorGroup
+     * @apiUse PaginationGroup
      */
     .get(expressValidator,
         userValidator.getValidator,

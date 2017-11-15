@@ -130,8 +130,6 @@ router.route('/')
      * @apiVersion 0.1.0
      * @apiGroup Images
      *
-     * @apiParam {Number} [limit] number of slices to get
-     * @apiParam {Number} [offset] start of slices to get
      * @apiParam {String} [imageName] text to match on image name
      * @apiParam {String} [placeholderName] text to match on placeholder name.
      * @apiParam {String} [contentType] text to match content
@@ -143,6 +141,7 @@ router.route('/')
      * @apiSuccess {Object[]} docs       List of objects.
      * @apiSuccess {String}   docs._id   Id of the objects.
      * @apiUse ErrorGroup
+     * @apiUse PaginationGroup
      */
     .get(expressValidator, validator.getValidator, function (request, response, next) {
         // FILTER

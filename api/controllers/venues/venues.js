@@ -5,7 +5,7 @@ let router = express.Router();
 let passport = require('passport');
 // parser
 const jsonParser = require('lib/parsers/jsonBodyParser');
-
+const configAuth = require("config").auth;
 // DB
 let Venue = require('api/models/venues/venue');
 let Checkin = require('api/models/checkins/checkin');
@@ -40,7 +40,7 @@ function _prepost(request, response, next, callback) {
 
 // Default route
 router.route('/')
-    .all(passport.authenticate('bearer', {session: false}))
+    .all()
     /**
      * @api {post} /venues Post new venue
      * @apiName PostNewVenue
@@ -52,7 +52,9 @@ router.route('/')
      * @apiSuccess (201) {String} _id the venue's id
      * @apiUse ErrorGroup
      */
-    .post(jsonParser,
+    .post(
+        passport.authenticate('bearer', {session: false})
+        ,jsonParser,
         expressValidator,
         venueValidator.postValidator,
         function (request, response, next) {
@@ -64,14 +66,12 @@ router.route('/')
     /**
      * @api {get} /venues Get venues
      * @apiName GetVenues
-     * @apiVersion 0.5.0
+     * @apiVersion 0.16.0
      * @apiGroup Venues
-     * @apiUse AuthorizationTokenHeader
+     * @apiUse RegisterTokenHeader
      *
      * @apiHeader  {String} Accept-Language=es Accepted language.
      *
-     * @apiParam {Number} [limit] number of slices to get
-     * @apiParam {Number} [offset] start of slices to get
      * @apiParam {String} [name] text to match on venue name
      * @apiParam {String} [geo] geolocation query --> Pagination will not be enabled if geo is present
      * @apiParam {String} geo.lat latitude to match
@@ -81,17 +81,25 @@ router.route('/')
      * @apiParam {String="name"} sort.field=name field to sort with
      * @apiParam {String="asc","desc"} sort.order=asc whether to sort ascending or descending
      * @apiParam {String="true","false","all"} active=true match active venues or not
-     * @apiDescription this method will return the number of checkins for each venue if geo filtering is enabled
+     * @apiDescription this method will return the number of checkins for each venue if geo filtering is enabled.
+     * Registration token must be used
      *
      * @apiSuccess {Object[]} docs       List of venues.
      * @apiSuccess {String}   docs._id   Id of the venue.
      * @apiSuccess {String}   docs.versionNumber   versionNumber of the venue.
      * @apiUse ErrorGroup
      * @apiUse ErrorInvalidGeoLocation
+     * @apiUse PaginationGroup
      */
-    .get(expressValidator,
+    .get(
+        expressValidator,
         venueValidator.getValidator,
         function (request, response, next) {
+            let baseToken = request.headers['register-token'];
+            if (baseToken !== configAuth.baseToken) {
+                response.status(401).json({'localizedError': 'Not Authorized', 'rawError': 'No authorization token'});
+                return
+            }
 
             // FILTER
             let transform = {

@@ -93,6 +93,14 @@ utils.postUpdate = function (Schema, query, newObject, request, response, next) 
             })
     });
 };
+
+/**
+ * @apiDefine PaginationGroup
+ * @apiParam (Pagination) {Number} [page] number of page to get
+ * @apiParam (Pagination) {Number} [limit=20] number of slices to get
+ * @apiParam (Pagination) {Number} [offset] start of slices to get
+ */
+
 utils.getAll = function (Schema, query, options, request, response, next, restrict_user = true) {
     let newObject = request.body;
     request.checkQuery('limit', 'No valid limit provided').optional().isNumeric();

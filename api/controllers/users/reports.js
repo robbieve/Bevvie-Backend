@@ -59,8 +59,6 @@ router.route('/')
      *
      * @apiHeader  {String} Accept-Language=es Accepted language.
      *
-     * @apiParam {Number} [limit] number of slices to get
-     * @apiParam {Number} [offset] start of slices to get
      * @apiParam {String} [userReports] id of the user who reports to match
      * @apiParam {String} [userReported] id of the user who is reported to match
      * @apiParam {Object[]} [sort] sort struct array
@@ -72,6 +70,7 @@ router.route('/')
      * @apiSuccess {String}   docs._id   Id of the report.
      * @apiSuccess {String}   docs.versionNumber   versionNumber of the report.
      * @apiUse ErrorGroup
+     * @apiUse PaginationGroup
      */
     .get(expressValidator,
         reportValidator.getValidator,

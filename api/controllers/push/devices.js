@@ -68,8 +68,6 @@ router.route('/')
      *
      * @apiHeader  {String} Accept-Language=es Accepted language.
      *
-     * @apiParam {Number} [limit] number of slices to get
-     * @apiParam {Number} [offset] start of slices to get
      * @apiParam {String} [user] id of a user in the device
      * @apiParam {Object[]} [sort] sort struct array
      * @apiParam {String="createdAt"} sort.field=createdAt field to sort with
@@ -80,6 +78,7 @@ router.route('/')
      * @apiSuccess {String}   docs._id   Id of the device.
      * @apiSuccess {String}   docs.versionNumber   versionNumber of the device.
      * @apiUse ErrorGroup
+     * @apiUse PaginationGroup
      */
     .get(expressValidator,
         deviceValidator.getValidator,

@@ -16,7 +16,7 @@ module.exports.getValidator = function (request, response, next) {
     request.checkQuery('geo.long', 'No valid longitude provided').optional().isFloat();
     request.checkQuery('geo.dist', 'No valid distance provided').optional().isFloat();
     request.checkQuery('limit', 'No valid limit provided').optional().isNumeric();
-    request.checkQuery('offset', 'No valid limit provided').optional().isNumeric();
+    request.checkQuery('offset', 'No valid offset provided').optional().isNumeric();
     request.checkQuery('active', 'No valid active provided').optional().isAlpha();
     commonFunctions.validate(request,response,next);};
 
