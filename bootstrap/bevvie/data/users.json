@@ -201,7 +201,9 @@
       "name": "user27",
       "images":["->images.user7"],
       "admin": false,
-      "birthday": "=moment().add(-40,'year')"
+      "birthday": "=moment().add(-40,'year')",
+      "banned": true,
+      "about_validated": false
     },
     "user28": {
       "accessType": "password",
@@ -209,7 +211,8 @@
       "name": "user28",
       "images":["->images.user3"],
       "admin": false,
-      "birthday": "=moment().add(-50,'year')"
+      "birthday": "=moment().add(-50,'year')",
+      "about_validated": false
     },
     "user29": {
       "accessType": "password",
@@ -217,7 +220,8 @@
       "name": "user29",
       "images":["->images.user2"],
       "admin": false,
-      "birthday": "=moment().add(-60,'year')"
+      "birthday": "=moment().add(-60,'year')",
+      "about_validated": true
     },
     "user30": {
       "accessType": "password",
@@ -225,14 +229,16 @@
       "name": "user30",
       "images":["->images.user1"],
       "admin": false,
-      "birthday": "=moment().add(-70,'year')"
+      "birthday": "=moment().add(-70,'year')",
+      "about_validated": true
     },
     "user31": {
       "accessType": "password",
       "password": "Develapps16",
       "name": "user31",
       "admin": false,
-      "birthday": "=moment().add(-70,'year')"
+      "birthday": "=moment().add(-70,'year')",
+      "banned": true
     }
   }
 }
