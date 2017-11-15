@@ -68,6 +68,9 @@ describe('Users Group', () => {
                         isDone();
                     });
                 }
+                else{
+                    isDone();
+                }
             }], function (err) {
             should.not.exist(err);
             done();
