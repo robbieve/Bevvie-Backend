@@ -189,7 +189,9 @@ utils.getOneQuery = function (Schema, query, request, response, next) {
         }
         Schema.filterQuery(request.user, function (error, filter) {
             // Filter query
-            if (error) return response.status(404).json(error);
+            if (error) {
+                return response.status(404).json(error);
+            }
             query = {$and: [query, filter]};
             redis.getCachedResults(query, Schema.modelName, request, function (err, reply) {
                 if (err) {
@@ -205,7 +207,9 @@ utils.getOneQuery = function (Schema, query, request, response, next) {
                 }
                 else {
                     Schema.findOne(query).exec(function (err, object) {
-                        if (err) return dbError(err, request, response, next);
+                        if (err) {
+                            return dbError(err, request, response, next);
+                        }
                         if (!object) {
                             let localizedError = {
                                 'localizedError': name + ' ' + query._id + ' not found',

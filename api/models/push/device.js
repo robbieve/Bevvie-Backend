@@ -16,7 +16,7 @@ let moment = require("moment");
  */
 
 let deviceSchema = new Schema({
-    pushToken: {type: String},
+    pushToken: {type: String, unique: true},
     user: {type: Schema.Types.ObjectId, ref: 'User', required: true},
     active: {type: Boolean, default: true},
     apiVersion: {type: String, required: true, default: config.apiVersion},
@@ -52,7 +52,7 @@ deviceSchema.statics.validateObject = function (user, callback) {
 deviceSchema.statics.filterQuery = function (user, callback) {
     // No filtering here
     if (!user.admin){
-        callback(null,{user:user._id});
+        return callback(null,{user:user._id});
     }
     return callback(null, {})
 };

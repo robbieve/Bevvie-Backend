@@ -296,7 +296,16 @@ exports.venueConstants = {
 };
 
 exports.pushToken = "aa8274e5adb21089c4cfbc04e69f869b8df74e6d5e3899d4955762439611c6e1";
-
+exports.devices={
+    deviceOne:{
+        user: {},
+        pushToken: exports.pushToken
+    },
+    deviceTwo:{
+        user: {},
+        pushToken: "otherPushToken"
+    }
+}
 // Helpers
 
 exports.testBuild_createAdminUserAndClients = function (server, values, callback) {

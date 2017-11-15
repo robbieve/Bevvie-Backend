@@ -25,7 +25,7 @@ const moment = require("moment");
 function _prepost(request, response, next, callback) {
     let newObject = request.body;
     // If not admin, cannot post
-    if (!request.user.admin && newObject.user.toString() !== request.user._id.toString()) {
+    if (!request.user.admin && newObject.user.toString() !== request.user._id.toString()) {
         response.status(403).json({
             localizedError: 'You are not authorized to create or update this device',
             rawError: 'user ' + request.user._id + ' is not admin'
@@ -55,7 +55,18 @@ router.route('/')
         deviceValidator.postValidator,
         function (request, response, next) {
             _prepost(request, response, next, function (newObject) {
-                route_utils.post(Device, newObject, request, response, next);
+                Device.findOne({pushToken: newObject.pushToken}, function (err, token) {
+                    if (err) return response.status(500).json(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
+                    if (token) {
+                        return response.status(409).json({
+                            localizedError: 'Token exists',
+                            rawError: 'token ' + JSON.stringify(token),
+                            data: token
+                        });
+                    }
+                    route_utils.post(Device, newObject, request, response, next);
+                })
+
             });
         })
 
@@ -171,18 +182,23 @@ router.route('/:id')
      * @apiUse ErrorGroup
      */
     .delete(function (request, response) {
-        let device = response.object;
-        if (!request.user.admin && newObject.user.toString() === request.user._id.toString()) {
-            response.status(403).json({
+        if (!request.user.admin && request.user._id.toString() !== response.object.user._id.toString()) {
+            return response.status(403).json({
                 localizedError: 'You are not authorized to delete a device',
                 rawError: 'user ' + request.user._id + ' is not admin'
             });
-            return;
+
         }
-        Device.deleteByIds([response.object._id], function (err, result) {
-            if (err) return dbError(err, request, response, next);
-            response.status(200).json(result)
-        });
+        else {
+            Device.deleteByIds([response.object._id], function (err, result) {
+                if (err) {
+                    return dbError(err, request, response, next);
+                }
+                else {
+                    response.status(200).json(result)
+                }
+            });
+        }
     });
 
 

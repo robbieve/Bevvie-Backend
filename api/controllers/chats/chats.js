@@ -389,7 +389,7 @@ router.route('/:id/messages')
             }
             else {
                 // If this is creator's third message, Chat's state will change to EXHAUSTED and, 18 hours later, it will change to EXPIRED.
-                let ownMessages,messagesList,DBMessage;
+                let ownMessages, messagesList, DBMessage;
                 async.series([
                     function (doneMes) {
                         Message.find({chat: chat._id}, function (err, messages) {
@@ -404,7 +404,7 @@ router.route('/:id/messages')
                             doneMes();
                         });
                     },
-                    function (doneMes){
+                    function (doneMes) {
                         DBMessage = Message.mapObject(null, message);
                         Message.validateObject(DBMessage, function (err) {
                             if (err) {
@@ -413,7 +413,7 @@ router.route('/:id/messages')
                             doneMes();
                         });
                     },
-                    function (doneMes){
+                    function (doneMes) {
                         DBMessage.save(function (err) {
                             if (err) {
                                 if (err) return response.status(500).json(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
@@ -421,15 +421,15 @@ router.route('/:id/messages')
                             doneMes();
                         });
                     },
-                    function (doneMes){
+                    function (doneMes) {
                         let chatUser = chat.members.filter(function (member) {
                             return member.user._id.toString() === DBMessage.user.toString();
                         })[0];
-                        if (chatUser){
+                        if (chatUser) {
                             chatUser.lastMessageSeen = DBMessage._id;
                         }
 
-                        if (chat.status===constants.chats.chatStatusNames.created) {
+                        if (chat.status === constants.chats.chatStatusNames.created) {
                             chat.status = constants.chats.chatStatusNames.accepted;
                         }
                         if (messagesList.length >= (2 * constants.chats.maxMessages) - 1) {
@@ -446,7 +446,7 @@ router.route('/:id/messages')
                         });
                     },
 
-                ],function (err) {
+                ], function (err) {
                     pushUtils.sendCreateMessagePush(DBMessage);
                     response.status(201).json(DBMessage);
                 })

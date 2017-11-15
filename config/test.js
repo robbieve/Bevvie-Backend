@@ -21,9 +21,6 @@ config = {
             connectTimeoutMS: 30000,
         }
     },
-    'cache': {
-        enabled: true,
-    },
     log: {
         'type': 'file',
         'filename': logfile,
