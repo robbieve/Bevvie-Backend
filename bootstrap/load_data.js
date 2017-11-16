@@ -7,7 +7,7 @@ let bcrypt = require("bcrypt-nodejs");
 const seeder = require('mongoose-seeder');
 const csv = require('csvtojson');
 const constants = require('api/common/constants');
-
+const moment = require("moment");
 // Config
 
 
@@ -85,7 +85,28 @@ function _getUsers() {
     }
 }
 
+function _addRandomUsersAndCheckins(data) {
 
+    for (i = 1000; i < 1100; i++) {
+        let module = (i%50)+20
+        let user = {
+            "accessType": "password",
+            "password": "Develapps16",
+            "name": "user"+i,
+            "admin": false,
+            "birthday": moment().add(-module,'year').toISOString(),
+            "banned": false
+        }
+        data["users"][user.name] = user;
+        let venue = (i%10)+1;
+        data["checkin"]["checkin"+i]={
+            "venue": "->venues.venue"+venue,
+            "user": "->users."+user.name,
+            "user_age": user.age,
+            "expiration": moment().add(1,'year').toISOString()
+        }
+    }
+}
 
 
 
@@ -108,38 +129,41 @@ function _loadDB(callback) {
         let dataElement = jsonToLoad[element];
         Object.assign(data, dataElement);
     });
-
+    _addRandomUsersAndCheckins(data);
     ["AdminUser","users"].forEach(function (dataIn) {
         let users = data[dataIn];
-        Object.keys(users).forEach(function (user) {
+        async.each(Object.keys(users), function (user,isDone) {
             let userObject = users[user];
             if (userObject["password"]){
                 userObject["password"] = bcrypt.hashSync(userObject["password"], bcrypt.genSaltSync(8), null);
             }
+            isDone()
+        },function (err) {
+            winston.info('loading data: ' + JSON.stringify(Object.keys(data), 0, 2));
+            let timer = winston.startTimer();
+            seeder.seed(data, {dropDatabase: true}).then(function (dbData) {
+                // The database objects are stored in dbData
+                async.map(data, function (element, done) {
+                    let name = element._model;
+                    let size = Object.keys(element).length;
+                    let newElement = {};
+                    newElement[name] = size;
+                    done(null, newElement)
+                }, function (err, result) {
+                    winston.info('loaded data: ' + JSON.stringify(result), 0, 2);
+                    timer.done("Filled data ");
+                    callback()
+                });
+
+            }).catch(function (err) {
+                // handle error
+                winston.error('error loading data: ' + err);
+                process.exit(-1)
+
+            });
         })
     });
-    winston.info('loading data: ' + JSON.stringify(Object.keys(data), 0, 2));
-    let timer = winston.startTimer();
-    seeder.seed(data, {dropDatabase: true}).then(function (dbData) {
-        // The database objects are stored in dbData
-        async.map(data, function (element, done) {
-            let name = element._model;
-            let size = Object.keys(element).length;
-            let newElement = {};
-            newElement[name] = size;
-            done(null, newElement)
-        }, function (err, result) {
-            winston.info('loaded data: ' + JSON.stringify(result), 0, 2);
-            timer.done("Filled data ");
-            callback()
-        });
 
-    }).catch(function (err) {
-        // handle error
-        winston.error('error loading data: ' + err);
-        process.exit(-1)
-
-    });
 }
 
 function startDBCreation(callback) {
