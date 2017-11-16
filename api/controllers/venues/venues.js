@@ -171,6 +171,9 @@ router.route('/')
                             },
                             function (err) {
                                 if (err) return response.status(500).json(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
+                                finalResults = finalResults.sort(function (venue1, venue2) {
+                                    return venue1.distance-venue2.distance;
+                                })
                                 return response.status(200).json({docs: finalResults});
                             });
                     }).catch((err) => {

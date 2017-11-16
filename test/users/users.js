@@ -309,6 +309,46 @@ describe('Users Group', () => {
                             });
                         });
                 });
+                it('should succeed with sort name and stringify', function (done) {
+                    let qs = require("qs");
+                    let jsonString = qs.stringify({
+                        admin: "all",
+                        sort: {
+                            field: "name",
+                            order: constants.sortOrderNames.desc
+                        }
+                    });
+                    chai.request(server)
+                        .get(endpoint)
+                        .query(jsonString)
+                        .set("Authorization", "Bearer " + adminToken)
+                        .end(function (err, res) {
+                            commonTestUtils.test_pagination(err, res, function () {
+                                res.body.docs.should.be.an('Array');
+                                res.body.docs.should.have.lengthOf(2);
+                                res.body.docs[0].name.should.be.equal(commonTestUtils.userConstants.userOne.name);
+                                chai.request(server)
+                                    .get(endpoint)
+                                    .query({
+                                        admin: "all",
+                                        sort: {
+                                            "field": "name",
+                                            "order": constants.sortOrderNames.asc
+                                        }
+                                    })
+                                    .set("Authorization", "Bearer " + adminToken)
+                                    .end(function (err, res) {
+                                        commonTestUtils.test_pagination(err, res, function () {
+                                            res.body.docs.should.be.an('Array');
+                                            res.body.docs.should.have.lengthOf(2);
+                                            res.body.docs[1].name.should.be.equal(commonTestUtils.userConstants.userOne.name);
+                                            done();
+                                        });
+                                    });
+                            });
+                        });
+                });
+
             });
 
         });
