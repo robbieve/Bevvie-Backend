@@ -131,7 +131,7 @@ router.route('/')
      * @apiParam {String="created","accepted","rejected","exhausted","expired"} [status] status to match. Might be an array
      * @apiParam {String} [user] id of a user in the chat
      * @apiParam {Object[]} [sort] sort struct array
-     * @apiParam {String="createdAt"} sort.field=createdAt field to sort with
+     * @apiParam {String="createdAt","updatedAt"} sort.field=createdAt field to sort with
      * @apiParam {String="asc","desc"} sort.order=asc whether to sort ascending or descending
      * @apiParam {String="true","false","all"} active=true match active chats or not
 
@@ -165,7 +165,8 @@ router.route('/')
             // SORT
             let sortTransform = {
                 _default: ["createdAt", 1],
-                date: "createdAt",
+                createdAt: "createdAt",
+                updatedAt: "updatedAt"
             };
 
             let query = route_utils.filterQuery(request.query, transform);
