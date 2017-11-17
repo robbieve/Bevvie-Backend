@@ -26,6 +26,7 @@ module.exports.sendCreateChatPush = function (user, chat, callback = function ()
                 body: creatorUser.name + ' wants to chat with you', // REQUIRED
                 custom: {
                     chatId: chat._id,
+                    type: constants.pushes.pushTypeNames.chatCreate
                 },
                 priority: 'high', // gcm, apn. Supported values are 'high' or 'normal' (gcm). Will be translated to 10 and 5 for apn. Defaults to 'high'
                 retries: 3, // gcm, apn
@@ -125,6 +126,7 @@ module.exports.sendCreateMessagePush = function (message, callback = function ()
                     body: message.message,
                     custom: {
                         chatId: chat._id,
+                        type: constants.pushes.pushTypeNames.chatMessage
                     },
                     priority: 'high', // gcm, apn. Supported values are 'high' or 'normal' (gcm). Will be translated to 10 and 5 for apn. Defaults to 'high'
                     retries: 3, // gcm, apn
@@ -209,7 +211,8 @@ module.exports.sendRejectedChat = function (aChat, user, callback = function () 
                     body: user.name + ' rejected to chat',
                     custom: {
                         chatId: aChat._id,
-                        userId: user._id
+                        userId: user._id,
+                        type: constants.pushes.pushTypeNames.chatRejected
                     },
                     priority: 'high', // gcm, apn. Supported values are 'high' or 'normal' (gcm). Will be translated to 10 and 5 for apn. Defaults to 'high'
                     retries: 3, // gcm, apn
@@ -293,6 +296,7 @@ module.exports.sendValidationPush = function (userId, pushType, callback = funct
                     body: "Your profile was validated",
                     custom: {
                         userId: userId,
+                        type: constants.pushes.pushTypeNames.validProfile
                     }
                 },message);
                 break;
@@ -302,6 +306,7 @@ module.exports.sendValidationPush = function (userId, pushType, callback = funct
                     body: "Your have to review your profile",
                     custom: {
                         userId: userId,
+                        type: constants.pushes.pushTypeNames.validProfileReview
                     }
                 },message);
                 break;
@@ -311,6 +316,7 @@ module.exports.sendValidationPush = function (userId, pushType, callback = funct
                     body: "Your profile is not valid. Please review it.",
                     custom: {
                         userId: userId,
+                        type: constants.pushes.pushTypeNames.invalidProfile
                     }
                 },message);
                 break;
