@@ -92,6 +92,7 @@ function _addRandomUsersAndCheckins(data) {
             "accessType": "password",
             "password": "Develapps16",
             "name": "user" + i,
+            "images":["->images.user"+((i%7)+1)],
             "admin": false,
             "birthday": moment().add(-module, 'year').toISOString(),
             "banned": false
