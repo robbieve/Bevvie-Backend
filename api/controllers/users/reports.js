@@ -121,12 +121,28 @@ router.route('/')
                             reports: {'$push': '$$ROOT'},
                         },
                     },
+                    { "$lookup": {
+                        "from": "users",
+                        "localField": "_id",
+                        "foreignField": "_id",
+                        "as": "userReported"
+                    }},
+                    { "$unwind": { "path" : "$userReported" } },
                     {$sort: aggregateSort},
                     {$skip: request.query.offset ? request.query.offset : 0},
                     {$limit: request.query.limit ? request.query.limit : config.paginationSize}
                 ], function (err, reports) {
-                    let objectResponse = {docs: reports}
-                    response.status(200).json(objectResponse);
+                    if (err) {
+                        return response.status(500).json(errorConstants.responseWithError(errorConstants.errorCodes(errorConstants.errorNames.dbGenericError)));
+                    }else{
+                        let objectResponse = {
+                            offset: request.query.offset ? request.query.offset : 0,
+                            limit: request.query.limit ? request.query.limit : config.paginationSize,
+                            total: reports.length,
+                            docs: reports
+                        }
+                        response.status(200).json(objectResponse);
+                    }
                 });
             }
             else {
