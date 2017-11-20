@@ -131,11 +131,11 @@ router.route('/')
             let ageRequest;
             if (request.query.maxAge){
                 ageRequest = {};
-                Object.assign(ageRequest,{user_age:{$lt: request.query.maxAge}});
+                Object.assign(ageRequest,{user_age:{$lte: request.query.maxAge}});
             }
             if (request.query.minAge){
                 ageRequest = ageRequest ? ageRequest : {user_age: {}};
-                Object.assign(ageRequest["user_age"],{$gt: request.query.minAge});
+                Object.assign(ageRequest["user_age"],{$gte: request.query.minAge});
             }
             Object.assign(query, ageRequest);
             let options = {sort: []};
