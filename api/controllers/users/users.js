@@ -97,7 +97,7 @@ router.route('/')
                 function (isDone) {
                     // SORT
                     let sortTransform = {
-                        _default: "createdAt",
+                        _default: [["createdAt",1]],
                         createdAt: "createdAt",
                         name: "name",
                         country: "country",

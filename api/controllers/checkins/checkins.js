@@ -122,7 +122,7 @@ router.route('/')
 
             // SORT
             let sortTransform = {
-                _default: ["date", 1],
+                _default: [["date", 1]],
                 date: "date",
             };
 

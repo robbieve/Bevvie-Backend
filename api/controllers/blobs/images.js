@@ -156,7 +156,7 @@ router.route('/')
 
         // SORT
         let sortTransform = {
-            _default: ["createdAt",1],
+            _default: [["createdAt",1]],
         };
 
         let options = {sort: []};

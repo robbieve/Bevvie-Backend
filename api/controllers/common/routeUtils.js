@@ -359,7 +359,7 @@ utils.filterQuery = function (requestQuery, transform, query = {}) {
 
 * */
 utils.sortQuery = function (requestSort,transform,sort = []) {
-    if (!requestSort) { return sort } // If no sort, exit
+    if (!requestSort) { return transform["_default"]? transform["_default"]:sort } // If no sort, exit
     if (!Array.isArray(requestSort)) { requestSort = [requestSort]} // if not array, transform
     requestSort.forEach(function (sortElement) { // sort each element
         if (sortElement["field"] !== undefined) {
@@ -376,7 +376,7 @@ utils.sortQuery = function (requestSort,transform,sort = []) {
     });
     if (sort.length===0){
         if (transform["_default"]){
-            return [transform["_default"]];
+            return transform["_default"];
         }
     }
     return sort;

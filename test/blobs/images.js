@@ -178,7 +178,7 @@ describe('Images Group', () => {
                 });
             });
             describe('images/ with admin user', () => {
-                it('should success with image data', function (done) {
+                it('should succeed with image data', function (done) {
                     chai.request(server)
                         .get(endpoint)
                         .set("Authorization", "Bearer " + adminToken)

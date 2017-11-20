@@ -98,13 +98,13 @@ router.route('/')
 
             // SORT
             let sortTransform = {
-                _default: ["createdAt", 1],
+                _default: [["createdAt", 1]],
                 date: "createdAt",
             };
 
             let query = route_utils.filterQuery(request.query, transform);
-            let options = {sort: [["createdAt", 1]]};
-            options.sort = route_utils.sortQuery(request.query.sort, sortTransform, options.sort);
+            let options = {};
+            options["sort"] = route_utils.sortQuery(request.query.sort, sortTransform);
             if (request.query.statistics === "true") {
                 let aggregateSort={};
                 options.sort.forEach(function (pair) {

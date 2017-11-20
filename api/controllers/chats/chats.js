@@ -164,7 +164,7 @@ router.route('/')
 
             // SORT
             let sortTransform = {
-                _default: ["createdAt", 1],
+                _default: [["createdAt", 1]],
                 createdAt: "createdAt",
                 updatedAt: "updatedAt"
             };
@@ -291,7 +291,7 @@ router.route('/:id/messages')
 
         // SORT
         let sortTransform = {
-            _default: ["createdAt", 1],
+            _default: [["createdAt", 1]],
             createdAt: "createdAt",
         };
 
