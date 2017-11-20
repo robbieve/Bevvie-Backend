@@ -102,12 +102,11 @@ function _addRandomUsersAndCheckins(data) {
         data["checkin"]["checkin" + i] = {
             "venue": "->venues.venue" + venue,
             "user": "->users." + user.name,
-            "user_age": user.age,
+            "user_age": moment().diff(user.birthday, 'years',false),
             "expiration": moment().add(1, 'year').toISOString()
         }
     }
 }
-
 
 function _loadDB(callback) {
     winston.info('Seeding...');
