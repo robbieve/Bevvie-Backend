@@ -291,37 +291,37 @@ module.exports.sendValidationPush = function (userId, pushType, callback = funct
         };
         switch (pushType){
             case constants.pushes.pushTypeNames.validProfile:
-                Object.assign({
+                Object.assign(message, {
                     title: 'Profile valid',
                     body: "Your profile was validated",
                     custom: {
                         userId: userId,
                         type: constants.pushes.pushTypeNames.validProfile
                     }
-                },message);
+                });
                 break;
             case constants.pushes.pushTypeNames.validProfileReview:
-                Object.assign({
+                Object.assign(message, {
                     title: 'Profile review',
                     body: "Your have to review your profile",
                     custom: {
                         userId: userId,
                         type: constants.pushes.pushTypeNames.validProfileReview
                     }
-                },message);
+                });
                 break;
             case constants.pushes.pushTypeNames.invalidProfile:
-                Object.assign({
+                Object.assign(message, {
                     title: 'Profile invalid',
                     body: "Your profile is not valid. Please review it.",
                     custom: {
                         userId: userId,
                         type: constants.pushes.pushTypeNames.invalidProfile
                     }
-                },message);
+                });
                 break;
             default:
-                return callback({
+                return callback(message, {
                     localizedError: "Invalid pushType for validation",
                     rawError: "Invalid pushType for validation "+pushType
                 });
