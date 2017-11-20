@@ -203,8 +203,29 @@ describe('Reports Group', () => {
                         });
                     });
             });
-
-
+            it('should succeed with statistics', function (done) {
+                chai.request(server)
+                    .get(endpoint)
+                    .query({'statistics': true})
+                    .set("Authorization", "Bearer " + adminToken)
+                    .end(function (err, res) {
+                        res.body.docs.should.be.an('Array');
+                        res.body.docs.should.have.lengthOf(2);
+                        done();
+                    });
+            });
+            it('should succeed with statistics and userReported', function (done) {
+                chai.request(server)
+                    .get(endpoint)
+                    .query({'userReported': develappsReport.userReported, 'statistics': true})
+                    .set("Authorization", "Bearer " + adminToken)
+                    .end(function (err, res) {
+                        should.not.exist(err);
+                        res.body.docs.should.be.an('Array');
+                        res.body.docs.should.have.lengthOf(1);
+                        done();
+                    });
+            });
         });
         describe('reports/id', () => {
             it('should success for admin', function (done) {

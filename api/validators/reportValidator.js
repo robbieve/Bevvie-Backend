@@ -17,6 +17,7 @@ module.exports.getValidator = function (request, response, next) {
     request.checkQuery('limit', 'No valid limit provided').optional().isNumeric();
     request.checkQuery('offset', 'No valid offset provided').optional().isNumeric();
     request.checkQuery('active', 'No valid active provided').optional().isAlpha();
+    request.checkQuery('statistics', 'No valid active provided').optional().isBoolean();
     commonFunctions.validate(request,response,next);};
 
 module.exports.postValidator = function (request, response, next) {

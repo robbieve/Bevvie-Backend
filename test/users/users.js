@@ -691,6 +691,38 @@ describe('Users Group', () => {
                     done()
                 });
         });
+        it('should succeed for admin about_validated and user clearing it', function (done) {
+            let query = {
+                validated_images: [],
+                rejected_images: [],
+                about_validated: false
+            };
+            chai.request(server)
+                .post(endpoint + '/' + aUser._id + '/validate')
+                .send(query)
+                .set("Authorization", "Bearer " + adminToken)
+                .end(function (err, res) {
+                    res.should.have.status(200);
+                    res.should.be.json;
+                    res.body.should.be.an('Object');
+                    res.body.should.contain.all.keys('_id', 'updatedAt', 'createdAt', 'name', 'apiVersion', 'admin');
+                    res.body.about_validated.should.equal(false);
+                    let userValues = res.body;
+                    userValues.about_validated = null;
+                    chai.request(server)
+                        .post(endpoint + '/' + aUser._id )
+                        .send(userValues)
+                        .set("Authorization", "Bearer " + token)
+                        .end(function (err, res) {
+                            res.should.have.status(200);
+                            res.should.be.json;
+                            res.body.should.be.an('Object');
+                            res.body.should.contain.all.keys('_id', 'updatedAt', 'createdAt', 'name', 'apiVersion', 'admin');
+                            should.not.exist(res.body.about_validated);
+                            done()
+                        });
+                });
+        });
         it('should fail for non admin user', function (done) {
             let query = {
                 validated_images: [],

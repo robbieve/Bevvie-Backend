@@ -5,6 +5,7 @@ let router = express.Router();
 let passport = require('passport');
 // parser
 const jsonParser = require('lib/parsers/jsonBodyParser');
+var mongoose = require('mongoose');
 
 // DB
 let Report = require('api/models/users/report');
@@ -19,6 +20,7 @@ const route_utils = require('api/controllers/common/routeUtils');
 const constants = require('api/common/constants');
 const errorConstants = require('api/common/errorConstants');
 const moment = require("moment");
+const config = require("config");
 
 // Prepost function
 function _prepost(request, response, next, callback) {
@@ -61,11 +63,12 @@ router.route('/')
      *
      * @apiParam {String} [userReports] id of the user who reports to match
      * @apiParam {String} [userReported] id of the user who is reported to match
+     * @apiParam {Boolean} [statistics] report grouped by
      * @apiParam {Object[]} [sort] sort struct array
      * @apiParam {String="createdAt"} sort.field=createdAt field to sort with
      * @apiParam {String="asc","desc"} sort.order=asc whether to sort ascending or descending
      * @apiParam {String="true","false","all"} active=true match active reports or not
-
+     * @apiDescription If you run with "statistics", a grouped statistic for each reported user will be returned. 
      * @apiSuccess {Object[]} docs       List of reports.
      * @apiSuccess {String}   docs._id   Id of the report.
      * @apiSuccess {String}   docs.versionNumber   versionNumber of the report.
@@ -100,12 +103,38 @@ router.route('/')
             };
 
             let query = route_utils.filterQuery(request.query, transform);
-            let options = {sort: []};
+            let options = {sort: [["createdAt", 1]]};
             options.sort = route_utils.sortQuery(request.query.sort, sortTransform, options.sort);
-            route_utils.getAll(Report,
-                query,
-                options,
-                request, response, next)
+            if (request.query.statistics === "true") {
+                let aggregateSort={};
+                options.sort.forEach(function (pair) {
+                    aggregateSort[pair[0]]=pair[1];
+                })
+                if (query.userReported){ query.userReported = mongoose.Types.ObjectId(query.userReported);}
+                if (query.userReports){ query.userReports = mongoose.Types.ObjectId(query.userReports);}
+                Report.aggregate([
+                    {$match: query},
+                    {
+                        $group: {
+                            _id: "$userReported",
+                            count: {$sum: 1},
+                            reports: {'$push': '$$ROOT'},
+                        },
+                    },
+                    {$sort: aggregateSort},
+                    {$skip: request.query.offset ? request.query.offset : 0},
+                    {$limit: request.query.limit ? request.query.limit : config.paginationSize}
+                ], function (err, reports) {
+                    let objectResponse = {docs: reports}
+                    response.status(200).json(objectResponse);
+                });
+            }
+            else {
+                route_utils.getAll(Report,
+                    query,
+                    options,
+                    request, response, next)
+            }
         });
 
 
@@ -118,7 +147,7 @@ router.route('/:id')
         })
 
     /**
-     * @api {get} /report/id Get report by id
+     * @api {get} /reports/id Get report by id
      * @apiName GetReport
      * @apiVersion 0.10.0
      * @apiGroup Reports
@@ -133,7 +162,7 @@ router.route('/:id')
         response.status(200).json(response.object)
     })
     /**
-     * @api {delete} /report/id Delete report by id
+     * @api {delete} /reports/id Delete report by id
      * @apiName DeleteReport
      * @apiVersion 0.10.0
      * @apiGroup Reports

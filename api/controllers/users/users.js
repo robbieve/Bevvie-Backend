@@ -309,6 +309,10 @@ router.route('/:id/validate')
                                             sendPushType = constants.pushes.pushTypeNames.validProfile;
                                         }
                                     }
+                                    else{
+                                        sendPushType = constants.pushes.pushTypeNames.invalidProfile;
+
+                                    }
                                     isDone(err);
                                 })
                         }

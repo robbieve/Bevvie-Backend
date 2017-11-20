@@ -120,6 +120,7 @@ config = {
         app_id: process.env.PM2_ROYAL_APP_ID,
 
     },
+    paginationSize: 20,
 };
 if (process.env.PM2_NODE_TEST) {
     config.node_test_ip = process.env.PM2_NODE_TEST

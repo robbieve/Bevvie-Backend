@@ -19,7 +19,8 @@ config = {
         // }
         options: {
             connectTimeoutMS: 30000,
-        }
+        },
+        debug: true
     },
     log: {
         'type': 'file',
