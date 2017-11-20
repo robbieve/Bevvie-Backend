@@ -30,7 +30,7 @@ module.exports.sendCreateChatPush = function (user, chat, callback = function ()
                 },
                 priority: 'high', // gcm, apn. Supported values are 'high' or 'normal' (gcm). Will be translated to 10 and 5 for apn. Defaults to 'high'
                 retries: 3, // gcm, apn
-                badge: 2, // gcm for ios, apn
+                badge: 1, // gcm for ios, apn
                 //expiry: Math.floor(Date.now() / 1000) + 28 * 86400, // seconds
             };
             async.each(
@@ -130,7 +130,7 @@ module.exports.sendCreateMessagePush = function (message, callback = function ()
                     },
                     priority: 'high', // gcm, apn. Supported values are 'high' or 'normal' (gcm). Will be translated to 10 and 5 for apn. Defaults to 'high'
                     retries: 3, // gcm, apn
-                    badge: 2, // gcm for ios, apn
+                    badge: 1, // gcm for ios, apn
                     //expiry: Math.floor(Date.now() / 1000) + 28 * 86400, // seconds
                 };
                 isDone(err);
@@ -216,7 +216,7 @@ module.exports.sendRejectedChat = function (aChat, user, callback = function () 
                     },
                     priority: 'high', // gcm, apn. Supported values are 'high' or 'normal' (gcm). Will be translated to 10 and 5 for apn. Defaults to 'high'
                     retries: 3, // gcm, apn
-                    badge: 2, // gcm for ios, apn
+                    badge: 1, // gcm for ios, apn
                     //expiry: Math.floor(Date.now() / 1000) + 28 * 86400, // seconds
                 };
                 isDone(err);
@@ -287,7 +287,7 @@ module.exports.sendValidationPush = function (userId, pushType, callback = funct
             topic: config.push.topic,
             priority: 'high', // gcm, apn. Supported values are 'high' or 'normal' (gcm). Will be translated to 10 and 5 for apn. Defaults to 'high'
             retries: 3, // gcm, apn
-            badge: 2, // gcm for ios, apn
+            badge: 1, // gcm for ios, apn
         };
         switch (pushType){
             case constants.pushes.pushTypeNames.validProfile:
