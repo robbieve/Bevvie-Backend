@@ -5,16 +5,22 @@ let fs = require("fs"); // https://stackoverflow.com/questions/11225001/reading-
 router.route('/:filename')
     .get(function (req, res, next) {
         let spawn = require('child_process').spawn;
-        let tail = spawn('tail', ['-f', req.params.filename]);
-
-        res.writeHead(200, {
-            'Content-Type': 'text/plain',
-            'Transfer-Encoding': 'chunked'
-        });
-
+        res.writeHead(200, {'Content-Type': 'text/plain;charset=utf-8' , "Transfer-Encoding": "chunked" });
+        //res.header('Content-Type', 'text/html;charset=utf-8');
+        console.log("reading " + req.params.filename);
+        spawn('tail', ['-f', req.params.filename])
+        tail = spawn('tail', ['-f', 'logs/' + req.params.filename + '.log']);
         tail.stdout.on('data', function (data) {
-            res.write('' + data);
+            res.write(data, 'utf-8');
         });
+        tail.stderr.on('data', function (data) {
+            res.write(data, 'utf-8');
+        });
+        tail.on('exit', function (code) {
+            console.log('child process exited with code ' + code);
+            res.end(200);
+        });
+
 
     });
 module.exports = router;
