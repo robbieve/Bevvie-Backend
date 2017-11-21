@@ -252,7 +252,7 @@ router.route('/:id/validate')
             // If not admin, fail
             if (!request.user.admin) {
                 return response.status(403).json({
-                    localizedError: 'You are not authorized to delete users',
+                    localizedError: 'You are not authorized to validate profiles',
                     rawError: 'user ' + request.user._id + ' is not admin'
                 });
             }
@@ -279,7 +279,7 @@ router.route('/:id/validate')
         function (request, response, next) {
             let sendPushType;
             let validationObject = request.body;
-            let user = request.object;
+            let user = response.object;
             async.series([
                     function (isDone) {
                         if (request.body.about_validated !== undefined) {

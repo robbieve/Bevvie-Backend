@@ -129,8 +129,8 @@ router.route('/')
                     }},
                     { "$unwind": { "path" : "$userReported" } },
                     {$sort: aggregateSort},
-                    {$skip: request.query.offset ? request.query.offset : 0},
-                    {$limit: request.query.limit ? request.query.limit : config.paginationSize}
+                    {$skip: request.query.offset ? Number(request.query.offset) : 0},
+                    {$limit: request.query.limit ? Number(request.query.limit) : config.paginationSize}
                 ], function (err, reports) {
                     if (err) {
                         return response.status(500).json(errorConstants.responseWithError(errorConstants.errorCodes(errorConstants.errorNames.dbGenericError)));

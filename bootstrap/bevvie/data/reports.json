@@ -1,5 +1,5 @@
 {
-  "Reports": {
+  "reports": {
     "_model": "Report",
     "report1": {
       "userReports": "->users.user1",
@@ -44,6 +44,11 @@
     "report9": {
       "userReports": "->users.user1003",
       "userReported": "->users.user1090",
+      "reason": "pullling my leg!"
+    },
+    "report10": {
+      "userReports": "->users.user7",
+      "userReported": "->users.user1001",
       "reason": "pullling my leg!"
     }
   }

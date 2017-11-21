@@ -87,6 +87,7 @@ function _getUsers() {
 }
 
 function _addRandomUsersAndCheckins(data) {
+
     for (i = 1000; i < 1100; i++) {
         let module = (i % 50) + 20
         let user = {
@@ -105,6 +106,13 @@ function _addRandomUsersAndCheckins(data) {
             "user": "->users." + user.name,
             "user_age": moment().diff(user.birthday, 'years',false),
             "expiration": moment().add(1, 'year').toISOString()
+        }
+        if ((i+1)%5===0){
+            data["reports"]["report"+i] = {
+                "userReports": "->users.user"+(i-1),
+                "userReported": "->users.user"+(i),
+                "reason": "auto pullling my leg!"
+            }
         }
     }
 }

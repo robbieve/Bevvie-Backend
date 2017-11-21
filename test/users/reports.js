@@ -226,6 +226,17 @@ describe('Reports Group', () => {
                         done();
                     });
             });
+            it('should succeed with statistics and offset', function (done) {
+                chai.request(server)
+                    .get(endpoint)
+                    .query({'statistics': true, 'offset':1})
+                    .set("Authorization", "Bearer " + adminToken)
+                    .end(function (err, res) {
+                        res.body.docs.should.be.an('Array');
+                        res.body.docs.should.have.lengthOf(1);
+                        done();
+                    });
+            });
         });
         describe('reports/id', () => {
             it('should success for admin', function (done) {
