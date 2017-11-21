@@ -10,6 +10,7 @@ const jsonParser = require('lib/parsers/jsonBodyParser');
 let Checkin = require('api/models/checkins/checkin');
 let Venue = require('api/models/venues/venue');
 let User = require('api/models/users/user');
+let Image = require('api/models/blobs/images');
 let dbError = require('lib/loggers/db_error');
 
 // Validator
@@ -20,30 +21,64 @@ const route_utils = require('api/controllers/common/routeUtils');
 const constants = require('api/common/constants');
 const errorConstants = require('api/common/errorConstants');
 const moment = require("moment");
+const async = require("async");
 
 // Prepost function
 function _prepost(request, response, next, callback) {
     let newObject = request.body;
+    let aUser;
     // If not admin, cannot post
-    if (!request.user.admin && request.user._id.toString() !== newObject.user) {
+    if (!request.user.admin && request.user._id.toString() !== newObject.user) {
         response.status(403).json({
             localizedError: 'You are not authorized to create or update this checkin',
             rawError: 'user ' + request.user._id + ' is not admin'
         });
         return;
     }
-    User.findOne({_id: newObject.user},function (err,theUser) {
-        if (err) return response.status(500).json(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
-        if (!theUser) return response.status(404).json(errorConstants.responseWithError(request.user.id,errorConstants.errorNames.notFound));
-        newObject.user_age = theUser.birthday?
-             moment().diff(theUser.birthday, 'years',false):
-            constants.users.maxAge ;
-        Venue.findOne({_id: newObject.venue},function (err,theVenue) {
-                newObject.expiration = moment().add(theVenue.maxTimePerCheck(),"seconds");
+    async.series(
+        [
+            function (isDone) {
+                User.findOne({_id: newObject.user}, function (err, theUser) {
+                    if (err) {
+                        return response.status(500).json(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
+                    }
+                    else if (!theUser) {
+                        return response.status(404).json(errorConstants.responseWithError(request.user.id, errorConstants.errorNames.notFound));
+                    }
+                    else if (!theUser.about_validated) {
+                        return response.status(400).json(errorConstants.responseWithError(theUser, errorConstants.errorNames.checkin_userNotValidated));
+                    }
+                    else {
+                        aUser = theUser;
+                        isDone();
+                    }
+                });
+            },
+            function (isDone) {
+                Image
+                    .count({_id: {$in: aUser.images}, validated: true})
+                    .then(count => {
+                        if (count < 3) {
+                            return response.status(400).json(errorConstants.responseWithError(aUser, errorConstants.errorNames.checkin_userNotValidated));
+                        }
+                        else {
+                            isDone();
+                        }
+                    })
+                    .catch(e => {
+                        isDone(e)
+                    });
+            }
+        ],
+        function (err) {
+            newObject.user_age = aUser.birthday ?
+                moment().diff(aUser.birthday, 'years', false) :
+                constants.users.maxAge;
+            Venue.findOne({_id: newObject.venue}, function (err, theVenue) {
+                newObject.expiration = moment().add(theVenue.maxTimePerCheck(), "seconds");
                 callback(newObject);
-        });
-    });
-
+            });
+        })
 }
 
 // Default route
@@ -68,7 +103,7 @@ router.route('/')
         checkinValidator.postValidator,
         function (request, response, next) {
             _prepost(request, response, next, function (newObject) {
-                Checkin.remove({user: request.user._id},function (err) {
+                Checkin.remove({user: request.user._id}, function (err) {
                     if (err) return response.status(500).json(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
                     route_utils.post(Checkin, newObject, request, response, next);
                 });
@@ -129,17 +164,17 @@ router.route('/')
             let query = route_utils.filterQuery(request.query, transform);
 
             let ageRequest;
-            if (request.query.maxAge){
+            if (request.query.maxAge) {
                 ageRequest = {};
-                Object.assign(ageRequest,{user_age:{$lte: request.query.maxAge}});
+                Object.assign(ageRequest, {user_age: {$lte: request.query.maxAge}});
             }
-            if (request.query.minAge){
+            if (request.query.minAge) {
                 ageRequest = ageRequest ? ageRequest : {user_age: {}};
-                Object.assign(ageRequest["user_age"],{$gte: request.query.minAge});
+                Object.assign(ageRequest["user_age"], {$gte: request.query.minAge});
             }
             Object.assign(query, ageRequest);
             let options = {sort: []};
-             options.sort = route_utils.sortQuery(request.query.sort, sortTransform, options.sort);
+            options.sort = route_utils.sortQuery(request.query.sort, sortTransform, options.sort);
             route_utils.getAll(Checkin,
                 query,
                 options,
@@ -202,7 +237,7 @@ router.route('/:id')
      * @apiUse ErrorGroup
      */
     .delete(function (request, response) {
-        if (!request.user.admin &&request.user._id.toString() !== response.object.user._id.toString()) {
+        if (!request.user.admin && request.user._id.toString() !== response.object.user._id.toString()) {
             response.status(403).json({
                 localizedError: 'You are not authorized to delete a checkin',
                 rawError: 'user ' + request.user._id + ' is not admin'

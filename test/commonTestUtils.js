@@ -115,7 +115,7 @@ exports.test_createMessage = function (server, token, parameters, callback) {
         });
 };
 
-exports.test_createDevice= function (server, token, parameters, callback) {
+exports.test_createDevice = function (server, token, parameters, callback) {
     chai.request(server)
         .post('/api/v1/devices')
         .send(parameters)
@@ -184,7 +184,6 @@ exports.test_errorCode = function (expectedCode, expectedErrorCode, err, res, ca
     res.body.errorCode.should.be.equal(expectedErrorCode);
     callback();
 };
-
 
 exports.userConstants = {
     "admin": {
@@ -296,12 +295,12 @@ exports.venueConstants = {
 };
 
 exports.pushToken = "aa8274e5adb21089c4cfbc04e69f869b8df74e6d5e3899d4955762439611c6e1";
-exports.devices={
-    deviceOne:{
+exports.devices = {
+    deviceOne: {
         user: {},
         pushToken: exports.pushToken
     },
-    deviceTwo:{
+    deviceTwo: {
         user: {},
         pushToken: "otherPushToken"
     }
@@ -382,6 +381,135 @@ exports.testBuild_createUsersAndVenues = function (server, values, callback) {
         });
 };
 
+exports.testBuild_createUsersVenuesAndImages = function (server, values, callback) {
+    let result = {};
+    values = values ? values : {
+        image1: fs.readFileSync("test/blobs/images/develapps.png"),
+        image2: fs.readFileSync("test/blobs/images/develapps2.png"),
+        image3: fs.readFileSync("test/blobs/images/develapps3.png")
+    };
+    let token;
+    async.series([
+            function (isDone) {
+                exports.testBuild_createUsersAndVenues(server, null, function (res) {
+                    Object.assign(result, res);
+                    token = res.admin.token;
+                    isDone();
+                });
+            },
+            function (isDone) {
+                exports.test_createImage(server, token, values.image1, function (res) {
+                    result.image1 = res;
+                    isDone();
+                });
+            },
+            function (isDone) {
+                exports.test_createImage(server, token, values.image2, function (res) {
+                    result.image2 = res;
+                    isDone();
+                });
+            },
+            function (isDone) {
+                exports.test_createImage(server, token, values.image3, function (res) {
+                    result.image3 = res;
+                    isDone();
+                });
+            },
+            function (isDone) {
+                let userOne = result.userOne.user;
+                userOne.images = [
+                    result.image1,
+                    result.image2,
+                    result.image3
+                ]
+                chai.request(server)
+                    .post("/api/v1/users/" + userOne._id)
+                    .send(userOne)
+                    .set("Content-Type", "application/json")
+                    .set("Authorization", "Bearer " + token)
+                    .end(function (err, res) {
+                        res.should.have.status(200);
+                        res.should.be.json;
+                        res.body.should.be.an('object');
+                        res.body.should.have.property('_id');
+                        result.userOne.user = res.body;
+                        isDone();
+                    });
+            },
+            function (isDone) {
+                let userTwo = result.userTwo.user;
+                userTwo.images = [
+                    result.image1,
+                    result.image2,
+                    result.image3
+                ]
+                chai.request(server)
+                    .post("/api/v1/users/" + userTwo._id)
+                    .send(userTwo)
+                    .set("Content-Type", "application/json")
+                    .set("Authorization", "Bearer " + token)
+                    .end(function (err, res) {
+                        res.should.have.status(200);
+                        res.should.be.json;
+                        res.body.should.be.an('object');
+                        res.body.should.have.property('_id');
+                        result.userTwo.user = res.body;
+                        isDone();
+                    });
+            },
+            function (isDone) {
+                let validation = {
+                    about_validated: true,
+                    validated_images: [
+                        result.image1,
+                        result.image2,
+                        result.image3
+                    ],
+                    rejected_images: [],
+                }
+                chai.request(server)
+                    .post("/api/v1/users/" + result.userOne.user._id + "/validate")
+                    .send(validation)
+                    .set("Content-Type", "application/json")
+                    .set("Authorization", "Bearer " + token)
+                    .end(function (err, res) {
+                        res.should.have.status(200);
+                        res.should.be.json;
+                        res.body.should.be.an('object');
+                        res.body.should.have.property('_id');
+                        isDone();
+                    });
+            },
+            function (isDone) {
+                let validation = {
+                    about_validated: true,
+                    validated_images: [
+                        result.image1,
+                        result.image2,
+                        result.image3
+                    ],
+                    rejected_images: [],
+                }
+                chai.request(server)
+                    .post("/api/v1/users/" + result.userTwo.user._id + "/validate")
+                    .send(validation)
+                    .set("Content-Type", "application/json")
+                    .set("Authorization", "Bearer " + token)
+                    .end(function (err, res) {
+                        res.should.have.status(200);
+                        res.should.be.json;
+                        res.body.should.be.an('object');
+                        res.body.should.have.property('_id');
+                        isDone();
+                    });
+            }
+        ],
+        function (err) {
+            should.not.exist(err);
+            callback(result);
+        });
+};
+
 exports.testBuild_createUsersVenuesAndChats = function (server, values, callback) {
     let result = {};
     values = values ? values : {
@@ -392,20 +520,20 @@ exports.testBuild_createUsersVenuesAndChats = function (server, values, callback
         chatExhausted: {},
     };
     let messages = {
-       chatMessageOne:{
-           message: "This is one message",
-       },
-        chatMessageTwo:{
+        chatMessageOne: {
+            message: "This is one message",
+        },
+        chatMessageTwo: {
             message: "This is two message",
         },
-        chatMessageThree:{
+        chatMessageThree: {
             message: "This is three message",
         },
     };
     let token;
     async.series([
             function (isDone) {
-                exports.testBuild_createUsersAndVenues(server, null, function (res) {
+                exports.testBuild_createUsersVenuesAndImages(server, null, function (res) {
                     Object.assign(result, res);
                     token = res.admin.token;
                     let members = [
@@ -452,7 +580,7 @@ exports.testBuild_createUsersVenuesAndChats = function (server, values, callback
             function (isDone) {
                 async.each(["chatCreated", "chatAccepted", "chatRejected", "chatExpired", "chatExhausted"],
                     function (element, isDoneEach) {
-                        exports.test_createChat(server,token, values[element], function (res) {
+                        exports.test_createChat(server, token, values[element], function (res) {
                             result[element] = res;
                             isDoneEach();
                         });
@@ -465,15 +593,15 @@ exports.testBuild_createUsersVenuesAndChats = function (server, values, callback
             function (isDone) {
                 async.each(["chatAccepted"],
                     function (element, isDoneEach) {
-                        async.each(["chatMessageOne"],function (messageElement, isDoneMessage) {
+                        async.each(["chatMessageOne"], function (messageElement, isDoneMessage) {
                             let params = {
                                 message: messages[messageElement].message,
                                 chat: result[element]._id,
                             };
-                            exports.test_createMessage(server,messages[messageElement].token, params, function (res) {
+                            exports.test_createMessage(server, messages[messageElement].token, params, function (res) {
                                 isDoneMessage();
                             });
-                        },function (err) {
+                        }, function (err) {
                             isDoneEach(err)
                         });
                     },

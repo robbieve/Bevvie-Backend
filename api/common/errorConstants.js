@@ -21,6 +21,7 @@ module.exports.errorNames = {
     user_facebookLoginAuthFailure: "user_facebookLoginAuthFailure",
     user_firebaseLoginAuthFailure: "user_firebaseLoginAuthFailure",
     user_banned: "user_banned",
+    checkin_userNotValidated: "checkin_userNotValidated",
     venue_getGeoInvalidLatOrLongErr: "venue_getGeoInvalidLatOrLongErr",
     chat_chatNotYetAccepted: "chat_chatNotYetAccepted",
     chat_chatExhausted: "chat_chatExhausted",
@@ -90,7 +91,13 @@ module.exports.errorCodes = function (code) {
         case module.exports.errorNames.chat_chatBlocked:
             return -303;
             break;
-
+        /**
+         * @apiDefine ErrorCheckinUserNotValidated
+         * @apiError (Any Error) errorCode.-401 User not yet validated
+         */
+        case module.exports.errorNames.checkin_userNotValidated:
+            return -401;
+            break;
         default:
             return -1;
     }
@@ -140,6 +147,10 @@ module.exports.errors = {
     chat_chatBlocked: {
         localizedError: "You cannot chat with that user.",
         rawError: "User blocked: ",
+    },
+    checkin_userNotValidated: {
+        localizedError: "You cannot checkin, your profile has not been validated yet.",
+        rawError: "User not validated: ",
     }
 
 

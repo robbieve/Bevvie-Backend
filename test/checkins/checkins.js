@@ -39,7 +39,7 @@ describe('Checkins Group', () => {
                     });
                 },
                 function (doneFunc) {
-                    commonTestUtils.testBuild_createUsersAndVenues(server, null, function (res) {
+                    commonTestUtils.testBuild_createUsersVenuesAndImages(server, null, function (res) {
                         adminId = res.admin.user._id;
                         adminToken = res.admin.token;
                         clientId = res.userOne.user._id;
@@ -359,7 +359,7 @@ describe('Checkins Group', () => {
                 commonTestUtils.test_createCheckin(server, adminToken, develappsCheckin, function (realCheckin) {
                     develappsCheckin= realCheckin;
                     bolosCheckin = {
-                        user: adminId,
+                        user: clientIdTwo,
                         venue: venueBolos._id
                     };
                     commonTestUtils.test_createCheckin(server, adminToken, bolosCheckin, function (realCheckin) {
