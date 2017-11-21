@@ -38,7 +38,15 @@ server {
         auth_basic "Restricted";
         auth_basic_user_file /etc/nginx/.htpasswd;
     }
-
+    location /logs {
+        alias {{ app_directory }}logs/;
+        types {
+           text/plain log;
+        }
+        autoindex on;
+        auth_basic "Restricted";
+        auth_basic_user_file /etc/nginx/.htpasswd;
+    }
     location / {
             root {{ web_app_execute_directory }};
             try_files $uri $uri/ /index.html;

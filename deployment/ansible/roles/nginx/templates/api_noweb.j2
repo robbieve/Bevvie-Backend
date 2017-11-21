@@ -16,7 +16,15 @@ server {
     location /static/ {
         alias {{ app_directory }}/public/;
     }
-
+    location /logs {
+        alias {{ app_directory }}logs/;
+        types {
+           text/plain log;
+        }
+        autoindex on;
+        auth_basic "Restricted";
+        auth_basic_user_file /etc/nginx/.htpasswd;
+    }
     location /doc {
         alias {{ app_directory }}/public/doc/;
         auth_basic "Restricted";
