@@ -1,0 +1,50 @@
+{
+  "Reports": {
+    "_model": "Report",
+    "report1": {
+      "userReports": "->users.user1",
+      "userReported": "->users.user2",
+      "reason": "pullling my leg!"
+    },
+    "report2": {
+      "userReports": "->users.user3",
+      "userReported": "->users.user2",
+      "reason": "pullling my leg!"
+    },
+    "report3": {
+      "userReports": "->users.user4",
+      "userReported": "->users.user2",
+      "reason": "pullling my leg!"
+    },
+    "report4": {
+      "userReports": "->users.user5",
+      "userReported": "->users.user2",
+      "reason": "pullling my leg!"
+    },
+    "report5": {
+      "userReports": "->users.user6",
+      "userReported": "->users.user2",
+      "reason": "pullling my leg!"
+    },
+    "report6": {
+      "userReports": "->users.user1000",
+      "userReported": "->users.user1090",
+      "reason": "pullling my leg!"
+    },
+    "report7": {
+      "userReports": "->users.user1001",
+      "userReported": "->users.user2",
+      "reason": "pullling my leg!"
+    },
+    "report8": {
+      "userReports": "->users.user1002",
+      "userReported": "->users.user1090",
+      "reason": "pullling my leg!"
+    },
+    "report9": {
+      "userReports": "->users.user1003",
+      "userReported": "->users.user1090",
+      "reason": "pullling my leg!"
+    }
+  }
+}

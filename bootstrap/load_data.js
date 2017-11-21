@@ -27,6 +27,8 @@ let jsonToLoad = {
     admin: require("bootstrap/bevvie/data/adminUsers.json"),
     users: require("bootstrap/bevvie/data/users.json"),
     checkins: require("bootstrap/bevvie/data/checkins.json"),
+    reports: require("bootstrap/bevvie/data/reports.json"),
+
 };
 
 
@@ -85,7 +87,6 @@ function _getUsers() {
 }
 
 function _addRandomUsersAndCheckins(data) {
-
     for (i = 1000; i < 1100; i++) {
         let module = (i % 50) + 20
         let user = {
@@ -120,6 +121,7 @@ function _loadDB(callback) {
     const blocks = require('api/models/users/block');
     const chekins = require('api/models/checkins/checkin');
     const iamges = require('api/models/blobs/images');
+    const reports = require('api/models/users/report');
 
     // Order is important
 

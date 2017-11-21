@@ -97,7 +97,7 @@ router.route('/')
                 function (isDone) {
                     // SORT
                     let sortTransform = {
-                        _default: [["createdAt",1]],
+                        _default: [["createdAt", 1]],
                         createdAt: "createdAt",
                         name: "name",
                         country: "country",
@@ -278,66 +278,73 @@ router.route('/:id/validate')
         userValidator.postValidateValidator,
         function (request, response, next) {
             let sendPushType;
-            let newObject = request.body;
+            let validationObject = request.body;
+            let user = request.object;
             async.series([
                     function (isDone) {
                         if (request.body.about_validated !== undefined) {
-                            newObject.about_validated = request.body.about_validated;
+                            user.about_validated = request.body.about_validated;
                         }
                         isDone();
                     },
                     function (isDone) {
-                        if (!newObject.validated_images || !Array.isArray(newObject.validated_images)){
+                        if (!validationObject.validated_images || !Array.isArray(validationObject.validated_images)) {
                             return isDone();
                         }
                         else {
                             async.each(
-                                newObject.validated_images,
-                                function (element,isDoneImage) {
-                                    Image.findOne({_id: element},function (err,image) {
+                                validationObject.validated_images,
+                                function (element, isDoneImage) {
+                                    Image.findOne({_id: element}, function (err, image) {
                                         if (err) return isDoneImage(err)
                                         image.validated = true;
                                         image.save(isDoneImage);
                                     })
                                 },
                                 function (err) {
-                                    if (newObject.validated_images && Array.isArray(newObject.validated_images) && newObject.validated_images.length>2){
-                                        if (newObject.about_validated===false) {
-                                            sendPushType = constants.pushes.pushTypeNames.validProfileReview;
-                                        }
-                                        else{
-                                            sendPushType = constants.pushes.pushTypeNames.validProfile;
-                                        }
-                                    }
-                                    else{
-                                        sendPushType = constants.pushes.pushTypeNames.invalidProfile;
-
-                                    }
                                     isDone(err);
                                 })
                         }
                     },
                     function (isDone) {
-                        if (!newObject.rejected_images || !Array.isArray(newObject.rejected_images)){
+                        if (!validationObject.rejected_images || !Array.isArray(validationObject.rejected_images)) {
                             return isDone();
                         }
                         else {
                             async.each(
-                                newObject.rejected_images,
-                                function (element,isDoneImage) {
-                                    Image.remove({_id: element},isDoneImage)
+                                validationObject.rejected_images,
+                                function (element, isDoneImage) {
+                                    Image.remove({_id: element}, isDoneImage)
                                 },
                                 function (err) {
                                     isDone(err);
                                 })
                         }
                     },
+                    function (isDone) {
+                        Image.find({_id: {$in: user.images, validated:true} },function (err,images) {
+                            if (!images || images.count < 3){
+                                sendPushType = constants.pushes.pushTypeNames.invalidProfile;
+                            }
+                            else if (validationObject.about_validated || validationObject.about_validated === false){
+                                sendPushType = constants.pushes.pushTypeNames.validProfileReview;
+                            }
+                            else if (validationObject.rejected_images && Array.isArray(validationObject.rejected_images) && validationObject.rejected_images>0) {
+                                sendPushType = constants.pushes.pushTypeNames.validProfileReview;
+                            }
+                            else{
+                                sendPushType = constants.pushes.pushTypeNames.validProfile;
+                            }
+                            isDone();
+                        })
+                    },
+
                 ],
                 function (err) {
                     if (err) return isDone(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
-                    route_utils.postUpdate(User, {'_id': request.params.id}, newObject, request, response, next);
-                    if (sendPushType){
-                        pushUtils.sendValidationPush(request.params.id,sendPushType);
+                    route_utils.postUpdate(User, {'_id': request.params.id}, validationObject, request, response, next);
+                    if (sendPushType) {
+                        pushUtils.sendValidationPush(request.params.id, sendPushType);
                     }
                 })
         })
@@ -381,7 +388,7 @@ router.route('/:id/ban')
                         isDone();
                     },
                     function (isDone) {
-                        token.remove({user: request.params.id},isDone);
+                        token.remove({user: request.params.id}, isDone);
                     }
                 ],
                 function (err) {
@@ -395,7 +402,7 @@ router.route('/:id/deactivate')
         expressValidator,
         function (request, response, next) {
             // If not admin or self, fail
-            if (!request.user.admin && request.user._id.toString() !== request.params.id.toString()) {
+            if (!request.user.admin && request.user._id.toString() !== request.params.id.toString()) {
                 return response.status(403).json({
                     localizedError: 'You are not authorized to deactivate users',
                     rawError: 'user ' + request.user._id + ' is not admin'
@@ -427,13 +434,13 @@ router.route('/:id/deactivate')
                         isDone();
                     },
                     function (isDone) {
-                        token.remove({user: request.params.id},isDone);
+                        token.remove({user: request.params.id}, isDone);
                     },
                     function (isDone) {
-                        device.remove({user: request.params.id},isDone);
+                        device.remove({user: request.params.id}, isDone);
                     },
                     function (isDone) {
-                        checkin.remove({user: request.params.id},isDone);
+                        checkin.remove({user: request.params.id}, isDone);
                     }
                 ],
                 function (err) {
