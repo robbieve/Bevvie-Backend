@@ -17,6 +17,7 @@ const endpoint = '/api/v1/venues';
 const bootstrap = require("bootstrap/load_data");
 
 let clientId = "";
+let clientIdTwo;
 let clientToken = "";
 let adminId = "";
 let adminToken = "";
@@ -60,20 +61,12 @@ describe('Venues Group', () => {
                 });
             },
             function (doneFunc) {
-                let values = JSON.parse(JSON.stringify(commonTestUtils.userConstants.admin));
-                values.email = "good@admin.com";
-                commonTestUtils.test_createUser(server, values, function (res) {
-                    adminId = res.user._id;
-                    adminToken = res.token;
-                    doneFunc();
-                });
-            },
-            function (doneFunc) {
-                let values = JSON.parse(JSON.stringify(commonTestUtils.userConstants.userOne));
-                values.email = "good@client.com";
-                commonTestUtils.test_createUser(server, values, function (res) {
-                    clientId = res.user._id;
-                    clientToken = res.token;
+                commonTestUtils.testBuild_createUsersVenuesAndImages(server, null, function (res) {
+                    adminId = res.admin.user._id;
+                    adminToken = res.admin.token;
+                    clientId = res.userOne.user._id;
+                    clientIdTwo = res.userTwo.user._id;
+                    clientToken = res.userOne.token;
                     doneFunc();
                 });
             },
