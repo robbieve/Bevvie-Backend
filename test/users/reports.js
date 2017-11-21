@@ -234,6 +234,7 @@ describe('Reports Group', () => {
                     .end(function (err, res) {
                         res.body.docs.should.be.an('Array');
                         res.body.docs.should.have.lengthOf(1);
+                        res.body.total.should.equal(2);
                         done();
                     });
             });

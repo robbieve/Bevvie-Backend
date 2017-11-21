@@ -68,7 +68,7 @@ router.route('/')
      * @apiParam {String="createdAt"} sort.field=createdAt field to sort with
      * @apiParam {String="asc","desc"} sort.order=asc whether to sort ascending or descending
      * @apiParam {String="true","false","all"} active=true match active reports or not
-     * @apiDescription If you run with "statistics", a grouped statistic for each reported user will be returned. 
+     * @apiDescription If you run with "statistics", a grouped statistic for each reported user will be returned.
      * @apiSuccess {Object[]} docs       List of reports.
      * @apiSuccess {String}   docs._id   Id of the report.
      * @apiSuccess {String}   docs.versionNumber   versionNumber of the report.
@@ -106,44 +106,76 @@ router.route('/')
             let options = {};
             options["sort"] = route_utils.sortQuery(request.query.sort, sortTransform);
             if (request.query.statistics === "true") {
-                let aggregateSort={};
+                let aggregateSort = {};
                 options.sort.forEach(function (pair) {
-                    aggregateSort[pair[0]]=pair[1];
+                    aggregateSort[pair[0]] = pair[1];
                 })
-                if (query.userReported){ query.userReported = mongoose.Types.ObjectId(query.userReported);}
-                if (query.userReports){ query.userReports = mongoose.Types.ObjectId(query.userReports);}
+                if (query.userReported) {
+                    query.userReported = mongoose.Types.ObjectId(query.userReported);
+                }
+                if (query.userReports) {
+                    query.userReports = mongoose.Types.ObjectId(query.userReports);
+                }
                 Report.aggregate([
-                    {$match: query},
-                    {
-                        $group: {
-                            _id: "$userReported",
-                            count: {$sum: 1},
-                            reports: {'$push': '$$ROOT'},
+                        {$match: query},
+                        {
+                            $group: {
+                                _id: "$userReported",
+                                count: {$sum: 1},
+                                reports: {'$push': '$$ROOT'},
+                            },
                         },
-                    },
-                    { "$lookup": {
-                        "from": "users",
-                        "localField": "_id",
-                        "foreignField": "_id",
-                        "as": "userReported"
-                    }},
-                    { "$unwind": { "path" : "$userReported" } },
-                    {$sort: aggregateSort},
-                    {$skip: request.query.offset ? Number(request.query.offset) : 0},
-                    {$limit: request.query.limit ? Number(request.query.limit) : config.paginationSize}
-                ], function (err, reports) {
-                    if (err) {
-                        return response.status(500).json(errorConstants.responseWithError(errorConstants.errorCodes(errorConstants.errorNames.dbGenericError)));
-                    }else{
-                        let objectResponse = {
-                            offset: request.query.offset ? request.query.offset : 0,
-                            limit: request.query.limit ? request.query.limit : config.paginationSize,
-                            total: reports.length,
-                            docs: reports
+                        {$count: "total"}],
+                    function (err, totalResults) {
+                        if (err) {
+                            return response.status(500).json(errorConstants.responseWithError(errorConstants.errorCodes(errorConstants.errorNames.dbGenericError)));
                         }
-                        response.status(200).json(objectResponse);
-                    }
-                });
+                        else if (!totalResults || totalResults.count === 0 || totalResults[0]["total"]===0) {
+                            response.status(200).json({
+                                offset: 0,
+                                limit: request.query.limit ? request.query.limit : config.paginationSize,
+                                total: 0,
+                                docs: []
+                            });
+                        }
+                        else {
+                            Report.aggregate([
+                                {$match: query},
+                                {
+                                    $group: {
+                                        _id: "$userReported",
+                                        count: {$sum: 1},
+                                        reports: {'$push': '$$ROOT'},
+                                    },
+                                },
+                                {
+                                    "$lookup": {
+                                        "from": "users",
+                                        "localField": "_id",
+                                        "foreignField": "_id",
+                                        "as": "userReported"
+                                    }
+                                },
+                                {"$unwind": {"path": "$userReported"}},
+                                {$sort: aggregateSort},
+                                {$skip: request.query.offset ? Number(request.query.offset) : 0},
+                                {$limit: request.query.limit ? Number(request.query.limit) : config.paginationSize}
+                            ], function (err, reports) {
+                                if (err) {
+                                    return response.status(500).json(errorConstants.responseWithError(errorConstants.errorCodes(errorConstants.errorNames.dbGenericError)));
+                                } else {
+                                    let objectResponse = {
+                                        offset: request.query.offset ? Number(request.query.offset): 0,
+                                        limit: request.query.limit ? Number(request.query.limit): config.paginationSize,
+                                        total: totalResults[0]["total"],
+                                        docs: reports
+                                    }
+                                    response.status(200).json(objectResponse);
+                                }
+                            });
+                        }
+                    });
+
             }
             else {
                 route_utils.getAll(Report,
