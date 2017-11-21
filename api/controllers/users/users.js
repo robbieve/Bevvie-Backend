@@ -322,11 +322,11 @@ router.route('/:id/validate')
                         }
                     },
                     function (isDone) {
-                        Image.find({_id: {$in: user.images, validated:true} },function (err,images) {
-                            if (!images || images.count < 3){
+                        Image.find({_id: {$in: user.images}, validated:true },function (err,images) {
+                            if (!images || images.length < 3){
                                 sendPushType = constants.pushes.pushTypeNames.invalidProfile;
                             }
-                            else if (validationObject.about_validated || validationObject.about_validated === false){
+                            else if (validationObject.about_validated && validationObject.about_validated === false){
                                 sendPushType = constants.pushes.pushTypeNames.validProfileReview;
                             }
                             else if (validationObject.rejected_images && Array.isArray(validationObject.rejected_images) && validationObject.rejected_images>0) {

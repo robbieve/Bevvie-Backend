@@ -663,7 +663,19 @@ describe('Users Group', () => {
                             imageId = objectId;
                             commonTestUtils.test_createImage(server, tokenTwo, aFileTwo, function (objectId) {
                                 imageIdTwo = objectId;
-                                isDone();
+                                aUser.images = [imageId,imageIdTwo];
+
+                                chai.request(server)
+                                    .post(endpoint + '/' + aUser._id)
+                                    .send(aUser)
+                                    .set("Authorization", "Bearer " + adminToken)
+                                    .end(function (err, res) {
+                                        res.should.have.status(200);
+                                        res.should.be.json;
+                                        res.body.should.be.an('Object');
+                                        res.body.should.contain.all.keys('_id', 'updatedAt', 'createdAt', 'name', 'apiVersion', 'admin');
+                                        done()
+                                    });
                             });
                         });
                     },
