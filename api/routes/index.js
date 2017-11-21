@@ -11,6 +11,7 @@ module.exports = function (app) {
         "controllers/checkins": ["checkins"],
         "controllers/chats": ["chats"],
         "controllers/push": ["devices"],
+        "controllers/logs": ["logs"],
     };
     Object.keys(includes).forEach(function (key) {
         includes[key].forEach(function (aRoute) {
