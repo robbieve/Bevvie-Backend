@@ -45,9 +45,11 @@ function _prepost(request, response, next, callback) {
                     else if (!theUser) {
                         return response.status(404).json(errorConstants.responseWithError(request.user.id, errorConstants.errorNames.notFound));
                     }
+                    /* Checkin restrictions removed
+
                     else if (!theUser.about_validated) {
                         return response.status(400).json(errorConstants.responseWithError(theUser, errorConstants.errorNames.checkin_userNotValidated));
-                    }
+                    }*/
                     else {
                         aUser = theUser;
                         isDone();
