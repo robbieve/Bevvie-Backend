@@ -339,7 +339,9 @@ router.route('/:id/validate')
                             }
                             */
 
-                            if (validationObject.about_validated && validationObject.about_validated === "false"){
+                            if (validationObject.about_validated !== undefined &&
+                                (validationObject.about_validated === "false" ||
+                                    validationObject.about_validated === false)){
                                 sendPushType = constants.pushes.pushTypeNames.validProfileReview;
                             }
                             else if (validationObject.rejected_images && Array.isArray(validationObject.rejected_images) && validationObject.rejected_images>0) {
