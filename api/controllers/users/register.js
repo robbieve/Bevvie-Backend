@@ -16,7 +16,7 @@ let dbError = require('lib/loggers/db_error');
 // load the auth variables
 let configAuth = require('config').auth;
 let redis = require("lib/redis/redis");
-
+let moment = require("moment");
 let constants = require('api/common/constants');
 
 // =============
@@ -35,7 +35,7 @@ router.route('/')
      *
      * @apiHeader  {String} register-token Authorization token for registering.
      * @apiDescription This endpoint allows manual user registration.
-     *
+     * @apiParam {Number} expiration=8760 token expiration hours.
      * @apiUse UserParameters
      *
      * @apiSuccess {String} token access token.
@@ -66,7 +66,7 @@ router.route('/')
             });
             user.tokens = [newToken];
             newToken.user = user;
-
+            newToken.expiration = moment().add(request.body.expiration ? Number(request.body.expiration) : 8760,"hours");
             user.save(function (err) {
                 if (err) {
                     return dbError(err, request, response, next)

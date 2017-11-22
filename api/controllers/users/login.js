@@ -38,7 +38,7 @@ router.route('/')
      * @apiParam {Boolean} [adminLogin] whether it is an admin user
      * @apiParam {String} accessKey accessToken of the service
      * @apiParam {String="facebook","firebase","password"} accessType type of auth
-     *
+     * @apiParam {Number} expiration=8760 token expiration hours.
      * @apiSuccess {String} token access token.
      * @apiUse ErrorGroup
      * @apiUse ErrorFacebookLogin
@@ -144,6 +144,7 @@ router.route('/')
             let newToken = new Token({
                 'token': token,
             });
+            newToken.expiration = moment().add(request.body.expiration ? Number(request.body.expiration) : 8760,"hours");
             newToken.user = newUser;
             newToken.save(
                 function (err) {
