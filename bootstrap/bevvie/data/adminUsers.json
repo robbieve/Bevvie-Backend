@@ -3,7 +3,7 @@
     "_model": "User",
     "admin": {
       "accessType": "password",
-      "password": "Develapps16",
+      "password": "Bev2017Pass",
       "name": "admin",
       "admin": true
     }
