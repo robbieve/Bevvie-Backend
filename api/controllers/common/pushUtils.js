@@ -106,6 +106,9 @@ module.exports.sendCreateMessagePush = function (message, callback = function ()
         },
         function (isDone) {
             let usersToNotify = chat.members.filter(function (element) {
+                if (!element.user){
+                    return false;
+                }
                 return element.user._id.toString() !== creatorUser._id.toString();
             }).map(function (element) {
                 return element.user._id

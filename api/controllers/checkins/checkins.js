@@ -58,9 +58,9 @@ function _prepost(request, response, next, callback) {
             },
             function (isDone) {
                 Image
-                    .count({_id: {$in: aUser.images}, validated: true})
+                    .count({_id: {$in: aUser.images}})
                     .then(count => {
-                        if (count < 3) {
+                        if (count < 2) {
                             return response.status(400).json(errorConstants.responseWithError(aUser, errorConstants.errorNames.checkin_userNotValidated));
                         }
                         else {
