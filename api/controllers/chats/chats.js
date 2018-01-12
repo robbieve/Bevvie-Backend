@@ -110,10 +110,7 @@ router.route('/')
                                 if (err) winston.error("CHATS: There was an error saving the first message " + JSON.stringify(err));
                             })
                         }
-                        notCreators.forEach(function (chatUser) {
-                            let user = chatUser.user;
-                            pushUtils.sendCreateChatPush(user, chat);
-                        });
+                        pushUtils.sendCreateChatPush(theCreators[0].user, chat);
                     });
                 });
             });
