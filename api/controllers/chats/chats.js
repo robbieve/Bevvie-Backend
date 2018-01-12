@@ -108,9 +108,9 @@ router.route('/')
                             });
                             message.save(function (err) {
                                 if (err) winston.error("CHATS: There was an error saving the first message " + JSON.stringify(err));
+                                pushUtils.sendCreateChatPush(theCreators[0].user, chat);
                             })
                         }
-                        pushUtils.sendCreateChatPush(theCreators[0].user, chat);
                     });
                 });
             });
