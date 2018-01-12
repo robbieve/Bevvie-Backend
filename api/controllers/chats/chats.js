@@ -433,6 +433,7 @@ router.route('/:id/messages')
                         if (chat.status === constants.chats.chatStatusNames.created) {
                             chat.status = constants.chats.chatStatusNames.accepted;
                         }
+                        // TODO: JUST IF CREATOR'S 3rd Message!
                         if (messagesList.length >= (2 * constants.chats.maxMessages) - 1) {
                             chat.status = constants.chats.chatStatusNames.exhausted;
                         }

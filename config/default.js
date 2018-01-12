@@ -91,7 +91,7 @@ config = {
             ca: null,
             pfx: null,
             passphrase: null,
-            production: process.env.NODE_ENV === 'production',
+            production: process.env.PM2_PUSH_ISPRODUCTION || false,
             voip: false,
             address: null,
             port: 443,
