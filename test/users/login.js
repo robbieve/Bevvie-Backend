@@ -117,7 +117,7 @@ describe('Login Group', () => {
             });
         });
         describe('login/ with facebook arguments', () => {
-            it('should succeed with token argument', (done) => {
+            it.skip('should succeed with token argument', (done) => {
                 chai.request(server)
                     .post(endpoint)
                     .send({'id':adminUserId,
@@ -136,7 +136,7 @@ describe('Login Group', () => {
                         done();
                     });
             });
-            it('should succeed with second login and no new user', (done) => {
+            it.skip('should succeed with second login and no new user', (done) => {
                 chai.request(server)
                     .post(endpoint)
                     .send({'id':adminUserId,
