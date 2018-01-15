@@ -1,6 +1,7 @@
 // Path helper
 require('app-module-path').addPath(__dirname);
 process.setMaxListeners(0);
+require('events').EventEmitter.defaultMaxListeners = 0;
 // Global initialization
 let express = require('express');
 let app = express();

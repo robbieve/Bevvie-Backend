@@ -24,7 +24,9 @@ let clientId = "";
 let clientIdTwo = "";
 let clientToken = "";
 let clientTokenTwo = "";
+let clients = {
 
+}
 let adminId = "";
 let adminToken = "";
 
@@ -54,7 +56,10 @@ describe('Chats Group', () => {
 
                         clientToken = res.userOne.token;
                         clientTokenTwo = res.userTwo.token;
-
+                        clients["clientThree"]={
+                            user: res.userThree.user,
+                            token: res.userThree.token
+                        }
                         Object.keys(allChats).forEach(function (element) {
                             allChats[element] = res[element];
                         });
@@ -130,7 +135,7 @@ describe('Chats Group', () => {
             chai.request(server)
                 .post("/api/v1/blocks")
                 .send({
-                    userBlocks: clientIdTwo,
+                    userBlocks: clients.clientThree.user._id,
                     userBlocked: clientId
                 })
                 .set("Content-Type", "application/json")
@@ -175,7 +180,7 @@ describe('Chats Group', () => {
                         .post(endpoint)
                         .send(allChats.chatCreated)
                         .set("Content-Type", "application/json")
-                        .set("Authorization", "Bearer " + clientTokenTwo)
+                        .set("Authorization", "Bearer " + clients.clientThree.token)
                         .end(function (err, res) {
                             res.should.have.status(200);
                             res.should.be.json;
@@ -531,7 +536,7 @@ describe('Chats Group', () => {
                     .post("/api/v1/chats/" + chat._id + "/messages")
                     .send(message)
                     .set("Content-Type", "application/json")
-                    .set("Authorization", "Bearer " + clientTokenTwo)
+                    .set("Authorization", "Bearer " + clients.clientThree.token)
                     .end(function (err, res) {
                         res.should.have.status(201);
                         res.should.be.json;
@@ -540,7 +545,7 @@ describe('Chats Group', () => {
                         chai.request(server)
                             .get("/api/v1/chats/" + chat._id)
                             .set("Content-Type", "application/json")
-                            .set("Authorization", "Bearer " + clientTokenTwo)
+                            .set("Authorization", "Bearer " + clients.clientThree.token)
                             .end(function (err, res) {
                                 res.should.have.status(200);
                                 res.should.be.json;

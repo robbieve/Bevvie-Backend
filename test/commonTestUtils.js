@@ -211,6 +211,14 @@ exports.userConstants = {
         "accessType": constants.users.accessTypeNames.password,
         "password": "passw0rd",
     },
+    "userThree": {
+        'name': 'userThree',
+        "birthday": moment("19801031", "YYYYMMDD"),
+        'country': "ES",
+        "languages": ["es"],
+        "accessType": constants.users.accessTypeNames.password,
+        "password": "passw0rd",
+    },
 };
 
 exports.facebookConstants = {
@@ -312,7 +320,8 @@ exports.testBuild_createAdminUserAndClients = function (server, values, callback
     values = values ? values : {
         admin: exports.userConstants.admin,
         userOne: exports.userConstants.userOne,
-        userTwo: exports.userConstants.userTwo
+        userTwo: exports.userConstants.userTwo,
+        userThree: exports.userConstants.userThree,
     };
     async.series([
             function (isDone) {
@@ -330,6 +339,12 @@ exports.testBuild_createAdminUserAndClients = function (server, values, callback
             function (isDone) {
                 exports.test_createUser(server, values.userTwo, function (res) {
                     result.userTwo = res;
+                    isDone();
+                });
+            },
+            function (isDone) {
+                exports.test_createUser(server, values.userThree, function (res) {
+                    result.userThree = res;
                     isDone();
                 });
             },
@@ -545,13 +560,22 @@ exports.testBuild_createUsersVenuesAndChats = function (server, values, callback
                             user: res.userTwo.user._id,
                         }
                     ];
+                    let membersCreated= [
+                        {
+                            user: res.userOne.user._id,
+                            creator: true,
+                        },
+                        {
+                            user: res.userThree.user._id,
+                        }
+                    ];
                     messages.chatMessageOne.token = res.userOne.token;
                     messages.chatMessageTwo.token = res.userTwo.token;
                     messages.chatMessageThree.token = res.userOne.token;
 
                     values.chatCreated = {
                         status: constants.chats.chatStatusNames.created,
-                        members: members,
+                        members: membersCreated,
                         message: "Initial message",
                     };
                     values.chatAccepted = {
