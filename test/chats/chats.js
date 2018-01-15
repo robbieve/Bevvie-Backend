@@ -149,6 +149,48 @@ describe('Chats Group', () => {
 
                 });
         });
+        it('should succeed for good values when both users try to create', (done) => {
+            let chat = JSON.parse(JSON.stringify(allChats.chatCreated));
+            delete chat._id;
+            let newChatId;
+            async.series([
+                function (isDone) {
+                    chai.request(server)
+                        .post(endpoint)
+                        .send(allChats.chatCreated)
+                        .set("Content-Type", "application/json")
+                        .set("Authorization", "Bearer " + clientToken)
+                        .end(function (err, res) {
+                            res.should.have.status(201);
+                            res.should.be.json;
+                            res.body.should.be.an('object');
+                            res.body.should.contain.all.keys('_id', 'members', 'status');
+                            newChatId = res.body._id;
+                            res.body.status.should.equal(constants.chats.chatStatusNames.created);
+                            isDone();
+                        });
+                },
+                function (isDone) {
+                    chai.request(server)
+                        .post(endpoint)
+                        .send(allChats.chatCreated)
+                        .set("Content-Type", "application/json")
+                        .set("Authorization", "Bearer " + clientTokenTwo)
+                        .end(function (err, res) {
+                            res.should.have.status(200);
+                            res.should.be.json;
+                            res.body.should.be.an('object');
+                            res.body.should.contain.all.keys('_id', 'members', 'status');
+                            res.body._id.should.equal(newChatId);
+                            res.body.status.should.equal(constants.chats.chatStatusNames.accepted);
+                            isDone();
+                        });
+                },
+            ], function (err) {
+                done();
+            })
+
+        });
     });
     describe('GET', () => {
         before((done) => { //Before each test create the object
@@ -458,11 +500,11 @@ describe('Chats Group', () => {
                                 res.should.be.json;
                                 res.body.should.be.an('object');
                                 res.body.should.contain.all.keys('_id', 'message', 'chat');
-                                messageIdTwo= res.body._id;
+                                messageIdTwo = res.body._id;
                                 doneMessage();
                             });
                     },
-                ],function (err) {
+                ], function (err) {
                     chai.request(server)
                         .get("/api/v1/chats/" + chat._id)
                         .set("Content-Type", "application/json")

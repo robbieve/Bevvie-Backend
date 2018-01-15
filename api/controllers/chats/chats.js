@@ -95,23 +95,35 @@ router.route('/')
                     });
                 }, function (err) {
                     if (err) return response.status(403).json(err);
-                    route_utils.post(Chat, newObject, request, response, next, function (err, chat) {
-                        blockExecutionUtils.programChatDeactivation(chat);
-                        let theCreators = newObject.members.filter(function (element) {
-                            return element && element.user && element.creator;
-                        })
-                        if (theCreators && theCreators[0] && theCreators[0].user) {
-                            let message = new Message({
-                                chat: chat._id,
-                                user: theCreators[0].user,
-                                message: request.body.message ? request.body.message : ""
+                    let ids = newObject.members.map(function (member) {
+                        return member.user;
+                    });
+                    Chat.findOne({ "members.user": { $all: ids} },function(err,chat){
+                        if(chat){
+                            chat.status=constants.chats.chatStatusNames.accepted;
+                            route_utils.postUpdate(Chat, {'_id': request.params.id}, chat, request, response, next);
+                        }
+                        else {
+                            route_utils.post(Chat, newObject, request, response, next, function (err, chat) {
+                                blockExecutionUtils.programChatDeactivation(chat);
+                                let theCreators = newObject.members.filter(function (element) {
+                                    return element && element.user && element.creator;
+                                })
+                                if (theCreators && theCreators[0] && theCreators[0].user) {
+                                    let message = new Message({
+                                        chat: chat._id,
+                                        user: theCreators[0].user,
+                                        message: request.body.message ? request.body.message : ""
+                                    });
+                                    message.save(function (err) {
+                                        if (err) winston.error("CHATS: There was an error saving the first message " + JSON.stringify(err));
+                                        pushUtils.sendCreateChatPush(theCreators[0].user, chat);
+                                    })
+                                }
                             });
-                            message.save(function (err) {
-                                if (err) winston.error("CHATS: There was an error saving the first message " + JSON.stringify(err));
-                                pushUtils.sendCreateChatPush(theCreators[0].user, chat);
-                            })
                         }
                     });
+
                 });
             });
         })
