@@ -12,6 +12,7 @@ let chai = commonTestInit.chai;
 let winston = require('lib/loggers/logger').winston;
 // DB
 let user = require('api/models/users/user');
+let chat = require('api/models/chats/chat');
 
 const endpoint = '/api/v1/users';
 
@@ -45,20 +46,24 @@ describe('Cache Group', () => {
                 });
             }
 
-            user.remove({}, (err) => {
+            chat.remove({}, (err) => {
                 should.not.exist(err);
-                commonTestUtils.testBuild_createUsersVenuesAndChats(server, null, function (res) {
-                    adminUserId = res.admin.user._id;
-                    adminToken = res.admin.token;
-                    userid = res.userOne.user._id;
-                    token = res.userOne.token;
-                    venueDevelapps = res.venueDevelapps;
-                    Object.keys(allChats).forEach(function (element) {
-                        allChats[element] = res[element];
+                user.remove({}, (err) => {
+                    should.not.exist(err);
+                    commonTestUtils.testBuild_createUsersVenuesAndChats(server, null, function (res) {
+                        adminUserId = res.admin.user._id;
+                        adminToken = res.admin.token;
+                        userid = res.userOne.user._id;
+                        token = res.userOne.token;
+                        venueDevelapps = res.venueDevelapps;
+                        Object.keys(allChats).forEach(function (element) {
+                            allChats[element] = res[element];
+                        });
+                        done();
                     });
-                    done();
                 });
-            });
+            })
+
         });
     });
 

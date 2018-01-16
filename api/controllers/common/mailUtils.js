@@ -2,7 +2,8 @@ const User = require('api/models/users/user');
 
 let kue = require('lib/queue/queue');
 let config = require("config");
-let winston = require("lib/loggers/logger").winston;
+let winston = require("lib/loggers/logger").winstonCategoryLogger("MAIL");
+
 let constants = require("api/common/constants");
 
 module.exports.sendDeactivationRequest = function (user, admin, callback = function () {}) {

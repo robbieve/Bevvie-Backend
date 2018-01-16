@@ -2,7 +2,8 @@ const User = require('api/models/users/user');
 
 let kue = require('lib/queue/queue');
 let config = require("config");
-let winston = require("lib/loggers/logger").winston;
+let winston = require("lib/loggers/logger").winstonCategoryLogger("PUSH");
+
 let constants = require("api/common/constants");
 let Push = require("api/models/push/pushes");
 let Chat = require("api/models/chats/chat");
@@ -277,7 +278,7 @@ module.exports.sendRejectedChat = function (aChat, user, callback = function () 
                 });
         }
     ], function (err) {
-        if (err) winston.error("PUSH: an error occurred for " + JSON.stringify(message) + " error: " + JSON.stringify(err));
+        if (err) winston.error("PUSH: an error occurred for " + JSON.stringify(aChat) + " error: " + JSON.stringify(err));
         callback(err);
     });
 };
