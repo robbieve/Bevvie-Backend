@@ -88,7 +88,7 @@ function _getUsers() {
 
 function _addRandomUsersAndCheckins(data) {
 
-    for (i = 1000; i < 1100; i++) {
+    for (i = 1000; i < 1500; i++) {
         let module = (i % 50) + 20
         let user = {
             "accessType": "password",
