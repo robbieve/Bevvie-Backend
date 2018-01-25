@@ -12,7 +12,7 @@ let moment = require("moment");
  * @apiParam (Venue) {String} _id id of the object.
  * @apiParam (Venue) {String} name name of the venue
  * @apiParam (Venue) {String} [image] id of the image
- * @apiParam (Venue) {Number} radius radius where a user can check in
+ * @apiParam (Venue) {Number} [radius=30] radius where a user can check in
  * @apiParam (Venue) {Object} location location of the venue
  * @apiParam (Venue) {String} location.type=Point type of location
  * @apiParam (Venue) {Object[Number]} location.coordinates coordinates for the location (Lat,Long if point)
