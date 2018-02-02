@@ -9,6 +9,25 @@ let moment = require("moment");
 let async = require("async");
 let bootstrap = require('bootstrap/load_data');
 
+let test_catchExceptions = function (callback,block) {
+    try{
+        block();
+    }
+    catch (err){
+        callback(err);
+    }
+}
+
+exports.test_catchExceptions = function (done, block) {
+    try{
+        block();
+        done();
+    }
+    catch (err){
+        done(err);
+    }
+};
+
 exports.test_createUser = function (server, parameters, callback) {
     chai.request(server)
         .post('/api/v1/register')
@@ -16,12 +35,14 @@ exports.test_createUser = function (server, parameters, callback) {
         .set("Content-Type", "application/json")
         .set("register-token", configAuth.baseToken)
         .end(function (err, res) {
-            res.should.have.status(201);
-            res.should.be.json;
-            res.body.should.be.an('object');
-            res.body.should.have.property('token');
-            res.body.should.have.nested.property('user._id');
-            callback(res.body);
+            test_catchExceptions(callback,function () {
+                res.should.have.status(201);
+                res.should.be.json;
+                res.body.should.be.an('object');
+                res.body.should.have.property('token');
+                res.body.should.have.nested.property('user._id');
+                callback(res.body);
+            })
         });
 };
 
@@ -32,11 +53,13 @@ exports.test_createVenue = function (server, token, parameters, callback) {
         .set("Content-Type", "application/json")
         .set("Authorization", "Bearer " + token)
         .end(function (err, res) {
-            res.should.have.status(201);
-            res.should.be.json;
-            res.body.should.be.an('object');
-            res.body.should.have.property('_id');
-            callback(res.body);
+            test_catchExceptions(callback,function () {
+                res.should.have.status(201);
+                res.should.be.json;
+                res.body.should.be.an('object');
+                res.body.should.have.property('_id');
+                callback(res.body);
+            });
         });
 };
 
@@ -47,11 +70,13 @@ exports.test_createCheckin = function (server, token, parameters, callback) {
         .set("Content-Type", "application/json")
         .set("Authorization", "Bearer " + token)
         .end(function (err, res) {
-            res.should.have.status(201);
-            res.should.be.json;
-            res.body.should.be.an('object');
-            res.body.should.have.property('_id');
-            callback(res.body);
+            test_catchExceptions(callback,function () {
+                res.should.have.status(201);
+                res.should.be.json;
+                res.body.should.be.an('object');
+                res.body.should.have.property('_id');
+                callback(res.body);
+            });
         });
 };
 
@@ -62,11 +87,13 @@ exports.test_createBlock = function (server, token, parameters, callback) {
         .set("Content-Type", "application/json")
         .set("Authorization", "Bearer " + token)
         .end(function (err, res) {
-            res.should.have.status(201);
-            res.should.be.json;
-            res.body.should.be.an('object');
-            res.body.should.have.property('_id');
-            callback(res.body);
+            test_catchExceptions(callback,function () {
+                res.should.have.status(201);
+                res.should.be.json;
+                res.body.should.be.an('object');
+                res.body.should.have.property('_id');
+                callback(res.body);
+            })
         });
 };
 
@@ -77,11 +104,13 @@ exports.test_createReport = function (server, token, parameters, callback) {
         .set("Content-Type", "application/json")
         .set("Authorization", "Bearer " + token)
         .end(function (err, res) {
-            res.should.have.status(201);
-            res.should.be.json;
-            res.body.should.be.an('object');
-            res.body.should.have.property('_id');
-            callback(res.body);
+            test_catchExceptions(callback,function () {
+                res.should.have.status(201);
+                res.should.be.json;
+                res.body.should.be.an('object');
+                res.body.should.have.property('_id');
+                callback(res.body);
+            });
         });
 };
 
@@ -92,11 +121,14 @@ exports.test_createChat = function (server, token, parameters, callback) {
         .set("Content-Type", "application/json")
         .set("Authorization", "Bearer " + token)
         .end(function (err, res) {
-            res.should.have.status(201);
-            res.should.be.json;
-            res.body.should.be.an('object');
-            res.body.should.have.property('_id');
-            callback(res.body);
+            test_catchExceptions(callback,function () {
+
+                res.should.have.status(201);
+                res.should.be.json;
+                res.body.should.be.an('object');
+                res.body.should.have.property('_id');
+                callback(res.body);
+            });
         });
 };
 
@@ -107,11 +139,13 @@ exports.test_createMessage = function (server, token, parameters, callback) {
         .set("Content-Type", "application/json")
         .set("Authorization", "Bearer " + token)
         .end(function (err, res) {
-            res.should.have.status(201);
-            res.should.be.json;
-            res.body.should.be.an('object');
-            res.body.should.have.property('_id');
-            callback(res.body);
+            test_catchExceptions(callback,function () {
+                res.should.have.status(201);
+                res.should.be.json;
+                res.body.should.be.an('object');
+                res.body.should.have.property('_id');
+                callback(res.body);
+            });
         });
 };
 
