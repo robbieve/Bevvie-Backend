@@ -132,7 +132,7 @@ router.route('/')
                 if (!geo.lat || !geo.long) {
                     return response.status(400).json(errorConstants.responseWithError(err, errorConstants.errorNames.venue_getGeoInvalidLatOrLongErr));
                 }
-                let distance = geo.dist ? geo.dist : 30000;
+                let distance = geo.dist ? geo.dist : 20000;
                 distance = parseFloat(distance);
                 let distances = [];
                 Venue.geoNear(
