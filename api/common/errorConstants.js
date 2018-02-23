@@ -149,7 +149,7 @@ module.exports.errors = {
         rawError: "User blocked: ",
     },
     checkin_userNotValidated: {
-        localizedError: "You cannot checkin, your profile has not been validated yet.",
+        localizedError: "You cannot check in, you need to add at least 2 pictures to your profile.",
         rawError: "User not validated: ",
     }
 
