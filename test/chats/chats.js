@@ -154,7 +154,7 @@ describe('Chats Group', () => {
 
                 });
         });
-        it('should succeed for good values when both users try to create', (done) => {
+        it('should fail for cooldown when both users try to create a second chat (current chat did not had a created status)', (done) => {
             let chat = JSON.parse(JSON.stringify(allChats.chatCreated));
             delete chat._id;
             let newChatId;
@@ -182,12 +182,8 @@ describe('Chats Group', () => {
                         .set("Content-Type", "application/json")
                         .set("Authorization", "Bearer " + clients.clientThree.token)
                         .end(function (err, res) {
-                            res.should.have.status(200);
+                            res.should.have.status(409);
                             res.should.be.json;
-                            res.body.should.be.an('object');
-                            res.body.should.contain.all.keys('_id', 'members', 'status');
-                            res.body._id.should.equal(newChatId);
-                            res.body.status.should.equal(constants.chats.chatStatusNames.accepted);
                             isDone();
                         });
                 },
@@ -218,17 +214,29 @@ describe('Chats Group', () => {
                 chai.request(server)
                     .get(endpoint)
                     .set("Content-Type", "application/json")
+                    .query({'venue': allChats.chatCreated.venue})
                     .end(function (err, res) {
                         res.should.have.status(401);
                         done();
                     });
             });
-            it('should succeed with client token', (done) => {
+            it('should fail with no venue id', function (done) {
+                chai.request(server)
+                .get(endpoint)
+                .set("Content-Type", "application/json")
+                .set("Authorization", "Bearer " + clientToken)
+                .end(function (err, res) {
+                    res.should.have.status(400);
+                    done();
+                });
+            });
+            it('should succeed with client token', function (done) {
                 chai.request(server)
                     .get(endpoint)
                     .set("Content-Type", "application/json")
                     .set("Authorization", "Bearer " + clientToken)
-                    .end(function (err, res) {
+                .query({'venue': allChats.chatCreated.venue})
+                .end(function (err, res) {
                         commonTestUtils.test_pagination(err, res, function () {
                             res.body.docs.should.be.an('Array');
                             res.body.docs.should.have.lengthOf(2);
@@ -236,12 +244,13 @@ describe('Chats Group', () => {
                         });
                     });
             });
-            it('should succeed with admin token', (done) => {
+            it('should succeed with admin token', function (done) {
                 chai.request(server)
                     .get(endpoint)
                     .set("Content-Type", "application/json")
                     .set("Authorization", "Bearer " + adminToken)
-                    .end(function (err, res) {
+                .query({'venue': allChats.chatCreated.venue})
+                .end(function (err, res) {
                         commonTestUtils.test_pagination(err, res, function () {
                             res.body.docs.should.be.an('Array');
                             res.body.docs.should.have.lengthOf(2);
@@ -249,12 +258,12 @@ describe('Chats Group', () => {
                         });
                     });
             });
-
             it('should succeed with user', function (done) {
                 chai.request(server)
                     .get(endpoint)
                     .query({'user': clientId})
                     .set("Authorization", "Bearer " + adminToken)
+                    .query({'venue': allChats.chatCreated.venue})
                     .end(function (err, res) {
                         commonTestUtils.test_pagination(err, res, function () {
                             res.body.docs.should.be.an('Array');
@@ -267,7 +276,7 @@ describe('Chats Group', () => {
             it('should succeed with status', function (done) {
                 chai.request(server)
                     .get(endpoint)
-                    .query({'status': constants.chats.chatStatusNames.accepted})
+                    .query({'status': constants.chats.chatStatusNames.accepted, 'venue': allChats.chatCreated.venue})
                     .set("Authorization", "Bearer " + adminToken)
                     .end(function (err, res) {
                         commonTestUtils.test_pagination(err, res, function () {
@@ -278,7 +287,19 @@ describe('Chats Group', () => {
                         });
                     });
             });
-
+            it('should fail with not valid venue id', function (done) {
+                chai.request(server)
+                    .get(endpoint)
+                    .query({'venue': '5ae9a59f69fa8d13df6b8fe0'})
+                    .set("Authorization", "Bearer " + adminToken)
+                    .end(function (err, res) {
+                        commonTestUtils.test_pagination(err, res, function () {
+                            res.body.docs.should.be.an('Array');
+                            res.body.docs.should.have.lengthOf(0);
+                            done();
+                        });
+                    });
+            });
             it('should succeed with statuses', function (done) {
                 chai.request(server)
                     .get(endpoint)
@@ -287,7 +308,8 @@ describe('Chats Group', () => {
                             constants.chats.chatStatusNames.created,
                             constants.chats.chatStatusNames.accepted,
                             constants.chats.chatStatusNames.exhausted,
-                        ]
+                        ],
+                        'venue': allChats.chatCreated.venue,
                     })
                     .set("Authorization", "Bearer " + adminToken)
                     .end(function (err, res) {
@@ -557,12 +579,14 @@ describe('Chats Group', () => {
 
                     });
             });
-            it('should fail for fourth message ', (done) => {
+            it('should fail for sixth message ', (done) => {
                 let chat = JSON.parse(JSON.stringify(allChats.chatAccepted));
                 let message = {
                     message: "This is a test message"
                 };
-                async.eachSeries([message, message, message],
+                let messages = [];
+                while(messages.length < constants.chats.maxMessages){ messages.push(message)};
+                async.eachSeries(messages,
                     function (aMessage, doneMessage) {
                         chai.request(server)
                             .post("/api/v1/chats/" + chat._id + "/messages")
@@ -596,7 +620,9 @@ describe('Chats Group', () => {
                 let message = {
                     message: "This is a test message"
                 };
-                async.eachSeries([message, message, message],
+            let messages = [];
+            while(messages.length < constants.chats.maxMessages){ messages.push(message)};
+            async.eachSeries(messages,
                     function (aMessage, doneMessage) {
                         chai.request(server)
                             .post("/api/v1/chats/" + chat._id + "/messages")

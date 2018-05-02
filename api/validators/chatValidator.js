@@ -14,7 +14,7 @@ module.exports.getOneValidator = function (request, response, next) {
 module.exports.getValidator = function (request, response, next) {
     request.checkQuery('user', 'No valid user provided').optional().isObjectId();
     request.checkQuery('status', 'No valid status provided').optional().isArrayAndIsIn(constants.chats.chatStatuses);
-    request.checkQuery('venue', 'No valid venue provided').optional().isObjectId();
+    request.checkQuery('venue', 'No valid venue provided').isObjectId();
     request.checkQuery('maxAge', 'No valid maxAge provided').optional().isNumeric();
     request.checkQuery('minAge', 'No valid minAge provided').optional().isNumeric();
     request.checkQuery('limit', 'No valid limit provided').optional().isNumeric();
@@ -24,6 +24,7 @@ module.exports.getValidator = function (request, response, next) {
 
 module.exports.postValidator = function (request, response, next) {
     request.checkBody('status', 'No valid status provided').isIn(constants.chats.chatStatuses);
+    request.checkBody('venue', 'No valid venue provided').isObjectId();
     commonFunctions.validate(request,response,next);
 };
 

@@ -26,6 +26,8 @@ module.exports.errorNames = {
     chat_chatNotYetAccepted: "chat_chatNotYetAccepted",
     chat_chatExhausted: "chat_chatExhausted",
     chat_chatBlocked: "chat_chatBlocked",
+    chat_cooldown: "chat_cooldown",
+    chat_maxMessages: "chat_max_messages",
 };
 
 module.exports.errorCodes = function (code) {
@@ -92,6 +94,20 @@ module.exports.errorCodes = function (code) {
             return -303;
             break;
         /**
+         * @apiDefine ErrorChatCooldown
+         * @apiError (Any Error) errorCode.-304 Chat cooldown
+         */
+        case module.exports.errorNames.chat_cooldown:
+            return -304;
+            break;
+        /**
+         * @apiDefine ErrorChatMaxMessages
+         * @apiError (Any Error) errorCode.-305 Chat max messages
+         */
+        case module.exports.errorNames.chat_maxMessages:
+            return -305
+            break;
+        /**
          * @apiDefine ErrorCheckinUserNotValidated
          * @apiError (Any Error) errorCode.-401 User not yet validated
          */
@@ -147,6 +163,14 @@ module.exports.errors = {
     chat_chatBlocked: {
         localizedError: "You cannot chat with that user.",
         rawError: "User blocked: ",
+    },
+    chat_cooldown: {
+        localizedError: "You cannot chat with that user because you created a chat in the last 30 minutes.",
+        rawError: "Cooldown: ",
+    },
+    chat_maxMessages: {
+        localizedError: "You cannot send more messages to this chat.",
+        rawError: "Max messages: ",
     },
     checkin_userNotValidated: {
         localizedError: "You cannot check in, you need to add at least 2 pictures to your profile.",

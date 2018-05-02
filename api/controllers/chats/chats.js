@@ -98,10 +98,17 @@ router.route('/')
                     let ids = newObject.members.map(function (member) {
                         return member.user;
                     });
-                    Chat.findOne({ "members.user": { $all: ids} },function(err,chat){
+                    Chat.find({ "members.user": { $all: ids}, "venue": newObject.venue},{sort: ['createdAt', -1], limit: 1},function(err,chats){
+                        let chat = Array.isArray(chats) && chats.length > 0 ? chats[0] : undefined;
                         if(chat){
-                            chat.status=constants.chats.chatStatusNames.accepted;
-                            route_utils.postUpdate(Chat, {'_id': request.params.id}, chat, request, response, next);
+                            if ( chat.status === constants.chats.chatStatusNames.created ) {
+                                chat.status = constants.chats.chatStatusNames.accepted;
+                                route_utils.postUpdate(Chat, {'_id': request.params.id}, chat, request, response, next);
+                            }
+                            // 30 MINUTES COOLDOWN
+                            else if(moment.duration(moment().diff(moment(chat.createdAt))).asMinutes() < 30) {
+                                return response.status(409).json(errorConstants.responseWithError(null, errorConstants.errorNames.chat_chatBlocked));
+                            }
                         }
                         else {
                             route_utils.post(Chat, newObject, request, response, next, function (err, chat) {
@@ -143,10 +150,12 @@ router.route('/')
      * @apiParam {String="createdAt","updatedAt"} sort.field=createdAt field to sort with
      * @apiParam {String="asc","desc"} sort.order=asc whether to sort ascending or descending
      * @apiParam {String="true","false","all"} active=true match active chats or not
-
+     *
      * @apiSuccess {Object[]} docs       List of chats.
      * @apiSuccess {String}   docs._id   Id of the chat.
      * @apiSuccess {String}   docs.versionNumber   versionNumber of the chat.
+     * @apiSuccess   {String}   venue match chats on this venue
+     *
      * @apiUse ErrorGroup
      * @apiUse PaginationGroup
      */
@@ -159,6 +168,7 @@ router.route('/')
                 directQuery: {
                     "status": "status",
                     "user": "members.user",
+                    "venue": "venue",
                 },
                 other: {
                     active: {
@@ -443,7 +453,11 @@ router.route('/:id/messages')
                             chat.status = constants.chats.chatStatusNames.accepted;
                         }
                         // TODO: JUST IF CREATOR'S 3rd Message!
-                        if (messagesList.length >= (2 * constants.chats.maxMessages) - 1) {
+                        let sender = DBMessage.user;
+                        if(messagesList.map(message => { return message.user === sender ? item : undefined}) >= constants.chats.maxMessages) {
+                            return response.status(409).json(errorConstants.responseWithError(null, errorConstants.errorNames.chat_maxMessages));
+                        }
+                        if (messagesList.length >= (constants.chats.maxMessages*2)-1) {
                             chat.status = constants.chats.chatStatusNames.exhausted;
                         }
 
