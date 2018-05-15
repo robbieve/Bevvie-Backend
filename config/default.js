@@ -51,6 +51,7 @@ config = {
         save_statistics: true,
     },
     chatMaxTime: 2*60*1000, // 8* 60 * 60 * 1000,
+    chatCoolDown: 1*60*1000,//30*60*1000,
     'kue': {
         "cleanupMinutes": 60,
     },

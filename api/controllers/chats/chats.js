@@ -27,6 +27,9 @@ const errorConstants = require('api/common/errorConstants');
 const moment = require("moment");
 let redis = require("lib/redis/redis");
 
+var config = module.exports = new Config();
+
+
 // Prepost function
 function _prepost(request, response, next, callback) {
     let newObject = request.body;
@@ -106,7 +109,7 @@ router.route('/')
                                 route_utils.postUpdate(Chat, {'_id': request.params.id}, chat, request, response, next);
                             }
                             // 30 MINUTES COOLDOWN
-                            else if(moment.duration(moment().diff(moment(chat.createdAt))).asMinutes() < 30) {
+                            else if(moment.duration(moment().diff(moment(chat.createdAt))).asMinutes() < config.chatCoolDown) {
                                 return response.status(409).json(errorConstants.responseWithError(null, errorConstants.errorNames.chat_chatBlocked));
                             }
                         }
