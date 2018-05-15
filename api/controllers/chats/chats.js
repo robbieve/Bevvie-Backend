@@ -109,7 +109,7 @@ router.route('/')
                                 route_utils.postUpdate(Chat, {'_id': request.params.id}, chat, request, response, next);
                             }
                             // 30 MINUTES COOLDOWN
-                            else if(moment.duration(moment().diff(moment(chat.createdAt))).asMinutes() < config.chatCoolDown) {
+                            else if(moment.duration(moment().diff(moment(chat.createdAt))).asMinutes() < config.chatCoolDownMinutes) {
                                 return response.status(409).json(errorConstants.responseWithError(null, errorConstants.errorNames.chat_cooldown));
                             }
                         }

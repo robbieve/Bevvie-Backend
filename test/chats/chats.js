@@ -38,7 +38,7 @@ let allChats = {
     chatExhausted: {},
 };
 
-describe('Chats Group', () => {
+describe('Chats Group', function()  {
     // Needed to not recreate schemas
     before(function (done) {
         async.series([
@@ -85,7 +85,7 @@ describe('Chats Group', () => {
             });
         });
     });
-    describe('POST', () => {
+    describe('POST', function() {
         beforeEach((done) => { //Before each test we empty the database
             chats.remove({}, (err) => {
                 messages.remove({}, (err) => {
@@ -154,7 +154,7 @@ describe('Chats Group', () => {
 
                 });
         });
-        it('should fail for cooldown when both users try to create a second chat (current chat did not had a created status)', (done) => {
+        it('should fail for cooldown when both users try to create a second chat (current chat did not had a created status)', function(done) {
             let chat = JSON.parse(JSON.stringify(allChats.chatCreated));
             delete chat._id;
             let newChatId;
