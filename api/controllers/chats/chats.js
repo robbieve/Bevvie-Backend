@@ -115,7 +115,7 @@ router.route('/')
                                 blockExecutionUtils.programChatDeactivation(chat);
                                 let theCreators = newObject.members.filter(function (element) {
                                     return element && element.user && element.creator;
-                                })
+                                });
                                 if (theCreators && theCreators[0] && theCreators[0].user) {
                                     let message = new Message({
                                         chat: chat._id,
@@ -416,7 +416,7 @@ router.route('/:id/messages')
                             if (err) return response.status(500).json(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
                             ownMessages = messages.filter(function (message) {
                                 return message.user._id.toString() === request.user._id.toString();
-                            })
+                            });
                             if (ownMessages.length >= constants.chats.maxMessages) {
                                 return response.status(400).json(errorConstants.responseWithError(chat, errorConstants.errorNames.chat_chatExhausted));
                             }
@@ -452,7 +452,7 @@ router.route('/:id/messages')
                         if (chat.status === constants.chats.chatStatusNames.created) {
                             chat.status = constants.chats.chatStatusNames.accepted;
                         }
-                        // TODO: JUST IF CREATOR'S 3rd Message!
+                        // TODO: JUST IF CREATOR'S 5th Message!
                         let sender = DBMessage.user;
                         if(messagesList.map(message => { return message.user === sender ? item : undefined}) >= constants.chats.maxMessages) {
                             return response.status(409).json(errorConstants.responseWithError(null, errorConstants.errorNames.chat_maxMessages));
