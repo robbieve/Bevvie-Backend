@@ -110,7 +110,7 @@ router.route('/')
                             }
                             // 30 MINUTES COOLDOWN
                             else if(moment.duration(moment().diff(moment(chat.createdAt))).asMinutes() < config.chatCoolDown) {
-                                return response.status(409).json(errorConstants.responseWithError(null, errorConstants.errorNames.chat_chatBlocked));
+                                return response.status(409).json(errorConstants.responseWithError(null, errorConstants.errorNames.chat_cooldown));
                             }
                         }
                         else {
