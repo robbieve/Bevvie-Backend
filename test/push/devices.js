@@ -60,7 +60,7 @@ describe('Devices Group', () => {
             });
         });
     });
-    describe('POST', () => {
+    describe('POST', function() {
         beforeEach((done) => { //Before each test we empty the database
             devices.remove({}, (err) => {
                 should.not.exist(err);
@@ -110,7 +110,7 @@ describe('Devices Group', () => {
                     });
                 });
         });
-        it('should fail for duplicate pushToken', (done) => {
+        it('should succedd for duplicate pushToken', (done) => {
             chai.request(server)
                 .post(endpoint)
                 .send(develappsDevice)
@@ -127,9 +127,12 @@ describe('Devices Group', () => {
                         .set("Content-Type", "application/json")
                         .set("Authorization", "Bearer " + adminToken)
                         .end(function (err, res) {
-                            commonTestUtils.test_error(409, err, res, function () {
-                                done();
-                            });
+                            res.should.have.status(201);
+                            res.should.be.json;
+                            res.body.should.be.an('object');
+                            res.body.should.contain.all.keys('_id', 'pushToken', 'user');
+
+                            done();
                         });
                 });
         });

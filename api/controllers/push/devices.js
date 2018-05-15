@@ -58,13 +58,13 @@ router.route('/')
                 Device.findOne({pushToken: newObject.pushToken}, function (err, token) {
                     if (err) return response.status(500).json(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
                     if (token) {
-                        return response.status(409).json({
-                            localizedError: 'Token exists',
-                            rawError: 'token ' + JSON.stringify(token),
-                            data: token
+                        Device.remove({pushToken: newObject.pushToken}, function (err, res) {
+                            if (err) return response.status(500).json(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
+                            route_utils.post(Device, newObject, request, response, next);
                         });
+                    } else {
+                        route_utils.post(Device, newObject, request, response, next);
                     }
-                    route_utils.post(Device, newObject, request, response, next);
                 })
 
             });
