@@ -27,7 +27,7 @@ const errorConstants = require('api/common/errorConstants');
 const moment = require("moment");
 let redis = require("lib/redis/redis");
 
-var config = module.exports = new Config();
+var config = require('config');
 
 
 // Prepost function
