@@ -103,7 +103,8 @@ router.route('/')
                     });
                     Chat.find({ "members.user": { $all: ids}, "venue": newObject.venue},{sort: ['createdAt', -1], limit: 1},function(err,chats){
                         let chat = Array.isArray(chats) && chats.length > 0 ? chats[0] : undefined;
-                        if(!chat || moment.duration(moment().diff(moment(chat.createdAt))).asMinutes() > config.chatCoolDownMinutes){
+                        let diff = chat ? moment.duration(moment().diff(moment(chat.createdAt))).asMinutes() : config.chatCoolDownMinutes+1;
+                        if(!chat || diff > config.chatCoolDownMinutes){
                             route_utils.post(Chat, newObject, request, response, next, function (err, chat) {
                                 blockExecutionUtils.programChatDeactivation(chat);
                                 let theCreators = newObject.members.filter(function (element) {
@@ -123,12 +124,14 @@ router.route('/')
                             });
                         }
                         else {
+                            let diff = chat ? moment.duration(moment().diff(moment(chat.createdAt))).asMinutes() : config.chatCoolDownMinutes+1;
+
                             if ( chat.status === constants.chats.chatStatusNames.created ) {
                                 chat.status = constants.chats.chatStatusNames.accepted;
                                 route_utils.postUpdate(Chat, {'_id': request.params.id}, chat, request, response, next);
                             }
                             // 30 MINUTES COOLDOWN
-                            else if(moment.duration(moment().diff(moment(chat.createdAt))).asMinutes() < config.chatCoolDownMinutes) {
+                            else if(diff < config.chatCoolDownMinutes) {
                                 return response.status(409).json(errorConstants.responseWithError("Cooldown status: "+moment.duration(moment().diff(moment(chat.createdAt))).asMinutes(), errorConstants.errorNames.chat_cooldown));
                             }else {
                                 return response.status(500).json(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
