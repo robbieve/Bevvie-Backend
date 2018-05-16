@@ -101,10 +101,13 @@ router.route('/')
                     let ids = newObject.members.map(function (member) {
                         return member.user;
                     });
-                    Chat.find({ "members.user": { $all: ids}, "venue": newObject.venue},{sort: ['createdAt', -1], limit: 1},function(err,chats){
+                    Chat.find({
+                        "members.user": {$all: ids},
+                        "venue": newObject.venue
+                    }).sort({createdAt: -1}).limit(1).exec(function (err, chats) {
                         let chat = Array.isArray(chats) && chats.length > 0 ? chats[0] : undefined;
-                        let diff = chat ? moment.duration(moment().diff(moment(chat.createdAt))).asMinutes() : config.chatCoolDownMinutes+1;
-                        if(!chat || diff > config.chatCoolDownMinutes){
+                        let diff = chat ? moment.duration(moment().diff(moment(chat.createdAt))).asMinutes() : 0;
+                        if (!chat || diff > config.chatCoolDownMinutes) {
                             route_utils.post(Chat, newObject, request, response, next, function (err, chat) {
                                 blockExecutionUtils.programChatDeactivation(chat);
                                 let theCreators = newObject.members.filter(function (element) {
@@ -124,21 +127,20 @@ router.route('/')
                             });
                         }
                         else {
-                            let diff = chat ? moment.duration(moment().diff(moment(chat.createdAt))).asMinutes() : config.chatCoolDownMinutes+1;
+                            let diff = chat ? moment.duration(moment().diff(moment(chat.createdAt))).asMinutes() : 0;
 
-                            if ( chat.status === constants.chats.chatStatusNames.created ) {
+                            // 30 MINUTES COOLDOWN
+                            if (diff < config.chatCoolDownMinutes) {
+                                return response.status(409).json(errorConstants.responseWithError("Cooldown status: " + moment.duration(moment().diff(moment(chat.createdAt))).asMinutes(), errorConstants.errorNames.chat_cooldown));
+                            }else if (chat.status === constants.chats.chatStatusNames.created) {
                                 chat.status = constants.chats.chatStatusNames.accepted;
                                 route_utils.postUpdate(Chat, {'_id': request.params.id}, chat, request, response, next);
                             }
-                            // 30 MINUTES COOLDOWN
-                            else if(diff < config.chatCoolDownMinutes) {
-                                return response.status(409).json(errorConstants.responseWithError("Cooldown status: "+moment.duration(moment().diff(moment(chat.createdAt))).asMinutes(), errorConstants.errorNames.chat_cooldown));
-                            }else {
+                            else {
                                 return response.status(500).json(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
                             }
                         }
                     });
-
                 });
             });
         })
@@ -462,10 +464,13 @@ router.route('/:id/messages')
                         }
                         // TODO: JUST IF CREATOR'S 5th Message!
                         let sender = DBMessage.user;
-                        if(messagesList.map(message => { return message.user === sender ? item : undefined}) >= constants.chats.maxMessages) {
+                        if (messagesList.map(message => {return message.user === sender ? item : undefined}) >=
+                        constants.chats.maxMessages
+                    )
+                        {
                             return response.status(409).json(errorConstants.responseWithError(null, errorConstants.errorNames.chat_maxMessages));
                         }
-                        if (messagesList.length >= (constants.chats.maxMessages*2)-1) {
+                        if (messagesList.length >= (constants.chats.maxMessages * 2) - 1) {
                             chat.status = constants.chats.chatStatusNames.exhausted;
                         }
 
