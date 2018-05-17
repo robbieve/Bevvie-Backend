@@ -136,13 +136,13 @@ router.route('/')
                                 return response.status(409).json(errorConstants.responseWithError("CURRENT TIME: " + moment.duration(moment().diff(moment(chatInCurrentVenue.createdAt))).asMinutes(), errorConstants.errorNames.chat_cooldown));
                             }
                         }else { // 2
-                            Chat.find({"member.user": {$all: ids}}).sort({createdAt: -1}).limit(1).exec(function (err, chatsInAllVenues){
+                            Chat.find({"members.user": {$all: ids}}).sort({createdAt: -1}).limit(1).exec(function (err, chatsInAllVenues){
                                let chatInAllVenue = Array.isArray(chatsInAllVenues) && chatsInAllVenues.length > 0 ? chatsInAllVenues[0] : undefined;
 
                                if(chatInAllVenue) { // 2.1
                                    if(moment.duration(moment().diff(moment(chatInAllVenue.createdAt))).asMinutes() < config.chatCoolDownMinutes){
                                        // RETURN 409
-                                       return response.status(409).json(errorConstants.responseWithError("CURRENT TIME: " + moment.duration(moment().diff(moment(chatInOtherVenue.createdAt))).asMinutes(), errorConstants.errorNames.chat_cooldown));
+                                       return response.status(409).json(errorConstants.responseWithError("CURRENT TIME: " + moment.duration(moment().diff(moment(chatInAllVenue.createdAt))).asMinutes(), errorConstants.errorNames.chat_cooldown));
 
                                    }else {
                                        // CREATE CHAT

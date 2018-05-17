@@ -88,7 +88,7 @@ describe('Chats Group', function()  {
         });
     });
     describe('POST', function() {
-        beforeEach((done) => { //Before each test we empty the database
+        beforeEach(function(done) { //Before each test we empty the database
             chats.remove({}, (err) => {
                 messages.remove({}, (err) => {
                     block.remove({}, (err) => {
@@ -98,7 +98,7 @@ describe('Chats Group', function()  {
                 });
             });
         });
-        it('should succeed for good values', (done) => {
+        it('should succeed for good values', function(done) {
             let chat = JSON.parse(JSON.stringify(allChats.chatCreated));
             delete chat._id;
             chai.request(server)
@@ -115,8 +115,7 @@ describe('Chats Group', function()  {
                     done();
                 });
         });
-
-        it('should fail for bad UserId', (done) => {
+        it('should fail for bad UserId', function(done) {
             let chat = JSON.parse(JSON.stringify(allChats.chatCreated));
             delete chat._id;
             chat.members = [{
@@ -133,7 +132,7 @@ describe('Chats Group', function()  {
                     });
                 });
         });
-        it('should fail for blocked user UserId', (done) => {
+        it('should fail for blocked user UserId', function(done) {
             chai.request(server)
                 .post("/api/v1/blocks")
                 .send({
@@ -156,7 +155,7 @@ describe('Chats Group', function()  {
 
                 });
         });
-        it('should fail for cooldown when both users try to create a second chat (current chat did not had a created status)', function(done) {
+        it('should fail for cooldown when both users try to create a second chat', function(done) {
             let chat = JSON.parse(JSON.stringify(allChats.chatCreated));
             delete chat._id;
             let newChatId;
@@ -200,8 +199,105 @@ describe('Chats Group', function()  {
                 done();
             })
         });
+        it('should fail for cooldown when both users try to create a second chat in other venue', function(done) {
+            let chat = JSON.parse(JSON.stringify(allChats.chatCreated));
+            delete chat._id;
+            let newChatId;
+            async.series([
+                function (isDone) {
+                    chai.request(server)
+                        .post(endpoint)
+                        .send(allChats.chatCreated)
+                        .set("Content-Type", "application/json")
+                        .set("Authorization", "Bearer " + clientToken)
+                        .end(function (err, res) {
+                            res.should.have.status(201);
+                            res.should.be.json;
+                            res.body.should.be.an('object');
+                            res.body.should.contain.all.keys('_id', 'members', 'status');
+                            newChatId = res.body._id;
+                            res.body.status.should.equal(constants.chats.chatStatusNames.created);
+                            isDone();
+                        });
+                },
+                function (isDone) {
+                    venues.find({"name":commonTestUtils.venueConstants.venueBolos},{limit:1}, function(err, retrievedVenues) {
+                        let secondVenue = Array.isArray(retrievedVenues) && retrievedVenues.length > 0 ? retrievedVenues[0] : undefined;
+
+                        if (secondVenue) {
+                            _.set(allChats.chatCreated, 'venue', secondVenue._id.toString());
+                        }
+                        chai.request(server)
+                            .post(endpoint)
+                            .send(allChats.chatCreated)
+                            .set("Content-Type", "application/json")
+                            .set("Authorization", "Bearer " + clients.clientThree.token)
+                            .end(function (err, res) {
+                                res.should.have.status(409);
+                                res.should.be.json;
+                                isDone();
+                            });
+                    })
+                },
+            ], function (err) {
+                done();
+            })
+        });
+        it.skip('should succeed for cooldown when both users try to create a second chat in other venue 30 minutes after', function(done) {
+            let chat = JSON.parse(JSON.stringify(allChats.chatCreated));
+            delete chat._id;
+            let newChatId;
+            async.series([
+                function (isDone) {
+                    chai.request(server)
+                        .post(endpoint)
+                        .send(allChats.chatCreated)
+                        .set("Content-Type", "application/json")
+                        .set("Authorization", "Bearer " + clientToken)
+                        .end(function (err, res) {
+                            res.should.have.status(201);
+                            res.should.be.json;
+                            res.body.should.be.an('object');
+                            res.body.should.contain.all.keys('_id', 'members', 'status');
+                            newChatId = res.body._id;
+                            res.body.status.should.equal(constants.chats.chatStatusNames.created);
+                            isDone();
+                        });
+                },
+                function (isDone) {
+                    venues.find({"name":commonTestUtils.venueConstants.venueBolos},{limit:1}, function(err, retrievedVenues) {
+                        let secondVenue = Array.isArray(retrievedVenues) && retrievedVenues.length > 0 ? retrievedVenues[0] : undefined;
+
+                        let usersID = allChats.chatCreated.members.map(item =>{ return item._id});
+                        chats.find(function (err, chats){
+                           let chat = Array.isArray(chats) && chats.length > 0 ? chats[0] : undefined;
+                           chat.createdAt = moment().add(-8,"hour");
+                           chat.status = constants.chats.chatStatusNames.exhausted;
+                           chat.save(function(err){
+                               should.not.exist(err);
+
+                               chai.request(server)
+                                   .post(endpoint)
+                                   .send(allChats.chatCreated)
+                                   .set("Content-Type", "application/json")
+                                   .set("Authorization", "Bearer " + clients.clientThree.token)
+                                   .end(function (err, res) {
+                                       res.should.have.status(201);
+                                       res.should.be.json;
+                                       isDone();
+                                   });
+                           });
+                        });
+                    })
+                },
+            ], function (err) {
+                done();
+            })
+        });
+
+
     });
-    describe('GET', () => {
+    describe('GET', function() {
         before((done) => { //Before each test create the object
             chats.remove({}, (err) => {
                 block.remove({}, (err) => {
