@@ -27,6 +27,7 @@ module.exports.sendCreateChatPush = function (user, chat, callback = function ()
                 body: creatorUser.name + ' wants to chat with you', // REQUIRED
                 custom: {
                     chatId: chat._id,
+                    venueId: chat.venue._id,
                     type: constants.pushes.pushTypeNames.chatCreate
                 },
                 priority: 'high', // gcm, apn. Supported values are 'high' or 'normal' (gcm). Will be translated to 10 and 5 for apn. Defaults to 'high'
@@ -130,6 +131,7 @@ module.exports.sendCreateMessagePush = function (message, callback = function ()
                     body: message.message,
                     custom: {
                         chatId: chat._id,
+                        venueId: chat.venue._id,
                         type: constants.pushes.pushTypeNames.chatMessage
                     },
                     priority: 'high', // gcm, apn. Supported values are 'high' or 'normal' (gcm). Will be translated to 10 and 5 for apn. Defaults to 'high'

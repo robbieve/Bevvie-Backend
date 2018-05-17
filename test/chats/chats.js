@@ -268,7 +268,7 @@ describe('Chats Group', function()  {
                     venues.find({"name":commonTestUtils.venueConstants.venueBolos},{limit:1}, function(err, retrievedVenues) {
                         let secondVenue = Array.isArray(retrievedVenues) && retrievedVenues.length > 0 ? retrievedVenues[0] : undefined;
 
-                        let usersID = allChats.chatCreated.members.map(item =>{ return item._id});
+                        let usersID = allChats.chatCreated.members.map(item => { return item._id});
                         chats.find(function (err, chats){
                            let chat = Array.isArray(chats) && chats.length > 0 ? chats[0] : undefined;
                            chat.createdAt = moment().add(-8,"hour");
