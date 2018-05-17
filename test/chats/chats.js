@@ -8,10 +8,12 @@ let constants = require('api/common/constants');
 let moment = require('moment');
 let async = require('async');
 let fs = require('fs');
+let _ = require('lodash');
 
 // User
 let user = require('api/models/users/user');
 let chats = require('api/models/chats/chat');
+let venues = require('api/models/venues/venue');
 let messages = require('api/models/chats/message');
 let block = require('api/models/users/block');
 
@@ -176,21 +178,27 @@ describe('Chats Group', function()  {
                         });
                 },
                 function (isDone) {
-                    chai.request(server)
-                        .post(endpoint)
-                        .send(allChats.chatCreated)
-                        .set("Content-Type", "application/json")
-                        .set("Authorization", "Bearer " + clients.clientThree.token)
-                        .end(function (err, res) {
-                            res.should.have.status(409);
-                            res.should.be.json;
-                            isDone();
-                        });
+                    venues.find({"name":commonTestUtils.venueConstants.venueFarAway.name},{limit:1}, function(err, retrievedVenues) {
+                        let secondVenue = Array.isArray(retrievedVenues) && retrievedVenues.length > 0 ? retrievedVenues[0] : undefined;
+
+                        if (secondVenue) {
+                            // _.set(allChats.chatCreated, 'venue', secondVenue._id.toString());
+                        }
+                        chai.request(server)
+                            .post(endpoint)
+                            .send(allChats.chatCreated)
+                            .set("Content-Type", "application/json")
+                            .set("Authorization", "Bearer " + clients.clientThree.token)
+                            .end(function (err, res) {
+                                res.should.have.status(409);
+                                res.should.be.json;
+                                isDone();
+                            });
+                    })
                 },
             ], function (err) {
                 done();
             })
-
         });
     });
     describe('GET', () => {
