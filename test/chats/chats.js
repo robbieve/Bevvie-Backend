@@ -26,7 +26,7 @@ let clientToken = "";
 let clientTokenTwo = "";
 let clients = {
 
-}
+};
 let adminId = "";
 let adminToken = "";
 

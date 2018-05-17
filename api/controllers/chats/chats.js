@@ -104,42 +104,51 @@ router.route('/')
                     Chat.find({
                         "members.user": {$all: ids},
                         "venue": newObject.venue
-                    }).sort({createdAt: -1}).limit(1).exec(function (err, chats) {
-                        let chat = Array.isArray(chats) && chats.length > 0 ? chats[0] : undefined;
-                        let diff = chat ? moment.duration(moment().diff(moment(chat.createdAt))).asMinutes() : 0;
-                        if (!chat || diff > config.chatCoolDownMinutes) {
-                            route_utils.post(Chat, newObject, request, response, next, function (err, chat) {
-                                blockExecutionUtils.programChatDeactivation(chat);
-                                let theCreators = newObject.members.filter(function (element) {
-                                    return element && element.user && element.creator;
-                                });
-                                if (theCreators && theCreators[0] && theCreators[0].user) {
-                                    let message = new Message({
-                                        chat: chat._id,
-                                        user: theCreators[0].user,
-                                        message: request.body.message ? request.body.message : ""
-                                    });
-                                    message.save(function (err) {
-                                        if (err) winston.error("CHATS: There was an error saving the first message " + JSON.stringify(err));
-                                        pushUtils.sendCreateChatPush(theCreators[0].user, chat);
-                                    })
+                    }).sort({createdAt: -1}).limit(1).exec(function (err, chatsWithVenue) {
+                        Chat.find({
+                            "members.user": {$all: ids},
+                        }).sort({createdAt: -1}).limit(1).exec(function (err, allChats) {
+                            let chatWithVenue = Array.isArray(chatsWithVenue) && chatsWithVenue.length > 0 ? chatsWithVenue[0] : undefined;
+                            let chatInOtherVenue = Array.isArray(allChats) && allChats.length > 0 ? allChats[0] : undefined;
+                            if (!chatWithVenue) { // NO CHAT IN THIS VENUE
+                                let diff = chatInOtherVenue ? moment.duration(moment().diff(moment(chatInOtherVenue.createdAt))).asMinutes() : 0;
+                                if (chatInOtherVenue && diff < config.chatCoolDownMinutes) {
+                                    return response.status(409).json(errorConstants.responseWithError("Cooldown status: " + moment.duration(moment().diff(moment(chatInOtherVenue.createdAt))).asMinutes(), errorConstants.errorNames.chat_cooldown));
                                 }
-                            });
-                        }
-                        else {
-                            let diff = chat ? moment.duration(moment().diff(moment(chat.createdAt))).asMinutes() : 0;
 
-                            // 30 MINUTES COOLDOWN
-                            if (diff < config.chatCoolDownMinutes) {
-                                return response.status(409).json(errorConstants.responseWithError("Cooldown status: " + moment.duration(moment().diff(moment(chat.createdAt))).asMinutes(), errorConstants.errorNames.chat_cooldown));
-                            }else if (chat.status === constants.chats.chatStatusNames.created) {
-                                chat.status = constants.chats.chatStatusNames.accepted;
-                                route_utils.postUpdate(Chat, {'_id': request.params.id}, chat, request, response, next);
+                                route_utils.post(Chat, newObject, request, response, next, function (err, chat) {
+                                    blockExecutionUtils.programChatDeactivation(chat);
+                                    let theCreators = newObject.members.filter(function (element) {
+                                        return element && element.user && element.creator;
+                                    });
+                                    if (theCreators && theCreators[0] && theCreators[0].user) {
+                                        let message = new Message({
+                                            chat: chat._id,
+                                            user: theCreators[0].user,
+                                            message: request.body.message ? request.body.message : ""
+                                        });
+                                        message.save(function (err) {
+                                            if (err) winston.error("CHATS: There was an error saving the first message " + JSON.stringify(err));
+                                            pushUtils.sendCreateChatPush(theCreators[0].user, chat);
+                                        })
+                                    }
+                                });
+
+                            } else { // CHAT IN THIS VENUE
+                                let diff = chatWithVenue ? moment.duration(moment().diff(moment(chatWithVenue.createdAt))).asMinutes() : 0;
+
+                                if (chatWithVenue && diff < config.chatCoolDownMinutes) {
+                                    return response.status(409).json(errorConstants.responseWithError("Cooldown status: " + moment.duration(moment().diff(moment(chatInOtherVenue.createdAt))).asMinutes(), errorConstants.errorNames.chat_cooldown));
+                                }
+                                if (chatWithVenue.status === constants.chats.chatStatusNames.created) {
+                                    chatWithVenue.status = constants.chats.chatStatusNames.accepted;
+                                    route_utils.postUpdate(Chat, {'_id': request.params.id}, chatWithVenue, request, response, next);
+                                }
+                                else {
+                                    return response.status(500).json(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
+                                }
                             }
-                            else {
-                                return response.status(500).json(errorConstants.responseWithError(err, errorConstants.errorNames.dbGenericError));
-                            }
-                        }
+                        });
                     });
                 });
             });
