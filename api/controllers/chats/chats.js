@@ -128,7 +128,7 @@ router.route('/')
                         let chatInCurrentVenue = Array.isArray(chatsInAVenue) && chatsInAVenue.length > 0 ? chatsInAVenue[0] : undefined;
 
                         if(chatInCurrentVenue){ // 1
-                            if(chatInCurrentVenue.status === constants.chats.chatStatusNames.exhausted) { // 1.1
+                            if(chatInCurrentVenue.status === constants.chats.chatStatusNames.exhausted || chatInCurrentVenue.status === constants.chats.chatStatusNames.expired) { // 1.1
                                 // CREATE CHAT
                                 postChat(newObject, request, response, next);
                             }else { // 1.2
