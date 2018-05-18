@@ -132,7 +132,7 @@ module.exports.sendCreateMessagePush = function (message, callback = function ()
                     body: message.message,
                     custom: {
                         chatId: chat._id,
-                        venueId: chat.venue._id,
+                        venueId: chat.venue,
                         type: constants.pushes.pushTypeNames.chatMessage
                     },
                     priority: 'high', // gcm, apn. Supported values are 'high' or 'normal' (gcm). Will be translated to 10 and 5 for apn. Defaults to 'high'
