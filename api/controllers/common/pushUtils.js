@@ -55,6 +55,7 @@ module.exports.sendCreateChatPush = function (user, chat, callback = function ()
                                 object.save(function (err, object) {
                                     if (!object) return winston.error("PUSH: could not save object for id " + pushId);
                                     winston.info("PUSH: chat create push finished to " + object.device.pushToken);
+                                    winston.debug("PUSH: chat create push finished to " + object.device.pushToken +" Message: "+JSON.stringify(message, 0,2));
                                 })
                             })
                         }).on('failed attempt', function (result) {
@@ -164,6 +165,8 @@ module.exports.sendCreateMessagePush = function (message, callback = function ()
                                 object.save(function (err, object) {
                                     if (!object) return winston.error("PUSH: could not save object for id " + pushId);
                                     winston.info("PUSH: chat message push finished to " + object.device.pushToken);
+                                    winston.debug("PUSH: chat message push finished to " + object.device.pushToken +" Message: "+JSON.stringify(finalMessage, 0,2));
+
                                 })
                             })
                         }).on('failed attempt', function (result) {
