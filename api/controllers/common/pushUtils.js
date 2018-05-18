@@ -21,12 +21,19 @@ module.exports.sendCreateChatPush = function (user, chat, callback = function ()
         });
         Device.find({user: {$in: usersToNotify}}, function (err, devices) {
             if (err) return callback(err);
+            let creator = chat.members.filter(function (element) {
+                return element.creator;
+            });
+            if(Array.isArray(creator) && creator.length > 0){
+                creator = creator[0].user;
+            }
             let message = {
                 title: 'New chat',
                 topic: config.push.topic,
                 body: creatorUser.name + ' wants to chat with you', // REQUIRED
                 custom: {
                     chatId: chat._id,
+                    creatorId: creator,
                     venueId: chat.venue,
                     type: constants.pushes.pushTypeNames.chatCreate
                 },
