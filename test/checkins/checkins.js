@@ -29,7 +29,7 @@ let develappsCheckin = {};
 let bolosCheckin = {};
 let develappsCheckinTwo = {};
 
-describe('Checkins Group', () => {
+describe('Checkins Group', function() {
     // Needed to not recreate schemas
     before(function (done) {
         async.series([

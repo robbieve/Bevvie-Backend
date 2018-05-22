@@ -159,8 +159,8 @@ router.route('/')
 
             // SORT
             let sortTransform = {
-                _default: [["date", 1]],
-                date: "date",
+                _default: [["createdAt", 1]],
+                date: "createdAt",
             };
 
             let query = route_utils.filterQuery(request.query, transform);
