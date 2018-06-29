@@ -35,6 +35,7 @@ module.exports.deactivationJobType = function (kue) {
                 if (err) return callback(err,null);
                 if (!theChat) return callback("No chat found",null);
                 theChat.status = constants.chats.chatStatusNames.expired;
+                theChat.active = false;
                 theChat.save(function (err) {
                     if (err) return callback(err,null);
                     let query = {_id: theChat._id};
