@@ -60,7 +60,7 @@ function _prepost(request, response, next, callback) {
                 Image
                     .count({_id: {$in: aUser.images}})
                     .then(count => {
-                        if (count < 2) {
+                        if (count < 1) {
                             return response.status(400).json(errorConstants.responseWithError(aUser, errorConstants.errorNames.checkin_userNotValidated));
                         }
                         else {
